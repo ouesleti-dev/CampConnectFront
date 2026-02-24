@@ -1,0 +1,9 @@
+.main-content {
+  min-height: calc(100vh - 80px - 300px); /* viewport - navbar - footer */
+  margin-top: 80px; /* navbar height */
+}
+
+.main-content.backoffice-mode {
+  min-height: 100vh;
+  margin-top: 0;
+}

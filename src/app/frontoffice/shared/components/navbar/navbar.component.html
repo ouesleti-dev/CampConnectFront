@@ -1,0 +1,66 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <div class="navbar-container">
+
+    <!-- Brand Name Only -->
+    <div class="navbar-brand" (click)="navigateTo('/home')">
+      <span class="brand-name">CampConnect </span>
+    </div>
+
+    <!-- Desktop Navigation (centré) -->
+    <ul class="nav-menu desktop-menu">
+      <li 
+        *ngFor="let item of navItems" 
+        class="nav-item"
+        [class.active]="item.active"
+      >
+        <a 
+          [routerLink]="item.route"
+          class="nav-link"
+          routerLinkActive="active"
+        >
+          {{ item.label }}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Action Buttons -->
+    <div class="nav-actions">
+      <button class="login-btn">Login</button>
+      <button class="signup-btn">Sign Up</button>
+      
+      <!-- Mobile Menu Toggle -->
+      <button 
+        class="mobile-menu-toggle" 
+        (click)="toggleMobileMenu()"
+        [class.open]="isMobileMenuOpen"
+        aria-label="Toggle menu"
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+    <ul class="mobile-nav-list">
+      <li 
+        *ngFor="let item of navItems" 
+        class="mobile-nav-item"
+      >
+        <a 
+          [routerLink]="item.route"
+          class="mobile-nav-link"
+          (click)="closeMobileMenu()"
+        >
+          {{ item.label }}
+        </a>
+      </li>
+    </ul>
+    <div class="mobile-actions">
+      <button class="mobile-login-btn">Login</button>
+      <button class="mobile-signup-btn">Sign Up</button>
+    </div>
+  </div>
+</nav>
