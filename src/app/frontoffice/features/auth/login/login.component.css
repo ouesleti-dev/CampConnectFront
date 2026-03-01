@@ -1,0 +1,147 @@
+/* src/app/frontoffice/features/auth/login/login.component.css */
+
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f0eb 0%, #f8f4ef 100%);
+  padding: 3rem;
+}
+
+.auth-card {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  padding: 3.5rem 3rem;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.15);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.brand {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #4F7942;
+  margin: 0 0 0.75rem;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input {
+  padding: 0.95rem 1.1rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+  background-color: #fafafa;
+}
+
+.form-group input:focus {
+  border-color: #4F7942;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 121, 66, 0.15);
+}
+
+.form-group input.error {
+  border-color: #ef4444;
+  background-color: #fff5f5;
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 0.85rem;
+}
+
+.alert-error {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.btn-submit {
+  background-color: #4F7942;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.75rem;
+  box-shadow: 0 8px 20px rgba(79, 121, 66, 0.25);
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: #3d6032;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(79, 121, 66, 0.35);
+}
+
+.btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.auth-footer a {
+  color: #4F7942;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}

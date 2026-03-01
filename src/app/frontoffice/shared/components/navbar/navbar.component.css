@@ -145,6 +145,71 @@
   background-color: #3d6032;
 }
 
+/* ===== DASHBOARD BUTTON ===== */
+.dashboard-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.95rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #4F7942;
+  color: #ffffff;
+  border: none;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.dashboard-btn:hover {
+  background-color: #4F7942;
+}
+
+@media (max-width: 767px) {
+  .dashboard-btn {
+    display: none;
+  }
+}
+
+/* ===== USER EMAIL ===== */
+.user-email {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4F7942;
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== LOGOUT BUTTON ===== */
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.95rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #4F7942;
+  color: #ffffff;
+  border: none;
+  white-space: nowrap;
+}
+
+.logout-btn:hover {
+  background-color: #4F7942;
+}
+
+/* ✅ Cacher UNIQUEMENT sur mobile */
+@media (max-width: 767px) {
+  .logout-btn {
+    display: none;
+  }
+}
+
 /* ===== MOBILE MENU TOGGLE ===== */
 .mobile-menu-toggle {
   display: flex;
@@ -270,4 +335,50 @@
 
 .mobile-signup-btn:hover {
   background-color: #3d6032;
+}
+
+/* ===== MOBILE DASHBOARD ===== */
+.mobile-dashboard-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #4F7942;
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+}
+
+.mobile-dashboard-btn:hover {
+  background-color: #4F7942;
+}
+
+/* ===== MOBILE LOGOUT ===== */
+.mobile-logout-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #4F7942;
+  color: #ffffff;
+  border: none;
+}
+
+.mobile-logout-btn:hover {
+  background-color: #4F7942;
+}
+
+/* ===== MOBILE USER EMAIL ===== */
+.mobile-actions .user-email {
+  display: block;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4F7942;
+  max-width: 100%;
 }

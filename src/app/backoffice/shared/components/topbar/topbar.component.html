@@ -13,11 +13,12 @@
     </div>
 
     <div class="user-profile">
-      <div class="user-avatar">A</div>
-      <div class="user-info">
-        <p class="user-name">{{ currentUser }}</p>
-        <p class="user-role">{{ userRole }}</p>
+      <span class="user-name">{{ currentUser }}</span>
+  <span class="user-role">{{ userRole }}</span>
+  <button class="logout-btn" (click)="logout()"> Logout</button>
+  <button class="frontoffice-btn" routerLink="/home">
+   Home
+</button>
       </div>
     </div>
   </div>
-</div>

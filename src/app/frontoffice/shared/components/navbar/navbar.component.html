@@ -3,7 +3,7 @@
 
     <!-- Brand Name Only -->
     <div class="navbar-brand" (click)="navigateTo('/home')">
-      <span class="brand-name">CampConnect </span>
+      <span class="brand-name">CampConnect</span>
     </div>
 
     <!-- Desktop Navigation (centré) -->
@@ -25,9 +25,28 @@
 
     <!-- Action Buttons -->
     <div class="nav-actions">
-      <button class="login-btn">Login</button>
-      <button class="signup-btn">Sign Up</button>
-      
+
+      <!-- ✅ NON connecté -->
+      <ng-container *ngIf="!isLoggedIn()">
+        <button class="login-btn" routerLink="/login">Login</button>
+        <button class="signup-btn" routerLink="/login/register">Sign Up</button>
+      </ng-container>
+
+      <!-- ✅ Connecté -->
+      <ng-container *ngIf="isLoggedIn()">
+
+        <!-- ✅ Dashboard uniquement pour ADMIN -->
+        <button
+          *ngIf="getRole() === 'ROLE_ADMIN'"
+          class="dashboard-btn"
+          routerLink="/admin">
+          🛠️
+        </button>
+
+        
+        <button class="logout-btn" (click)="logout()">Logout</button>
+      </ng-container>
+
       <!-- Mobile Menu Toggle -->
       <button 
         class="mobile-menu-toggle" 
@@ -39,6 +58,7 @@
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
       </button>
+
     </div>
   </div>
 
@@ -58,9 +78,32 @@
         </a>
       </li>
     </ul>
+
+    <!-- ✅ Mobile Actions -->
     <div class="mobile-actions">
-      <button class="mobile-login-btn">Login</button>
-      <button class="mobile-signup-btn">Sign Up</button>
+
+      <!-- NON connecté -->
+      <ng-container *ngIf="!isLoggedIn()">
+        <button class="mobile-login-btn" routerLink="/login">Login</button>
+        <button class="mobile-signup-btn" routerLink="/login/register">Sign Up</button>
+      </ng-container>
+
+      <!-- Connecté -->
+      <ng-container *ngIf="isLoggedIn()">
+
+        <!-- ✅ Dashboard uniquement pour ADMIN -->
+        <button
+          *ngIf="getRole() === 'ROLE_ADMIN'"
+          class="mobile-dashboard-btn"
+          routerLink="/admin"
+          (click)="closeMobileMenu()">
+           🛠️ 
+        </button>
+
+        
+        <button class="mobile-logout-btn" (click)="logout()">Logout</button>
+      </ng-container>
+
     </div>
   </div>
 </nav>
