@@ -1,0 +1,32 @@
+<!-- rent-list.component.html -->
+<div class="page-container">
+
+  <div class="page-header">
+    <h2>Equipment Available for Rent</h2>
+  </div>
+
+  <div class="loading" *ngIf="isLoading">Loading...</div>
+
+  <div class="equipment-grid" *ngIf="!isLoading && equipments.length > 0">
+    <div class="equipment-card" *ngFor="let eq of equipments">
+      <img [src]="eq.picture || 'assets/no-image.png'" [alt]="eq.name" class="card-img"/>
+      <div class="card-body">
+        <h4>{{ eq.name }}</h4>
+        <p class="description">{{ eq.description }}</p>
+        <div class="badges">
+          <span class="badge type">{{ eq.type }}</span>
+          <span class="badge state">{{ eq.state }}</span>
+        </div>
+        <p class="price">{{ eq.price }} €/day</p>
+        <p class="owner">👤 {{ eq.owner }}</p>
+        <p class="availability">📅 Available from: {{ eq.aviability | date:'dd/MM/yyyy' }}</p>
+        <button class="rent-btn">Rent this equipment</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && equipments.length === 0">
+    <p>No equipment available at the moment.</p>
+  </div>
+
+</div>

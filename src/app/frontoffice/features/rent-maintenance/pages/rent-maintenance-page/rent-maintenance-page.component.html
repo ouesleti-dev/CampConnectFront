@@ -1,15 +1,37 @@
+<!-- rent-maintenance-page.component.html -->
 <div class="rent-maintenance-page">
+
+  <!-- Hero / title -->
   <section class="page-hero">
     <div class="container">
       <h1 class="page-title">RentMaintenance</h1>
       <p class="page-description">Welcome to RentMaintenance</p>
     </div>
   </section>
-  
+
+  <!-- Main content -->
   <section class="page-content section">
     <div class="container">
-      <p>Content for rent-maintenance goes here.</p>
+
+      <!-- MINI NAVBAR -->
+      <div class="sub-navbar">
+        <button 
+          routerLink="/rent-maintenance" 
+          routerLinkActive="active" 
+          [routerLinkActiveOptions]="{ exact: true }">
+          🏕️ Available Equipment
+        </button>
+        <button 
+          routerLink="/rent-maintenance/my-equipment" 
+          routerLinkActive="active">
+          ⚙️ My Equipment
+        </button>
+      </div>
+
+      <!-- Child content -->
+      <router-outlet></router-outlet>
+
     </div>
   </section>
-</div>
 
+</div>

@@ -1,0 +1,122 @@
+<div class="eq-container">
+
+  <!-- Header -->
+  <div class="eq-header">
+    <a routerLink=".." class="btn-back">← Back</a>
+    <h2>Equipment Management</h2>
+    <p class="eq-subtitle">Check and manage equipment submitted by users</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="eq-stats">
+    <div class="stat-card stat-pending">
+      <span class="stat-number">{{ unverifiedEquipments.length }}</span>
+      <span class="stat-label">Pending</span>
+    </div>
+    <div class="stat-card stat-verified">
+      <span class="stat-number">{{ verifiedEquipments.length }}</span>
+      <span class="stat-label">Verified</span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="eq-alert eq-alert-success">
+    ✓ {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="eq-alert eq-alert-danger">
+    ✕ {{ errorMessage }}
+  </div>
+
+  <!-- Tabs -->
+  <div class="eq-tabs">
+    <button class="eq-tab" [class.active]="activeTab === 'unverified'"
+            (click)="activeTab = 'unverified'">
+      Pending
+      <span class="eq-badge badge-warning">{{ unverifiedEquipments.length }}</span>
+    </button>
+    <button class="eq-tab" [class.active]="activeTab === 'verified'"
+            (click)="activeTab = 'verified'">
+      Verified
+      <span class="eq-badge badge-success">{{ verifiedEquipments.length }}</span>
+    </button>
+  </div>
+
+  <!-- Table Unverified -->
+  <div *ngIf="activeTab === 'unverified'" class="eq-table-wrapper">
+    <table class="eq-table">
+      <thead class="thead-pending">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Owner</th>
+          <th>Price (€/day)</th>
+          <th>Condition</th>
+          <th>Verify</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of unverifiedEquipments">
+          <td><strong>{{ e.name }}</strong></td>
+          <td><span class="type-badge">{{ e.type }}</span></td>
+          <td class="desc-cell">{{ e.description }}</td>
+          <td>{{ e.owner }}</td>
+          <td><strong>{{ e.price }} €</strong></td>
+          <td><span class="state-badge">{{ e.state }}</span></td>
+          <td>
+            <button class="btn-verify" (click)="verify(e.idEquipement)">
+              ✓ Verify
+            </button>
+          </td>
+          <td>
+            <button class="btn-delete" (click)="delete(e.idEquipement)">
+              🗑 Delete
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="unverifiedEquipments.length === 0">
+          <td colspan="8" class="empty-row">No equipment pending verification</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table Verified -->
+  <div *ngIf="activeTab === 'verified'" class="eq-table-wrapper">
+    <table class="eq-table">
+      <thead class="thead-verified">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Owner</th>
+          <th>Price (€/day)</th>
+          <th>Condition</th>
+          <th>Status</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of verifiedEquipments">
+          <td><strong>{{ e.name }}</strong></td>
+          <td><span class="type-badge">{{ e.type }}</span></td>
+          <td class="desc-cell">{{ e.description }}</td>
+          <td>{{ e.owner }}</td>
+          <td><strong>{{ e.price }} €</strong></td>
+          <td><span class="state-badge">{{ e.state }}</span></td>
+          <td><span class="verified-badge">✓ Verified</span></td>
+          <td>
+            <button class="btn-delete" (click)="delete(e.idEquipement)">
+              🗑 Delete
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="verifiedEquipments.length === 0">
+          <td colspan="8" class="empty-row">No verified equipment</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

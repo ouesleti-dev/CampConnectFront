@@ -24,3 +24,22 @@
 .rent-maintenance-page .page-content {
   min-height: 400px;
 }
+.sub-navbar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.sub-navbar button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #eee;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.sub-navbar button.active {
+  background-color: #5a7d4d; /* couleur verte comme ton thème */
+  color: #fff;
+}

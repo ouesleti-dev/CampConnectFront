@@ -1,3 +1,97 @@
+/* CONTAINER */
 .container {
-  padding: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+/* TITLE */
+.container h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d2d2d;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.3px;
+}
+
+.container p {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* GRID */
+.row {
+  margin-top: 2rem;
+}
+
+/* CARD */
+.card {
+  border: none;
+  border-radius: 1.2rem;
+  background: #ffffff;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* HOVER EFFECT */
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+}
+
+/* ICON */
+.card .mb-2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+/* TITLE CARD */
+.card h5 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+/* DESCRIPTION */
+.card .text-muted {
+  font-size: 0.9rem;
+  color: #6b7280 !important;
+  margin-bottom: 1.2rem;
+}
+
+/* BUTTON */
+.btn-primary {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4F7942, #3d6032);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 15px rgba(79, 121, 66, 0.25);
+}
+
+/* BUTTON HOVER */
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(79, 121, 66, 0.35);
+  background: linear-gradient(135deg, #3d6032, #2f4d26);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .card {
+    padding: 1.5rem 1rem;
+  }
+
+  .container h1 {
+    font-size: 1.6rem;
+  }
 }
