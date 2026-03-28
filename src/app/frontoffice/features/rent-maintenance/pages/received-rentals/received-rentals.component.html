@@ -1,0 +1,49 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Received Requests</h2>
+    <p class="subtitle">Manage rental requests for your equipment</p>
+  </div>
+
+  <div class="alert-success" *ngIf="successMessage">✓ {{ successMessage }}</div>
+  <div class="alert-error" *ngIf="errorMessage">✕ {{ errorMessage }}</div>
+
+  <div class="rentals-grid" *ngIf="rentals.length > 0">
+    <div class="rental-card" *ngFor="let r of rentals">
+      <div class="rental-header">
+        <h4>{{ r.equipmentName }}</h4>
+        <span class="status-badge" [class.accepted]="r.verified" [class.pending]="!r.verified">
+          {{ r.verified ? '✓ Accepted' : '⏳ Pending' }}
+        </span>
+      </div>
+      <div class="rental-details">
+        <div class="detail-row">
+          <span class="detail-label">Renter</span>
+          <span>{{ r.renterEmail }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">From</span>
+          <span>{{ r.startDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">To</span>
+          <span>{{ r.endDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Total</span>
+          <span class="price">{{ r.totalAmount }} €</span>
+        </div>
+      </div>
+      <button class="accept-btn" *ngIf="!r.verified"
+              (click)="accept(r.rentalId)">
+        ✓ Accept
+      </button>
+      <div class="accepted-label" *ngIf="r.verified">
+        ✓ Already Accepted
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="rentals.length === 0">
+    <p>No rental requests received yet.</p>
+  </div>
+</div>

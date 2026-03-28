@@ -7,18 +7,26 @@ import { MyEquipmentComponent } from './pages/my-equipment/my-equipment.componen
 import { ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from '../../shared/interceptors/auth.interceptor';
+import { RentEquipmentComponent } from './pages/rent-equipment/rent-equipment.component';
+import { MyRentalsComponent } from './pages/my-rentals/my-rentals.component';
+import { ReceivedRentalsComponent } from './pages/received-rentals/received-rentals.component';
+
 
 
 @NgModule({
   declarations: [
     RentMaintenancePageComponent,
     RentListComponent,
-    MyEquipmentComponent
+    MyEquipmentComponent,
+    RentEquipmentComponent,
+    MyRentalsComponent,
+    ReceivedRentalsComponent,
   ],
   imports: [
     CommonModule,
     RentMaintenanceRoutingModule,
     ReactiveFormsModule,
+
   ],
   providers: [
     {

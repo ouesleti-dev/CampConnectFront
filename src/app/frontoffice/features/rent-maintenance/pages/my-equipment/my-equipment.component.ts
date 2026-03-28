@@ -31,8 +31,6 @@ export class MyEquipmentComponent implements OnInit {
       name:        ['', Validators.required],
       type:        ['', Validators.required],
       description: ['', Validators.required],
-      aviability:  ['', Validators.required],
-      state:       ['', Validators.required],
       price:       ['', [Validators.required, Validators.min(0)]],
       picture:     ['']
     });

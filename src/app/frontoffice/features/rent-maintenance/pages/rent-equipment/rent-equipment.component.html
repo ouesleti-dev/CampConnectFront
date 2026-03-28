@@ -1,0 +1,72 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>Rent Equipment</h2>
+    <p class="subtitle">Choose an equipment and select your rental dates</p>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="rentalForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group">
+        <label>Equipment *</label>
+        <select formControlName="equipmentId">
+          <option value="">Choose equipment...</option>
+          <option *ngFor="let e of equipments" [value]="e.idEquipement">
+            {{ e.name }} — {{ e.price }} €/day ({{ e.state }})
+          </option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start Date *</label>
+          <input type="date" formControlName="startDate"/>
+        </div>
+        <div class="form-group">
+          <label>End Date *</label>
+          <input type="date" formControlName="endDate"/>
+        </div>
+      </div>
+
+      <div class="alert-success" *ngIf="successMessage">✓ {{ successMessage }}</div>
+      <div class="alert-error" *ngIf="errorMessage">✕ {{ errorMessage }}</div>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-btn"
+                [disabled]="rentalForm.invalid || isLoading">
+          {{ isLoading ? 'Sending...' : 'Send Request' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Equipment Cards -->
+  <h3 class="section-title">Available Equipment</h3>
+  <div class="equipment-grid">
+    <div class="equipment-card" *ngFor="let e of equipments">
+      <img [src]="e.picture || 'assets/no-image.png'" [alt]="e.name" class="card-img"/>
+      <div class="card-body">
+        <h4>{{ e.name }}</h4>
+        <p class="description">{{ e.description }}</p>
+        <div class="badges">
+          <span class="badge type">{{ e.type }}</span>
+          <span class="badge state" [class.reserve]="e.state === 'Reserve'"
+                [class.available]="e.state === 'Not_Reserve'">
+            {{ e.state === 'Not_Reserve' ? 'Available' : 'Reserved' }}
+          </span>
+        </div>
+        <p class="price">{{ e.price }} €/day</p>
+        <button class="rent-btn"
+                [disabled]="e.state === 'Reserve'"
+                (click)="rentalForm.patchValue({ equipmentId: e.idEquipement })">
+          {{ e.state === 'Reserve' ? 'Not Available' : 'Select' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="equipments.length === 0">
+    <p>No equipment available.</p>
+  </div>
+</div>

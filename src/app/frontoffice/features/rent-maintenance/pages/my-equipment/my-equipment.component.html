@@ -31,23 +31,11 @@
         <textarea formControlName="description" rows="3" placeholder="Description..."></textarea>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Availability *</label>
-          <input type="date" formControlName="aviability"/>
-        </div>
-        <div class="form-group">
-          <label>Condition *</label>
-          <select formControlName="state">
-            <option value="">Choose...</option>
-            <option *ngFor="let s of states" [value]="s">{{ s }}</option>
-          </select>
-        </div>
+      
         <div class="form-group">
           <label>Price (€/day) *</label>
           <input type="number" formControlName="price" min="0"/>
         </div>
-      </div>
 
       <!-- Upload Image -->
       <div class="form-group">
