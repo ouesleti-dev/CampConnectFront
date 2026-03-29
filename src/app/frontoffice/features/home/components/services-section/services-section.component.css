@@ -1,0 +1,99 @@
+.services-section {
+  background-color: #ffffff;
+  padding: 4rem 2rem;
+}
+
+/* Titre de la section */
+.services-section .section-title {
+  text-align: center;
+  font-size: 3rem; /* taille augmentée */
+  font-weight: 700;
+  color: #111111;
+  margin-bottom: 4rem;
+}
+
+@media (max-width: 768px) {
+  .services-section .section-title {
+    font-size: 2.2rem; /* responsive pour mobile */
+  }
+}
+
+.services-section .section-subtitle {
+  text-align: center;
+  color: #888888;
+  font-size: 2rem;
+  margin-top: -2rem;
+  margin-bottom: 3rem;
+}
+
+.services-section .services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
+}
+
+@media (max-width: 1200px) {
+  .services-section .services-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.services-section .service-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.services-section .service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+}
+
+.services-section .service-card:hover .service-icon {
+  transform: scale(1.1);
+}
+
+.services-section .service-card:hover .arrow {
+  transform: translateX(5px);
+}
+
+.services-section .service-card .service-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.services-section .service-card .service-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111111;
+  margin-bottom: 0.5rem;
+}
+
+.services-section .service-card .service-description {
+  color: #888888;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.services-section .service-card .service-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #557a46;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.services-section .service-card .service-link .arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.services-section .service-card .service-link:hover {
+  color: #466737;
+}

@@ -1,0 +1,116 @@
+<!-- src/app/frontoffice/features/auth/register/register.component.html -->
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <!-- Header -->
+    <div class="auth-header">
+      <h1 class="brand">CampConnect</h1>
+      <p class="subtitle">Create your account</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="registerForm"(ngSubmit)="onSubmit()" class="auth-form">
+
+      <!-- First Name + Last Name -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input
+            type="text"
+            formControlName="firstName"
+            placeholder="First name"
+            [class.error]="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched"
+          />
+          <span class="error-msg"
+            *ngIf="registerForm.get('firstName')?.invalid && registerForm.get('firstName')?.touched">
+            Required
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Last Name</label>
+          <input
+            type="text"
+            formControlName="lastName"
+            placeholder="Last name"
+            [class.error]="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched"
+          />
+          <span class="error-msg"
+            *ngIf="registerForm.get('lastName')?.invalid && registerForm.get('lastName')?.touched">
+            Required
+          </span>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="your@email.com"
+          [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        />
+        <span class="error-msg"
+          *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+          Invalid email
+        </span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        />
+        <span class="error-msg"
+          *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+          Minimum 6 characters
+        </span>
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+        <label>Phone</label>
+        <input
+          type="text"
+          formControlName="phone"
+          placeholder="12345678"
+          [class.error]="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched"
+        />
+        <span class="error-msg"
+          *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched">
+            Required
+          </span>
+      </div>
+
+      <!-- Role -->
+      <div class="form-group">
+        <label>Role</label>
+        <select formControlName="role">
+          <option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</option>
+        </select>
+      </div>
+
+      <!-- Messages -->
+      <div class="alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-submit" [disabled]="registerForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Create my account</span>
+        <span *ngIf="isLoading">Creating...</span>
+      </button>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="auth-footer">
+      <p>Already have an account? <a routerLink="/login">Sign In</a></p>
+    </div>
+
+  </div>
+</div>

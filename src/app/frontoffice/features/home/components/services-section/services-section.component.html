@@ -1,0 +1,18 @@
+<section class="services-section section">
+  <div class="container">
+    <h2 class="section-title">Explore Our Services</h2>
+    <p class="section-subtitle">Everything you need for the perfect camping experience</p>
+    
+    <div class="services-grid">
+      <div *ngFor="let service of services" class="service-card">
+        <div class="service-icon">{{ service.icon }}</div>
+        <h3 class="service-title">{{ service.title }}</h3>
+        <p class="service-description">{{ service.description }}</p>
+        <a [routerLink]="service.route" class="service-link">
+          Learn More
+          <span class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

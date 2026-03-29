@@ -1,0 +1,66 @@
+<!-- src/app/frontoffice/features/auth/login/login.component.html -->
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    <!-- Logo -->
+    <div class="auth-header">
+      <h1 class="brand">CampConnect</h1>
+      <p class="subtitle">Sign in to your account</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="your@email.com"
+          [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        />
+        <span class="error-msg"
+          *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          Invalid email
+        </span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        />
+        <span class="error-msg"
+          *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          Minimum 6 characters
+        </span>
+      </div>
+
+      <!-- Error Message -->
+      <div class="alert-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-submit" [disabled]="loginForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading">Signing in...</span>
+      </button>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="auth-footer">
+      <p>Don't have an account yet? <a routerLink="/login/register">Sign Up</a></p>
+    </div>
+
+  </div>
+</div>

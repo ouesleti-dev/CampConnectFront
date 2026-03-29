@@ -1,0 +1,21 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h2>CampConnect</h2>
+    <p>Admin Panel</p>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li *ngFor="let item of menuItems">
+        <a [routerLink]="item.route" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
+          
+          <span class="menu-label">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <p>&copy; 2024 CampConnect. All rights reserved.</p>
+  </div>
+</div>
