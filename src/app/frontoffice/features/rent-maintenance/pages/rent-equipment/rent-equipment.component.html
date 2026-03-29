@@ -1,72 +1,141 @@
 <div class="page-container">
   <div class="page-header">
     <h2>Rent Equipment</h2>
-    <p class="subtitle">Choose an equipment and select your rental dates</p>
+    <p class="subtitle">Select an equipment and choose your rental dates</p>
   </div>
 
-  <div class="form-card">
-    <form [formGroup]="rentalForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="rentalForm" (ngSubmit)="onSubmit()">
 
+    <!-- Equipment Select -->
+    <div class="form-card">
       <div class="form-group">
         <label>Equipment *</label>
-        <select formControlName="equipmentId">
+        <select formControlName="equipmentId" (change)="onEquipmentChange($event)">
           <option value="">Choose equipment...</option>
           <option *ngFor="let e of equipments" [value]="e.idEquipement">
-            {{ e.name }} — {{ e.price }} €/day ({{ e.state }})
+            {{ e.name }} — {{ e.price }} DT/day
           </option>
         </select>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label>Start Date *</label>
-          <input type="date" formControlName="startDate"/>
+      <div class="equipment-info" *ngIf="selectedEquipment">
+        <img [src]="selectedEquipment.picture || 'assets/no-image.png'"
+             [alt]="selectedEquipment.name" class="eq-thumb"/>
+        <div class="eq-details">
+          <h4>{{ selectedEquipment.name }}</h4>
+          <p>{{ selectedEquipment.description }}</p>
+          <span class="badge-type">{{ selectedEquipment.type }}</span>
+          <span class="price-tag">{{ selectedEquipment.price }} DT/day</span>
         </div>
-        <div class="form-group">
-          <label>End Date *</label>
-          <input type="date" formControlName="endDate"/>
-        </div>
-      </div>
-
-      <div class="alert-success" *ngIf="successMessage">✓ {{ successMessage }}</div>
-      <div class="alert-error" *ngIf="errorMessage">✕ {{ errorMessage }}</div>
-
-      <div class="form-actions">
-        <button type="submit" class="submit-btn"
-                [disabled]="rentalForm.invalid || isLoading">
-          {{ isLoading ? 'Sending...' : 'Send Request' }}
-        </button>
-      </div>
-
-    </form>
-  </div>
-
-  <!-- Equipment Cards -->
-  <h3 class="section-title">Available Equipment</h3>
-  <div class="equipment-grid">
-    <div class="equipment-card" *ngFor="let e of equipments">
-      <img [src]="e.picture || 'assets/no-image.png'" [alt]="e.name" class="card-img"/>
-      <div class="card-body">
-        <h4>{{ e.name }}</h4>
-        <p class="description">{{ e.description }}</p>
-        <div class="badges">
-          <span class="badge type">{{ e.type }}</span>
-          <span class="badge state" [class.reserve]="e.state === 'Reserve'"
-                [class.available]="e.state === 'Not_Reserve'">
-            {{ e.state === 'Not_Reserve' ? 'Available' : 'Reserved' }}
-          </span>
-        </div>
-        <p class="price">{{ e.price }} €/day</p>
-        <button class="rent-btn"
-                [disabled]="e.state === 'Reserve'"
-                (click)="rentalForm.patchValue({ equipmentId: e.idEquipement })">
-          {{ e.state === 'Reserve' ? 'Not Available' : 'Select' }}
-        </button>
       </div>
     </div>
-  </div>
 
-  <div class="empty-state" *ngIf="equipments.length === 0">
-    <p>No equipment available.</p>
-  </div>
+    <!-- Calendar -->
+    <div class="form-card" *ngIf="selectedEquipment">
+      <h3 class="calendar-title">Availability</h3>
+
+      <div class="calendar-wrapper">
+        <div class="cal-nav-row">
+
+          <button type="button" class="nav-btn" (click)="prevMonth()">‹</button>
+
+          <div class="calendars">
+
+            <!-- LEFT MONTH -->
+            <div class="calendar">
+              <div class="cal-header">
+                {{ months[leftMonth.getMonth()] }} {{ leftMonth.getFullYear() }}
+              </div>
+              <div class="cal-grid">
+                <div class="day-label" *ngFor="let d of weekDays">{{ d }}</div>
+                <ng-container *ngFor="let day of getDaysInMonth(leftMonth)">
+                  <div *ngIf="day === null" class="day-cell empty"></div>
+                  <div *ngIf="day !== null"
+                       class="day-cell"
+                       [class.reserved]="isReserved(day)"
+                       [class.start]="isStart(day)"
+                       [class.end]="isEnd(day)"
+                       [class.in-range]="isInRange(day)"
+                       (mousedown)="onDateClick(day)"
+                       (mouseenter)="onDateHover(day)">
+                    <span class="day-number">{{ day.getDate() }}</span>
+                    <span class="day-price" *ngIf="!isReserved(day)">
+                      {{ selectedEquipment!.price }} DT
+                    </span>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+
+            <!-- RIGHT MONTH -->
+            <div class="calendar">
+              <div class="cal-header">
+                {{ months[rightMonth.getMonth()] }} {{ rightMonth.getFullYear() }}
+              </div>
+              <div class="cal-grid">
+                <div class="day-label" *ngFor="let d of weekDays">{{ d }}</div>
+                <ng-container *ngFor="let day of getDaysInMonth(rightMonth)">
+                  <div *ngIf="day === null" class="day-cell empty"></div>
+                  <div *ngIf="day !== null"
+                       class="day-cell"
+                       [class.reserved]="isReserved(day)"
+                       [class.start]="isStart(day)"
+                       [class.end]="isEnd(day)"
+                       [class.in-range]="isInRange(day)"
+                       (mousedown)="onDateClick(day)"
+                       (mouseenter)="onDateHover(day)">
+                    <span class="day-number">{{ day.getDate() }}</span>
+                    <span class="day-price" *ngIf="!isReserved(day)">
+                      {{ selectedEquipment!.price }} DT
+                    </span>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+
+          </div>
+
+          <button type="button" class="nav-btn" (click)="nextMonth()">›</button>
+        </div>
+
+        <!-- Legend -->
+        <div class="calendar-legend">
+          <div class="legend-item">
+            <span class="legend-box available-box"></span> Avaiable
+          </div>
+          <div class="legend-item">
+            <span class="legend-box reserved-box"></span> Not Available
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="dates-summary" *ngIf="startDate">
+        <div class="summary-item">
+          <span class="summary-label">Arrivée</span>
+          <span class="summary-value">{{ formatDisplay(startDate) }}</span>
+        </div>
+        <div class="summary-arrow">→</div>
+        <div class="summary-item">
+          <span class="summary-label">Départ</span>
+          <span class="summary-value">{{ formatDisplay(endDate) }}</span>
+        </div>
+        <div class="summary-total" *ngIf="endDate">
+          <span class="total-days">{{ getTotalDays() }} nuits</span>
+          <span class="total-price">{{ getTotalPrice() }} DT</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert-success" *ngIf="successMessage">✓ {{ successMessage }}</div>
+    <div class="alert-error" *ngIf="errorMessage">✕ {{ errorMessage }}</div>
+
+    <div class="form-actions" *ngIf="selectedEquipment">
+      <button type="submit" class="submit-btn"
+              [disabled]="rentalForm.invalid || !startDate || !endDate || isLoading">
+        {{ isLoading ? 'Sending...' : 'Send Rental Request' }}
+      </button>
+    </div>
+
+  </form>
 </div>

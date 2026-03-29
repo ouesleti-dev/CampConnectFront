@@ -24,4 +24,16 @@ export class RentalService {
   getReceivedRentals(): Observable<RentalResponse[]> {
     return this.http.get<RentalResponse[]>(`${this.baseUrl}/received`);
   }
+  getReservedDates(equipmentId: number): Observable<{startDate: string, endDate: string}[]> {
+  return this.http.get<{startDate: string, endDate: string}[]>(
+    `${this.baseUrl}/reserved-dates/${equipmentId}`
+  );
+}
+deleteRental(id: number): Observable<void> {
+  return this.http.delete<void>(`${this.baseUrl}/${id}`);
+}
+
+updateRental(id: number, dto: RentalRequest): Observable<RentalResponse> {
+  return this.http.put<RentalResponse>(`${this.baseUrl}/${id}`, dto);
+}
 }

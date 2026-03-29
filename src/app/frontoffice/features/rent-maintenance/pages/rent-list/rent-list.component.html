@@ -1,4 +1,3 @@
-<!-- rent-list.component.html -->
 <div class="page-container">
 
   <div class="page-header">
@@ -13,14 +12,90 @@
       <div class="card-body">
         <h4>{{ eq.name }}</h4>
         <p class="description">{{ eq.description }}</p>
+
         <div class="badges">
           <span class="badge type">{{ eq.type }}</span>
-          <span class="badge state">{{ eq.state }}</span>
         </div>
-        <p class="price">{{ eq.price }} €/day</p>
+
+        <p class="price">{{ eq.price }} DT/day</p>
         <p class="owner">👤 {{ eq.owner }}</p>
-        <p class="availability">📅 Available from: {{ eq.aviability | date:'dd/MM/yyyy' }}</p>
-        <button class="rent-btn">Rent this equipment</button>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <div class="secondary-buttons">
+            <button class="review-toggle-btn" (click)="toggleReviewForm(eq.idEquipement)" *ngIf="isLoggedIn()">
+              ⭐ Review
+            </button>
+            <button class="reviews-view-btn" (click)="loadReviews(eq.idEquipement)">
+              💬 {{ showReviews[eq.idEquipement] ? 'Hide' : 'See' }} Reviews
+            </button>
+          </div>
+        </div>
+
+        <!-- Review Form -->
+        <div class="review-form" *ngIf="showReviewForm[eq.idEquipement]">
+          <h5>{{ isEditMode[eq.idEquipement] ? '✏️ Edit Your Review' : '⭐ Your Review' }}</h5>
+
+          <div class="stars-input">
+            <span
+              *ngFor="let star of [1,2,3,4,5]"
+              [class]="getStarClass(eq.idEquipement, star)"
+              (mouseenter)="setHover(eq.idEquipement, star)"
+              (mouseleave)="clearHover(eq.idEquipement)"
+              (click)="setRating(eq.idEquipement, star)">
+              ★
+            </span>
+          </div>
+
+          <textarea
+            class="review-textarea"
+            placeholder="Write your comment..."
+            [(ngModel)]="reviewComment[eq.idEquipement]"
+            rows="3">
+          </textarea>
+
+          <div class="alert-success" *ngIf="reviewSuccess[eq.idEquipement]">
+            {{ reviewSuccess[eq.idEquipement] }}
+          </div>
+          <div class="alert-error" *ngIf="reviewError[eq.idEquipement]">
+            {{ reviewError[eq.idEquipement] }}
+          </div>
+
+          <div class="review-form-actions">
+            <button class="cancel-btn" (click)="toggleReviewForm(eq.idEquipement)">Cancel</button>
+            <button class="submit-review-btn" (click)="submitReview(eq.idEquipement)">
+              {{ isEditMode[eq.idEquipement] ? 'Update' : 'Submit' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list" *ngIf="showReviews[eq.idEquipement]">
+          <div *ngIf="!reviews[eq.idEquipement] || reviews[eq.idEquipement].length === 0" class="no-reviews">
+            No reviews yet.
+          </div>
+          <div class="review-item" *ngFor="let review of reviews[eq.idEquipement]">
+            <div class="review-header">
+              <span class="review-user">👤 {{ review.userEmail }}</span>
+              <span class="review-stars">
+                <span *ngFor="let s of [1,2,3,4,5]">
+                  {{ s <= review.rating ? '★' : '☆' }}
+                </span>
+              </span>
+
+              <div class="review-actions" *ngIf="review.userEmail === currentUserEmail">
+                <button class="edit-review-btn" (click)="editReview(review, eq.idEquipement)" title="Edit">
+                  ✏️
+                </button>
+                <button class="delete-review-btn" (click)="deleteReview(review.idreview, eq.idEquipement)" title="Delete">
+                  🗑️
+                </button>
+              </div>
+            </div>
+            <p class="review-comment">{{ review.comment }}</p>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

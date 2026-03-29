@@ -2,14 +2,14 @@
 
   <div class="page-header">
     <h2>My Equipment</h2>
-    <button class="add-btn" (click)="showForm = !showForm">
-      {{ showForm ? '✕ Cancel' : '+ Add' }}
+    <button class="add-btn" (click)="toggleAddForm()">
+      {{ showForm && !isEditMode ? '✕ Cancel' : '+ Add' }}
     </button>
   </div>
 
   <!-- Form -->
   <div class="form-card" *ngIf="showForm">
-    <h3>New Equipment</h3>
+    <h3>{{ isEditMode ? '✏️ Edit Equipment' : '➕ New Equipment' }}</h3>
     <form [formGroup]="equipmentForm" (ngSubmit)="onSubmit()">
 
       <div class="form-row">
@@ -31,13 +31,11 @@
         <textarea formControlName="description" rows="3" placeholder="Description..."></textarea>
       </div>
 
-      
-        <div class="form-group">
-          <label>Price (€/day) *</label>
-          <input type="number" formControlName="price" min="0"/>
-        </div>
+      <div class="form-group">
+        <label>Price (DT/day) *</label>
+        <input type="number" formControlName="price" min="0"/>
+      </div>
 
-      <!-- Upload Image -->
       <div class="form-group">
         <label>Image</label>
         <div class="upload-zone" (click)="fileInput.click()">
@@ -62,9 +60,9 @@
       <div class="alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
 
       <div class="form-actions">
-        <button type="button" class="cancel-btn" (click)="showForm = false">Cancel</button>
+        <button type="button" class="cancel-btn" (click)="resetForm()">Cancel</button>
         <button type="submit" class="submit-btn" [disabled]="equipmentForm.invalid || isLoading">
-          {{ isLoading ? 'Submitting...' : 'Add' }}
+          {{ isLoading ? 'Saving...' : (isEditMode ? 'Update' : 'Add') }}
         </button>
       </div>
 
@@ -82,13 +80,14 @@
           <span class="badge type">{{ eq.type }}</span>
           <span class="badge state">{{ eq.state }}</span>
         </div>
-        <p class="price">{{ eq.price }} €/day</p>
+        <p class="price">{{ eq.price }} DT/day</p>
         <div class="status" [class.verified]="eq.verified" [class.pending]="!eq.verified">
           {{ eq.verified ? '✅ Verified' : '⏳ Pending verification' }}
         </div>
-        <button class="delete-btn" (click)="deleteEquipment(eq.idEquipement)">
-          🗑️ Delete
-        </button>
+        <div class="card-actions">
+          <button class="edit-btn" (click)="editEquipment(eq)">✏️ Edit</button>
+          <button class="delete-btn" (click)="deleteEquipment(eq.idEquipement)">🗑️ Delete</button>
+        </div>
       </div>
     </div>
   </div>

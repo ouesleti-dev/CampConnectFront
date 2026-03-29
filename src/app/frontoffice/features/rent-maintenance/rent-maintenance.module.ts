@@ -10,6 +10,8 @@ import { AuthInterceptor } from '../../shared/interceptors/auth.interceptor';
 import { RentEquipmentComponent } from './pages/rent-equipment/rent-equipment.component';
 import { MyRentalsComponent } from './pages/my-rentals/my-rentals.component';
 import { ReceivedRentalsComponent } from './pages/received-rentals/received-rentals.component';
+import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 
 
@@ -24,9 +26,10 @@ import { ReceivedRentalsComponent } from './pages/received-rentals/received-rent
   ],
   imports: [
     CommonModule,
+    RouterModule,
     RentMaintenanceRoutingModule,
     ReactiveFormsModule,
-
+    FormsModule,
   ],
   providers: [
     {

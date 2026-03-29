@@ -37,4 +37,7 @@ export class EquipmentService {
   deleteEquipment(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+  updateEquipment(id: number, dto: EquipmentRequest): Observable<EquipmentResponse> {
+  return this.http.put<EquipmentResponse>(`${this.baseUrl}/${id}`, dto);
+}
 }

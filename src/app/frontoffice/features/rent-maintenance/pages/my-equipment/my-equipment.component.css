@@ -38,6 +38,13 @@
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   margin-bottom: 2rem;
+  border-left: 4px solid #4F7942;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .form-card h3 {
@@ -74,12 +81,14 @@
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.3s;
+  font-family: inherit;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: #4F7942;
+  box-shadow: 0 0 0 3px rgba(79,121,66,0.1);
 }
 
 /* ===== UPLOAD ===== */
@@ -105,9 +114,7 @@
   gap: 6px;
 }
 
-.upload-icon {
-  font-size: 2rem;
-}
+.upload-icon { font-size: 2rem; }
 
 .upload-placeholder p {
   margin: 0;
@@ -171,9 +178,7 @@
   transition: background-color 0.2s;
 }
 
-.cancel-btn:hover {
-  background-color: #f3f4f6;
-}
+.cancel-btn:hover { background-color: #f3f4f6; }
 
 .submit-btn {
   padding: 0.6rem 1.5rem;
@@ -186,7 +191,7 @@
   transition: background-color 0.3s;
 }
 
-.submit-btn:hover { background-color: #3d6032; }
+.submit-btn:hover:not(:disabled) { background-color: #3d6032; }
 .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ===== CARDS GRID ===== */
@@ -227,6 +232,10 @@
   color: #6b7280;
   font-size: 0.9rem;
   margin-bottom: 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .badges {
@@ -265,8 +274,30 @@
 .status.verified { background: #f0fdf4; color: #16a34a; }
 .status.pending  { background: #fefce8; color: #ca8a04; }
 
+/* ===== CARD ACTIONS ===== */
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.edit-btn {
+  flex: 1;
+  padding: 0.6rem;
+  background: #4F7942;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background-color 0.3s;
+}
+
+.edit-btn:hover { background-color: #3d6032; }
+
 .delete-btn {
-  width: 100%;
+  flex: 1;
   padding: 0.6rem;
   background: #fef2f2;
   color: #dc2626;
@@ -274,6 +305,7 @@
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: 600;
+  font-size: 0.85rem;
   transition: all 0.3s;
 }
 
@@ -285,4 +317,12 @@
   padding: 4rem;
   color: #9ca3af;
   font-size: 1.1rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .form-row { grid-template-columns: 1fr; }
+  .page-header h2 { font-size: 1.4rem; }
+  .equipment-grid { grid-template-columns: 1fr; }
+  .card-actions { flex-direction: column; }
 }
