@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './frontoffice/shared/guards/auth.guard';
 import { GuestGuard } from './frontoffice/shared/guards/guest.guard';
 import { RoleGuard } from './frontoffice/shared/guards/role.guard';
+import { ReservationsComponent } from './frontoffice/features/reservations/reservations.component';
 
 
 
@@ -38,6 +39,11 @@ const routes: Routes = [
     loadChildren: () => import('./frontoffice/features/profile/profile.module')
       .then(m => m.ProfileModule),
       canActivate: [AuthGuard]
+  },
+  {
+    path: 'reservations',
+    component: ReservationsComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'transport',

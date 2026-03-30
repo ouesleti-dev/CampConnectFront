@@ -1,0 +1,147 @@
+<section class="transport-ad-page">
+  <div class="transport-header">
+    <div class="header-content">
+      <div class="breadcrumb">
+        {{ currentTrip?.vehicleLicensePlate }} to
+        {{ currentTrip?.departureLocation }} to
+        {{ currentTrip?.destination }}
+      </div>
+      <h1>Trip Ads</h1>
+      <p>Manage the ads for this trip</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-back" (click)="goBack()">Back</button>
+      <button type="button" class="btn-add" (click)="toggleForm()">
+        {{ showForm ? 'Close' : 'Add an Ad' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="reservation-form" *ngIf="showReservationForm && selectedAd">
+    <h3>Book - {{ selectedAd.departureLocation }} to {{ selectedAd.destination }}</h3>
+    <p>Price: {{ selectedAd.price }} TND | Available seats: {{ selectedAd.availableSeats }}</p>
+    <form [formGroup]="reservationForm" (ngSubmit)="submitReservation()">
+      <div class="form-group">
+        <label for="reserve-seat-count">Number of seats</label>
+        <input
+          id="reserve-seat-count"
+          type="number"
+          formControlName="seatCount"
+          min="1"
+          [max]="selectedAd.availableSeats"
+        />
+      </div>
+      <div class="form-group">
+        <label for="reserve-date">Reservation date</label>
+        <input
+          id="reserve-date"
+          type="date"
+          formControlName="reservationDate"
+        />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="cancelReservation()">Cancel</button>
+        <button type="submit" class="btn-submit" [disabled]="reservationForm.invalid">
+          Confirm Reservation
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <form
+    *ngIf="showForm"
+    class="transport-ad-form"
+    [formGroup]="adForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <div class="form-header">
+      <h2>{{ editMode ? 'Edit Ad' : 'Add an Ad' }}</h2>
+      <p>Enter your transport ad details.</p>
+    </div>
+
+    <input type="hidden" formControlName="tripId" />
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="price">Price</label>
+        <input
+          id="price"
+          type="number"
+          min="1"
+          formControlName="price"
+          placeholder="35"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="availableSeats">Available seats</label>
+        <input
+          id="availableSeats"
+          type="number"
+          min="1"
+          formControlName="availableSeats"
+          placeholder="3"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="transportType">Transport type</label>
+        <select id="transportType" formControlName="transportType">
+          <option value="">Select a type</option>
+          <option *ngFor="let type of transportTypes" [value]="type">
+            {{ type }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-action" (click)="resetForm()">
+        Cancel
+      </button>
+      <button type="submit" class="primary-action" [disabled]="isLoading">
+        {{ isLoading ? 'Saving...' : (editMode ? 'Update' : 'Create Ad') }}
+      </button>
+    </div>
+  </form>
+
+  <section *ngIf="myAds.length > 0; else emptyState" class="transport-ad-grid">
+    <article *ngFor="let ad of myAds" class="transport-ad-card">
+      <div class="transport-ad-card-top">
+        <span class="route-badge">{{ ad.departureLocation }} to {{ ad.destination }}</span>
+      </div>
+
+      <h3>{{ ad.price }} TND</h3>
+      <p><strong>Seats:</strong> {{ ad.availableSeats }}</p>
+      <p><strong>Type:</strong> {{ ad.transportType }}</p>
+      <p><strong>Vehicle:</strong> {{ ad.vehicleLicensePlate }}</p>
+
+      <div class="card-actions">
+        <button type="button" class="secondary-action" (click)="editAd(ad)">
+          Edit
+        </button>
+        <button type="button" class="danger-action" (click)="deleteAd(ad.adId)">
+          Delete
+        </button>
+        <button type="button" class="btn-reserve" (click)="reserveAd(ad)">
+          Book
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      <h3>No ads</h3>
+      <p>Add your first ad to offer your trips.</p>
+    </section>
+  </ng-template>
+</section>

@@ -5,8 +5,9 @@ import { FrontofficeRoutingModule } from './frontoffice-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS} from '@angular/common/http';
 import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
-import { LoginComponent } from './auth/login/login.component';
+import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
+
 
 @NgModule({
   declarations: [

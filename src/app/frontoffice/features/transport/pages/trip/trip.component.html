@@ -1,0 +1,120 @@
+<section class="trip-page">
+  <header class="trip-header">
+    <div>
+      <h1>Trips {{ selectedVehicleId ? 'for vehicle #' + selectedVehicleId : '' }}</h1>
+      <p>Manage the trips associated with your vehicles.</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-back" (click)="goBack()">
+        Back
+      </button>
+      <button type="button" class="btn-add" (click)="toggleForm()">
+        {{ showForm ? 'Close' : 'Add a Trip' }}
+      </button>
+    </div>
+  </header>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <form
+    *ngIf="showForm"
+    class="trip-form"
+    [formGroup]="tripForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <div class="form-header">
+      <h2>{{ editMode ? 'Edit Trip' : 'Add a Trip' }}</h2>
+      <p>Enter the trip details.</p>
+    </div>
+
+    <input type="hidden" formControlName="vehicleId" />
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="departureLocation">Departure</label>
+        <input
+          id="departureLocation"
+          type="text"
+          formControlName="departureLocation"
+          placeholder="Tunis"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="destination">Destination</label>
+        <input
+          id="destination"
+          type="text"
+          formControlName="destination"
+          placeholder="Sousse"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="departureDate">Departure date</label>
+        <input
+          id="departureDate"
+          type="date"
+          formControlName="departureDate"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="distance">Distance (km)</label>
+        <input
+          id="distance"
+          type="number"
+          min="1"
+          formControlName="distance"
+          placeholder="120"
+        />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-action" (click)="resetForm()">
+        Cancel
+      </button>
+      <button type="submit" class="primary-action" [disabled]="isLoading">
+        {{ isLoading ? 'Saving...' : (editMode ? 'Update' : 'Create Trip') }}
+      </button>
+    </div>
+  </form>
+
+  <section *ngIf="myTrips.length > 0; else emptyState" class="trip-grid">
+    <article *ngFor="let trip of myTrips" class="trip-card">
+      <div class="trip-card-top">
+        <span class="vehicle-badge">{{ trip.vehicleLicensePlate || ('#' + trip.vehicleId) }}</span>
+      </div>
+
+      <h3>{{ trip.departureLocation }} to {{ trip.destination }}</h3>
+      <p><strong>Date:</strong> {{ trip.departureDate | date:'mediumDate' }}</p>
+      <p><strong>Distance:</strong> {{ trip.distance }} km</p>
+
+      <div class="card-actions">
+        <button type="button" class="secondary-action" (click)="editTrip(trip)">
+          Edit
+        </button>
+        <button type="button" class="danger-action" (click)="deleteTrip(trip.tripId)">
+          Delete
+        </button>
+        <button type="button" class="btn-ad" (click)="goToAds(trip.tripId)">
+          Ads
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      <h3>No trips</h3>
+      <p>Add your first trip to organize your vehicle's travel.</p>
+    </section>
+  </ng-template>
+</section>
