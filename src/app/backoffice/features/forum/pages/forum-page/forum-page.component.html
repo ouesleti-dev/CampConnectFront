@@ -1,4 +1,74 @@
-<div class="container">
-  <h1>Forum Management</h1>
-  <p>Manage community forums and discussions.</p>
+<div class="forum-admin-container">
+
+  <div class="page-header">
+    <h1>💬 Forum Management</h1>
+    <p class="subtitle">Gérer les posts et commentaires du forum par événement</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
+  <div class="alert alert-error" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+  <!-- Sélecteur d'événement -->
+  <div class="filter-bar">
+    <label for="eventSelect">Filtrer par événement :</label>
+    <select id="eventSelect" [(ngModel)]="selectedEventId" (change)="onEventChange()">
+      <option [ngValue]="null" disabled>-- Choisir un événement --</option>
+      <option *ngFor="let event of events" [ngValue]="event.id">
+        {{ event.title }} ({{ event.campingName }})
+      </option>
+    </select>
+  </div>
+
+  <div class="forum-admin-layout" *ngIf="selectedEventId">
+
+    <!-- Liste des posts -->
+    <div class="posts-panel">
+      <h2>Posts <span class="count-badge">{{ posts.length }}</span></h2>
+      <div class="loading" *ngIf="loadingPosts">Chargement...</div>
+      <div class="empty" *ngIf="!loadingPosts && posts.length === 0">Aucun post dans cet événement.</div>
+
+      <table class="admin-table" *ngIf="posts.length > 0">
+        <thead>
+          <tr>
+            <th>Auteur</th>
+            <th>Contenu</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let post of posts" [class.selected-row]="selectedPost?.id === post.id">
+            <td>{{ post.authorFullName }}</td>
+            <td class="content-cell">{{ post.content }}</td>
+            <td>{{ post.createDate }}</td>
+            <td class="actions-cell">
+              <button class="btn-view" (click)="viewComments(post)">💬 Voir</button>
+              <button class="btn-delete" (click)="deletePost(post.id)">🗑 Suppr.</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Commentaires du post sélectionné -->
+    <div class="comments-panel" *ngIf="selectedPost">
+      <h2>Commentaires de : <span class="post-ref">{{ selectedPost.authorFullName }}</span></h2>
+      <div class="empty" *ngIf="comments.length === 0">Aucun commentaire.</div>
+
+      <div class="comment-row" *ngFor="let comment of comments">
+        <div class="comment-info">
+          <span class="comment-author">{{ comment.authorFullName }}</span>
+          <span class="comment-date">{{ comment.createDate }}</span>
+          <p class="comment-text">{{ comment.content }}</p>
+        </div>
+        <button class="btn-delete-sm" (click)="deleteComment(comment.id)">🗑</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="empty-state" *ngIf="!selectedEventId">
+    <p>👆 Sélectionnez un événement pour gérer ses posts et commentaires</p>
+  </div>
+
 </div>

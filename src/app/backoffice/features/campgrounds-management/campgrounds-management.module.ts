@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule } from '@angular/forms';
 import { CampgroundsManagementRoutingModule } from './campgrounds-management-routing.module';
 import { CampgroundsManagementPageComponent } from './pages/campgrounds-management-page/campgrounds-management-page.component';
 
@@ -11,6 +11,7 @@ import { CampgroundsManagementPageComponent } from './pages/campgrounds-manageme
   ],
   imports: [
     CommonModule,
+    FormsModule,
     CampgroundsManagementRoutingModule
   ]
 })
