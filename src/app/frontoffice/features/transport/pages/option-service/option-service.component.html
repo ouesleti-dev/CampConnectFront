@@ -1,0 +1,106 @@
+<section class="option-page">
+  <header class="option-header">
+    <div>
+      <h1>Options {{ selectedVehicleId ? 'for vehicle #' + selectedVehicleId : '' }}</h1>
+      <p>Manage the services associated with your vehicles.</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-back" (click)="goBack()">
+        Back
+      </button>
+      <button type="button" class="btn-add" (click)="toggleForm()">
+        {{ showForm ? 'Close' : 'Add an Option' }}
+      </button>
+    </div>
+  </header>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <form
+    *ngIf="showForm"
+    class="option-form"
+    [formGroup]="optionForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <div class="form-header">
+      <h2>{{ editMode ? 'Edit Option' : 'Add an Option' }}</h2>
+      <p>Enter your service information.</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Cafe premium"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="optionType">Option type</label>
+        <select id="optionType" formControlName="optionType">
+          <option value="">Select a type</option>
+          <option *ngFor="let type of optionTypes" [value]="type">
+            {{ type }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="vehicleId">Vehicle ID</label>
+        <input
+          id="vehicleId"
+          type="number"
+          min="1"
+          formControlName="vehicleId"
+          placeholder="1"
+        />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-action" (click)="resetForm()">
+        Cancel
+      </button>
+      <button type="submit" class="primary-action" [disabled]="isLoading">
+        {{ isLoading ? 'Saving...' : (editMode ? 'Update' : 'Create Option') }}
+      </button>
+    </div>
+  </form>
+
+  <section *ngIf="myOptions.length > 0; else emptyState" class="option-grid">
+    <article *ngFor="let option of myOptions" class="option-card">
+      <div class="option-card-top">
+        <span class="type-badge">{{ option.optionType }}</span>
+      </div>
+
+      <h3>{{ option.name }}</h3>
+      <p><strong>Vehicle:</strong> {{ option.vehicleLicensePlate || ('#' + option.vehicleId) }}</p>
+      <p><strong>Vehicle type:</strong> {{ option.vehicleType || 'Not provided' }}</p>
+
+      <div class="card-actions">
+        <button type="button" class="secondary-action" (click)="editOption(option)">
+          Edit
+        </button>
+        <button type="button" class="danger-action" (click)="deleteOption(option.optionId)">
+          Delete
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      <h3>No options</h3>
+      <p>Add your first option to expand your transport services.</p>
+    </section>
+  </ng-template>
+</section>

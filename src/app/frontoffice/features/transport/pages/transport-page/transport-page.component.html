@@ -1,15 +1,164 @@
-<div class="transport-page">
-  <section class="page-hero">
-    <div class="container">
-      <h1 class="page-title">Transport</h1>
-      <p class="page-description">Welcome to Transport</p>
+<section class="transport-page">
+  <header class="transport-header">
+    <div>
+      <a routerLink="options">Manage options</a>
+      <h1>My Vehicles</h1>
+      <p>Manage your fleet, your trips, and your ads on a single page.</p>
     </div>
-  </section>
-  
-  <section class="page-content section">
-    <div class="container">
-      <p>Content for transport goes here.</p>
-    </div>
-  </section>
-</div>
+    <button type="button" class="primary-action" (click)="toggleForm()">
+      {{ showForm ? 'Close form' : 'Add a Vehicle' }}
+    </button>
+  </header>
 
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <form
+    *ngIf="showForm"
+    class="vehicle-form"
+    [formGroup]="vehicleForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <div class="form-header">
+      <h2>{{ editMode ? 'Edit Vehicle' : 'Add a Vehicle' }}</h2>
+      <p>Enter your vehicle information.</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="licensePlate">License plate</label>
+        <input
+          id="licensePlate"
+          type="text"
+          formControlName="licensePlate"
+          placeholder="AB-123-CD"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="vehicleType">Vehicle type</label>
+        <select id="vehicleType" formControlName="vehicleType">
+          <option value="">Select a type</option>
+          <option *ngFor="let type of vehicleTypes" [value]="type">
+            {{ type }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="capacity">Capacity</label>
+        <input
+          id="capacity"
+          type="number"
+          min="1"
+          formControlName="capacity"
+          placeholder="4"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status">
+          <option *ngFor="let status of statusOptions" [value]="status">
+            {{ status }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-action" (click)="resetForm()">
+        Cancel
+      </button>
+      <button type="submit" class="primary-action" [disabled]="isLoading">
+        {{ isLoading ? 'Saving...' : (editMode ? 'Update' : 'Create Vehicle') }}
+      </button>
+    </div>
+  </form>
+
+  <section *ngIf="vehicles.length > 0; else emptyState" class="vehicle-grid">
+    <div class="vehicle-card" *ngFor="let v of vehicles">
+      <div class="card-header">
+        <span>{{ v.licensePlate }}</span>
+        <span>{{ v.vehicleType }} - {{ v.capacity }} seats</span>
+        <span class="status-badge" [ngClass]="getStatusClass(v.status)">{{ v.status }}</span>
+      </div>
+
+      <div class="trips-section" *ngIf="(tripsByVehicle[v.vehicleId] || []).length > 0">
+        <h4>Trips</h4>
+        <div class="trip-item" *ngFor="let t of tripsByVehicle[v.vehicleId]">
+          <span>{{ t.departureLocation }} to {{ t.destination }}</span>
+          <span>{{ t.departureDate | date:'dd/MM/yyyy' }}</span>
+          <span>{{ t.distance }} km</span>
+
+          <div class="ads-section" *ngIf="(adsByTrip[t.tripId] || []).length > 0">
+            <h5>Ads</h5>
+            <div class="ad-item" *ngFor="let ad of adsByTrip[t.tripId]">
+              <span>{{ ad.price }} TND</span>
+              <span>{{ ad.availableSeats }} seats</span>
+              <span>{{ ad.transportType }}</span>
+              <button type="button" class="btn-reserve" (click)="openReservation(ad)">
+                Book
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="btn-add-ad" (click)="goToAds(t.tripId)">
+            Add an Ad
+          </button>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button type="button" class="btn-edit" (click)="editVehicle(v)">Edit</button>
+        <button type="button" class="btn-delete" (click)="deleteVehicle(v.vehicleId)">Delete</button>
+        <button type="button" class="btn-options" (click)="goToOptions(v.vehicleId)">Options</button>
+        <button type="button" class="btn-trips" (click)="goToTrips(v.vehicleId)">Trips</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="reservation-overlay" *ngIf="showReservationForm && selectedAd">
+    <div class="reservation-modal">
+      <h3>Book</h3>
+      <p>{{ selectedAd.departureLocation }} to {{ selectedAd.destination }}</p>
+      <p>Price: {{ selectedAd.price }} TND | Available seats: {{ selectedAd.availableSeats }}</p>
+      <form [formGroup]="reservationForm" (ngSubmit)="submitReservation()">
+        <div class="form-group">
+          <label for="reservation-seat-count">Number of seats</label>
+          <input
+            id="reservation-seat-count"
+            type="number"
+            formControlName="seatCount"
+            min="1"
+            [max]="selectedAd.availableSeats"
+          />
+        </div>
+        <div class="form-group">
+          <label for="reservation-date">Reservation date</label>
+          <input
+            id="reservation-date"
+            type="date"
+            formControlName="reservationDate"
+          />
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="cancelReservation()">Cancel</button>
+          <button type="submit" class="btn-submit" [disabled]="reservationForm.invalid">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <ng-template #emptyState>
+    <section class="empty-state">
+      <h3>No vehicles</h3>
+      <p>Add your first vehicle to start managing your fleet.</p>
+    </section>
+  </ng-template>
+</section>

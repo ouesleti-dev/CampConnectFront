@@ -1,0 +1,69 @@
+<section class="reservations-page">
+  <header class="reservations-header">
+    <div>
+      <h1>My Reservations</h1>
+      <p>View and manage all your transport reservations.</p>
+    </div>
+  </header>
+ 
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+ 
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+ 
+  <section *ngIf="reservations.length > 0; else emptyState" class="reservations-grid">
+    <article *ngFor="let reservation of reservations" class="reservation-card">
+      <h3>{{ reservation.departureLocation }} → {{ reservation.destination }}</h3>
+      <p><strong>Date:</strong> {{ reservation.reservationDate | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Seats:</strong> {{ reservation.seatCount }}</p>
+      <p><strong>Price:</strong> {{ reservation.adPrice }} TND</p>
+      <p><strong>Status:</strong> {{ reservation.status }}</p>
+ 
+      <form
+        *ngIf="editReservationId === reservation.reservationId"
+        class="edit-form"
+        [formGroup]="reservationForm"
+        (ngSubmit)="updateReservation(reservation)"
+      >
+        <div class="form-group">
+          <label for="reservationDate">Reservation Date</label>
+          <input
+            id="reservationDate"
+            type="date"
+            formControlName="reservationDate"
+          />
+        </div>
+ 
+        <div class="form-group">
+          <label for="seatCount">Number of Seats</label>
+          <input
+            id="seatCount"
+            type="number"
+            min="1"
+            formControlName="seatCount"
+          />
+        </div>
+ 
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+          <button type="submit" class="btn-save">Save</button>
+        </div>
+      </form>
+ 
+      <div class="card-actions" *ngIf="editReservationId !== reservation.reservationId">
+        <button type="button" class="btn-edit" (click)="editReservation(reservation)">Edit</button>
+        <button type="button" class="btn-delete" (click)="deleteReservation(reservation.reservationId)">Delete</button>
+      </div>
+    </article>
+  </section>
+ 
+  <ng-template #emptyState>
+    <section class="empty-state">
+      <h3>No Reservations</h3>
+      <p>Your reservations will appear here once you book a transport ad.</p>
+    </section>
+  </ng-template>
+</section>

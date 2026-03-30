@@ -23,6 +23,7 @@ export class NavbarComponent implements OnInit {
     { label: 'Home', route: '/home' },
     { label: 'Campgrounds & Forum', route: '/campgrounds-forum' },
     { label: 'Transport', route: '/transport' },
+    { label: ' Reservations', route: '/reservations' },
     { label: 'Marketplace', route: '/marketplace' },
     { label: 'Rent & Maintenance', route: '/rent-maintenance' },
     { label: 'Delivery', route: '/delivery' },
