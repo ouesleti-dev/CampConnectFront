@@ -11,6 +11,7 @@ export class SidebarComponent {
     { label: 'Dashboard Overview', route: '/admin/dashboard' },
     { label: 'Users Management', route: '/admin/users' },
     { label: 'Campgrounds Management', route: '/admin/campgrounds' },
+    { label: 'Product Management', route: '/admin/product-management' },
     { label: 'Orders & Deliveries', route: '/admin/orders' },
      { label: 'Rent & Maintenance', route: '/admin/rent-maintenance' },
       { label: 'Partnership', route: '/admin/partnerships' },

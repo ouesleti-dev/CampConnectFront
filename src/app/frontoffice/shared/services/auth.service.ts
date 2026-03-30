@@ -27,6 +27,7 @@ export class AuthService {
         localStorage.setItem('token', response.token);
         localStorage.setItem('email', response.email);
         localStorage.setItem('role', response.role);
+        localStorage.setItem('idUser', response.idUser.toString());
       })
     );
   }
@@ -50,6 +51,10 @@ export class AuthService {
   getEmail(): string | null {
     return localStorage.getItem('email');
   }
+  getIdUser(): number | null {
+  const id = localStorage.getItem('idUser');
+  return id ? parseInt(id) : null;
+}
 
 
   isLoggedIn(): boolean {

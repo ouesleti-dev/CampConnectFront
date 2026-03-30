@@ -20,9 +20,14 @@ const routes: Routes = [
         loadChildren: () => import('./features/campgrounds-management/campgrounds-management.module').then(m => m.CampgroundsManagementModule)
       },
       {
+        path: 'product-management',
+        loadChildren: () => import('./features/product-managment/product-managment.module').then(m => m.ProductManagmentModule)
+      },
+      {
         path: 'orders',
         loadChildren: () => import('./features/orders/orders.module').then(m => m.OrdersModule)
       },
+      
       {
         path: 'reports',
         loadChildren: () => import('./features/reports/reports.module').then(m => m.ReportsModule)

@@ -6,9 +6,11 @@ import { BackofficeLayoutComponent } from './backoffice-layout.component';
 import { BackofficeSharedModule } from './shared/shared.module';
 
 
+
 @NgModule({
   declarations: [
-    BackofficeLayoutComponent
+    BackofficeLayoutComponent,
+    
   ],
   imports: [
     CommonModule,
