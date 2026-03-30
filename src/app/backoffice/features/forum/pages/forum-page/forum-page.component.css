@@ -1,3 +1,50 @@
-.container {
-  padding: 20px;
+.forum-admin-container { padding: 1.5rem; }
+.page-header { margin-bottom: 1.5rem; }
+.page-header h1 { font-size: 1.6rem; font-weight: 700; color: #2d3748; margin: 0 0 0.25rem; }
+.subtitle { color: #718096; font-size: 0.9rem; }
+
+.alert { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; }
+.alert-success { background: #d4edda; color: #155724; }
+.alert-error   { background: #f8d7da; color: #721c24; }
+
+.filter-bar { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.filter-bar label { font-weight: 600; color: #4a5568; }
+.filter-bar select { padding: 0.5rem 1rem; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.9rem; min-width: 300px; }
+
+.forum-admin-layout { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; }
+
+.posts-panel, .comments-panel {
+  background: white; border-radius: 10px;
+  border: 1px solid #e2e8f0; padding: 1.25rem;
+}
+.posts-panel h2, .comments-panel h2 {
+  font-size: 1rem; font-weight: 700; color: #2d3748;
+  margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.count-badge { background: #4F7942; color: white; border-radius: 12px; padding: 1px 8px; font-size: 0.78rem; }
+.post-ref { color: #4F7942; font-weight: 600; font-size: 0.9rem; }
+
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.admin-table th { background: #f7fafc; padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; color: #4a5568; border-bottom: 2px solid #e2e8f0; }
+.admin-table td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #edf2f7; vertical-align: top; }
+.admin-table tr:hover td { background: #f7fafc; }
+.admin-table tr.selected-row td { background: #f0f7ee; }
+.content-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.actions-cell { display: flex; gap: 0.4rem; flex-wrap: nowrap; }
+
+.btn-view   { background: #3182ce; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+.btn-delete { background: #e53e3e; color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+.btn-delete-sm { background: #e53e3e; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.78rem; flex-shrink: 0; }
+
+.comment-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 0.7rem; border-bottom: 1px solid #edf2f7; gap: 0.5rem; }
+.comment-info { flex: 1; }
+.comment-author { font-weight: 600; font-size: 0.83rem; color: #4F7942; }
+.comment-date { font-size: 0.75rem; color: #aaa; margin-left: 0.5rem; }
+.comment-text { font-size: 0.87rem; color: #444; margin: 0.3rem 0 0; }
+
+.empty-state { text-align: center; color: #aaa; padding: 3rem; font-size: 1rem; }
+.empty, .loading { color: #aaa; font-style: italic; padding: 0.5rem 0; font-size: 0.88rem; }
+
+@media (max-width: 900px) {
+  .forum-admin-layout { grid-template-columns: 1fr; }
 }

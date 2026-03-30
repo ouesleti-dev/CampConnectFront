@@ -1,4 +1,168 @@
-<div class="campgrounds-container">
-  <h1>Campgrounds Management</h1>
-  <p>Manage all campgrounds in the system</p>
+<div class="campgrounds-admin-container">
+
+  <div class="page-header">
+    <h1>🏕️ Campgrounds Management</h1>
+    <p class="subtitle">Gérer les campings et leurs activités</p>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage">✅ {{ successMessage }}</div>
+  <div class="alert alert-error"   *ngIf="errorMessage">❌ {{ errorMessage }}</div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'campings'"
+            (click)="switchTab('campings')">
+      ⛺ Campings <span class="count-badge">{{ campings.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'events'"
+            (click)="switchTab('events')">
+      📅 Événements <span class="count-badge">{{ events.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'activities'"
+            (click)="switchTab('activities')">
+      🎯 Activités <span class="count-badge">{{ activities.length }}</span>
+    </button>
+  </div>
+
+  <!-- ══ CAMPINGS ══ -->
+  <div class="tab-content" *ngIf="activeTab === 'campings'">
+    <div class="loading" *ngIf="loadingCampings">Chargement des campings...</div>
+    <div class="empty" *ngIf="!loadingCampings && campings.length === 0">
+      Aucun camping trouvé.
+    </div>
+    <table class="admin-table" *ngIf="campings.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nom</th><th>Adresse</th>
+          <th>Code Postal</th><th>Statut</th>
+          <th class="text-center">Événements</th>
+          <th class="text-center">Activités</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let camping of campings">
+          <td>{{ camping.campingId }}</td>
+          <td class="camping-name">{{ camping.name }}</td>
+          <td class="address-cell">{{ camping.address }}</td>
+          <td>{{ camping.postalCode }}</td>
+          <td>
+            <span [class]="'status-badge ' + getStatusBadgeClass(camping.status)">
+              {{ camping.status }}
+            </span>
+          </td>
+          <td class="text-center">{{ camping.totalEvents }}</td>
+          <td class="text-center">{{ camping.totalActivities }}</td>
+          <td>
+            <button class="btn-delete" (click)="deleteCamping(camping.campingId)">
+              🗑 Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ ÉVÉNEMENTS ══ -->
+  <div class="tab-content" *ngIf="activeTab === 'events'">
+
+    <div class="filter-bar">
+      <label>Filtrer par camping :</label>
+      <select [(ngModel)]="selectedCampingIdForEvents"
+              (change)="onCampingFilterChangeForEvents()">
+        <option [ngValue]="null">-- Tous les campings --</option>
+        <option *ngFor="let c of campings" [ngValue]="c.campingId">{{ c.name }}</option>
+      </select>
+      <span class="filter-count">{{ filteredEvents.length }} événement(s)</span>
+    </div>
+
+    <div class="loading" *ngIf="loadingEvents">Chargement des événements...</div>
+    <div class="empty" *ngIf="!loadingEvents && filteredEvents.length === 0">
+      Aucun événement trouvé.
+    </div>
+
+    <table class="admin-table" *ngIf="filteredEvents.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th><th>Titre</th><th>Date</th>
+          <th>Camping</th><th>Statut</th>
+          <th class="text-center">Participants max</th>
+          <th class="text-center">Déchets (kg)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let event of filteredEvents">
+          <td>{{ event.id }}</td>
+          <td class="camping-name">{{ event.title }}</td>
+          <td>{{ event.eventDate }}</td>
+          <td class="camping-ref">{{ event.campingName }}</td>
+          <td>
+            <span [class]="'status-badge ' + getStatusBadgeClass(event.status)">
+              {{ event.status }}
+            </span>
+          </td>
+          <td class="text-center">{{ event.maxParticipants }}</td>
+          <td class="text-center">{{ event.wasteCollected }}</td>
+          <td>
+            <button class="btn-delete" (click)="deleteEvent(event.id)">
+              🗑 Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══ ACTIVITÉS ══ -->
+  <div class="tab-content" *ngIf="activeTab === 'activities'">
+
+    <div class="filter-bar">
+      <label>Filtrer par camping :</label>
+      <select [(ngModel)]="selectedCampingId" (change)="onCampingFilterChange()">
+        <option [ngValue]="null">-- Tous les campings --</option>
+        <option *ngFor="let c of campings" [ngValue]="c.campingId">{{ c.name }}</option>
+      </select>
+      <span class="filter-count">{{ filteredActivities.length }} activité(s)</span>
+    </div>
+
+    <div class="loading" *ngIf="loadingActivities">Chargement des activités...</div>
+    <div class="empty" *ngIf="!loadingActivities && filteredActivities.length === 0">
+      Aucune activité trouvée.
+    </div>
+
+    <table class="admin-table" *ngIf="filteredActivities.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th><th>Nom</th><th>Description</th>
+          <th class="text-center">Durée (min)</th><th>Difficulté</th>
+          <th>Camping</th><th>Événement</th>
+          <th class="text-center">Participants</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let activity of filteredActivities">
+          <td>{{ activity.id }}</td>
+          <td class="activity-name">{{ activity.name }}</td>
+          <td class="description-cell">{{ activity.description }}</td>
+          <td class="text-center">{{ activity.duration }}</td>
+          <td>
+            <span [class]="'difficulty-badge ' + getDifficultyBadgeClass(activity.difficulty)">
+              {{ activity.difficulty }}
+            </span>
+          </td>
+          <td class="camping-ref">{{ activity.campingName }}</td>
+          <td class="event-ref">{{ activity.eventTitle || '—' }}</td>
+          <td class="text-center">{{ activity.totalParticipations }}</td>
+          <td>
+            <button class="btn-delete" (click)="deleteActivity(activity.id)">
+              🗑 Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
 </div>

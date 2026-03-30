@@ -1,13 +1,186 @@
-.campgrounds-container {
-  padding: 2rem;
+.campgrounds-admin-container { padding: 1.5rem; }
+
+/* En-tête */
+.page-header { margin-bottom: 1.5rem; }
+.page-header h1 { 
+  font-size: 1.6rem; 
+  font-weight: 700; 
+  color: #2d3748; 
+  margin: 0 0 0.25rem; 
+}
+.subtitle { color: #718096; font-size: 0.9rem; }
+
+/* Alertes */
+.alert { 
+  padding: 0.75rem 1rem; 
+  border-radius: 6px; 
+  margin-bottom: 1rem; 
+  font-size: 0.9rem; 
+}
+.alert-success { background: #d4edda; color: #155724; }
+.alert-error { background: #f8d7da; color: #721c24; }
+
+/* Tabs */
+.tabs-bar { 
+  display: flex; 
+  gap: 0.5rem; 
+  margin-bottom: 1.5rem; 
+  border-bottom: 2px solid #e2e8f0; 
+}
+.tab-btn { 
+  background: none; 
+  border: none; 
+  padding: 0.75rem 1.5rem; 
+  cursor: pointer; 
+  font-size: 0.95rem; 
+  font-weight: 600; 
+  color: #718096; 
+  border-bottom: 3px solid transparent; 
+  transition: all 0.2s; 
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem;
+}
+.tab-btn:hover { color: #4F7942; background: #f7fafc; }
+.tab-btn.active { 
+  color: #4F7942; 
+  border-bottom-color: #4F7942; 
+  background: #f0f7ee;
+}
+.count-badge { 
+  background: #4F7942; 
+  color: white; 
+  border-radius: 12px; 
+  padding: 2px 8px; 
+  font-size: 0.75rem; 
 }
 
-.campgrounds-container h1 {
-  color: #4F7942;
-  margin-bottom: 0.5rem;
-  font-size: 1.8rem;
+/* Filtre */
+.filter-bar { 
+  display: flex; 
+  align-items: center; 
+  gap: 1rem; 
+  margin-bottom: 1.5rem; 
+  background: #f7fafc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.filter-bar label { font-weight: 600; color: #4a5568; }
+.filter-bar select { 
+  padding: 0.5rem 1rem; 
+  border: 1px solid #cbd5e0; 
+  border-radius: 6px; 
+  font-size: 0.9rem; 
+  min-width: 300px; 
 }
 
-.campgrounds-container p {
-  color: #666;
+/* Contenu des tabs */
+.tab-content { 
+  background: white; 
+  border-radius: 10px; 
+  border: 1px solid #e2e8f0; 
+  padding: 1.25rem; 
 }
+
+/* Table */
+.admin-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 0.88rem; 
+}
+.admin-table th { 
+  background: #f7fafc; 
+  padding: 0.7rem 0.8rem; 
+  text-align: left; 
+  font-weight: 600; 
+  color: #4a5568; 
+  border-bottom: 2px solid #e2e8f0; 
+}
+.admin-table td { 
+  padding: 0.7rem 0.8rem; 
+  border-bottom: 1px solid #edf2f7; 
+  vertical-align: middle; 
+}
+.admin-table tr:hover td { background: #f7fafc; }
+
+/* Cellules spécifiques */
+.camping-name, .activity-name { 
+  font-weight: 600; 
+  color: #2d3748; 
+}
+.address-cell, .description-cell { 
+  max-width: 250px; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+}
+.camping-ref, .event-ref { 
+  font-size: 0.85rem; 
+  color: #4F7942; 
+}
+.text-center { text-align: center; }
+
+/* Badges */
+.status-badge, .difficulty-badge { 
+  display: inline-block; 
+  padding: 3px 10px; 
+  border-radius: 12px; 
+  font-size: 0.75rem; 
+  font-weight: 600; 
+}
+
+.badge-active { background: #d4edda; color: #155724; }
+.badge-inactive { background: #f8d7da; color: #721c24; }
+.badge-maintenance { background: #fff3cd; color: #856404; }
+
+.badge-easy { background: #d4edda; color: #155724; }
+.badge-medium { background: #fff3cd; color: #856404; }
+.badge-hard { background: #f8d7da; color: #721c24; }
+
+.badge-default { background: #e2e8f0; color: #4a5568; }
+
+/* Actions */
+.actions-cell { 
+  display: flex; 
+  gap: 0.5rem; 
+  flex-wrap: nowrap; 
+}
+.btn-delete { 
+  background: #e53e3e; 
+  color: white; 
+  border: none; 
+  padding: 0.4rem 0.8rem; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  font-size: 0.8rem; 
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-delete:hover { background: #c53030; }
+
+/* États vides et chargement */
+.empty, .loading { 
+  color: #aaa; 
+  font-style: italic; 
+  padding: 2rem; 
+  text-align: center; 
+  font-size: 0.9rem; 
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .admin-table { font-size: 0.8rem; }
+  .admin-table th, .admin-table td { padding: 0.5rem; }
+}
+
+.filter-count {
+  font-size: 0.82rem; color: #718096;
+  background: #edf2f7; padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.badge-planned   { background: #fff3cd; color: #856404; }
+.badge-ongoing   { background: #d4edda; color: #155724; }
+.badge-completed { background: #e2e3e5; color: #383d41; }
+
+.event-ref { font-size: 0.85rem; color: #4F7942; }
