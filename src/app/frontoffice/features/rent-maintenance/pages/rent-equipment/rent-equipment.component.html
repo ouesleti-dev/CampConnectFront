@@ -112,16 +112,16 @@
       <!-- Summary -->
       <div class="dates-summary" *ngIf="startDate">
         <div class="summary-item">
-          <span class="summary-label">Arrivée</span>
+          <span class="summary-label">Departure</span>
           <span class="summary-value">{{ formatDisplay(startDate) }}</span>
         </div>
         <div class="summary-arrow">→</div>
         <div class="summary-item">
-          <span class="summary-label">Départ</span>
+          <span class="summary-label">Arrival</span>
           <span class="summary-value">{{ formatDisplay(endDate) }}</span>
         </div>
         <div class="summary-total" *ngIf="endDate">
-          <span class="total-days">{{ getTotalDays() }} nuits</span>
+          <span class="total-days">{{ getTotalDays() }} nights</span>
           <span class="total-price">{{ getTotalPrice() }} DT</span>
         </div>
       </div>
