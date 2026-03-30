@@ -1,0 +1,24 @@
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search..." class="search-input">
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="notification">
+      <span class="notification-icon">🔔</span>
+      <span class="notification-badge">3</span>
+    </div>
+
+    <div class="user-profile">
+      <span class="user-name">{{ currentUser }}</span>
+  <span class="user-role">{{ userRole }}</span>
+  <button class="logout-btn" (click)="logout()"> Logout</button>
+  <button class="frontoffice-btn" routerLink="/home">
+   Home
+</button>
+      </div>
+    </div>
+  </div>

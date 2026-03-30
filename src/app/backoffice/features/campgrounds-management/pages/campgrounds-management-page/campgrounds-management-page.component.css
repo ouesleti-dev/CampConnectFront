@@ -1,0 +1,13 @@
+.campgrounds-container {
+  padding: 2rem;
+}
+
+.campgrounds-container h1 {
+  color: #4F7942;
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+}
+
+.campgrounds-container p {
+  color: #666;
+}

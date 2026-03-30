@@ -1,0 +1,26 @@
+.campgrounds-forum-page .page-hero {
+  background: linear-gradient(135deg, #4F7942 0%, #4F7942 100%); /* $brand-primary et darken($brand-primary,15%) */
+  color: #ffffff; /* $primary-foreground */
+  padding: 4rem 1rem; /* $spacing-3xl $spacing-md */
+  text-align: center;
+}
+
+.campgrounds-forum-page .page-hero .page-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem; /* $spacing-md */
+}
+
+@media (min-width: 768px) { /* correspond à respond-to(md) */
+  .campgrounds-forum-page .page-hero .page-title {
+    font-size: 3rem;
+  }
+}
+
+.campgrounds-forum-page .page-hero .page-description {
+  font-size: 1.125rem;
+  opacity: 0.9;
+}
+
+.campgrounds-forum-page .page-content {
+  min-height: 400px;
+}

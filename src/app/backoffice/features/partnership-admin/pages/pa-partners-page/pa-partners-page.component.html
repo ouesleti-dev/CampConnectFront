@@ -1,0 +1,106 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h4 class="mb-0">Partenaires</h4>
+  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Ajouter</button>
+</div>
+<app-paginated-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [searchKeys]="searchKeys"
+  searchPlaceholder="Rechercher par nom ou email..."
+  (editRow)="openEdit($event)"
+  (deleteRow)="remove($event)"
+></app-paginated-data-table>
+<div class="mt-2">
+  <span class="text-muted small">Détail :</span>
+  <button
+    *ngFor="let row of rows"
+    type="button"
+    class="btn btn-sm btn-outline-secondary rounded-pill ms-1 mb-1"
+    (click)="goDetail(row)"
+  >
+    #{{ row['id'] }} {{ row['firstName'] }} {{ row['lastName'] }}
+  </button>
+</div>
+
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Ajouter' }} un partenaire</h5>
+        <button type="button" class="btn-close" (click)="showModal = false"></button>
+      </div>
+      <div class="modal-body" [formGroup]="form">
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label">Prénom</label>
+            <input
+              class="form-control rounded-pill mb-1"
+              [class.is-invalid]="invalidField('firstName')"
+              formControlName="firstName"
+            />
+            <div class="invalid-feedback d-block" *ngIf="invalidField('firstName')">{{ msgField('firstName') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Nom</label>
+            <input
+              class="form-control rounded-pill mb-1"
+              [class.is-invalid]="invalidField('lastName')"
+              formControlName="lastName"
+            />
+            <div class="invalid-feedback d-block" *ngIf="invalidField('lastName')">{{ msgField('lastName') }}</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control rounded-pill mb-1"
+              [class.is-invalid]="invalidField('email')"
+              formControlName="email"
+            />
+            <div class="invalid-feedback d-block" *ngIf="invalidField('email')">{{ msgField('email') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Téléphone</label>
+            <input
+              class="form-control rounded-pill mb-1"
+              [class.is-invalid]="invalidField('phone')"
+              formControlName="phone"
+              placeholder="Ex. +33 6 12 34 56 78"
+            />
+            <div class="invalid-feedback d-block" *ngIf="invalidField('phone')">{{ msgField('phone') }}</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Mot de passe (connexion)</label>
+            <input
+              type="password"
+              class="form-control rounded-pill mb-1"
+              formControlName="password"
+              autocomplete="new-password"
+              placeholder="{{ editingId ? 'Laisser vide pour ne pas changer' : 'Vide = mot de passe par défaut serveur' }}"
+            />
+            <div class="form-text">Minimum 6 caractères si renseigné.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Score</label>
+            <input
+              type="number"
+              class="form-control rounded-pill mb-1"
+              [class.is-invalid]="invalidField('score')"
+              formControlName="score"
+            />
+            <div class="invalid-feedback d-block" *ngIf="invalidField('score')">{{ msgField('score') }}</div>
+          </div>
+          <div class="col-12 form-check ms-2">
+            <input class="form-check-input" type="checkbox" formControlName="actif" id="actif" />
+            <label class="form-check-label" for="actif">Actif</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
+        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>

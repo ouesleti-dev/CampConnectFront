@@ -1,0 +1,195 @@
+/* ===== TOPBAR ===== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 3rem;
+  background: linear-gradient(135deg, #344e41 0%, #2d3f35 100%);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  color: white;
+  box-sizing: border-box;
+}
+
+/* ===== SEARCH ===== */
+.search-container {
+  position: relative;
+  width: 340px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #333;
+}
+
+.search-input:focus {
+  outline: none;
+  transform: scale(1.03);
+  box-shadow: 0 0 0 4px rgba(79, 121, 66, 0.25);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #4F7942;
+}
+
+/* ===== RIGHT SIDE ===== */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+/* ===== NOTIFICATION ===== */
+.notification {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.6rem;
+  transition: transform 0.3s ease;
+}
+
+.notification:hover {
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
+  animation: pulse 1.5s infinite;
+}
+
+/* Badge animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ===== USER PROFILE ===== */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.user-profile:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Avatar */
+.user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: white;
+  color: #4F7942;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Info */
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.user-role {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #dcdcdc;
+}
+
+/* ===== LOGOUT BUTTON ===== */
+.logout-btn {
+  background: linear-gradient(135deg, #4F7942 0%, #3d6032 100%);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(79, 121, 66, 0.3);
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 121, 66, 0.4);
+}
+.frontoffice-btn {
+  background: linear-gradient(135deg, #4F7942 0%, #3d6032 100%);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(79, 121, 66, 0.3);
+}
+.frontoffice-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 121, 66, 0.4);
+}
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.2rem;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+
+}
