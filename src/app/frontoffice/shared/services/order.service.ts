@@ -6,8 +6,10 @@ import { CartItem, OrderDTO, OrderRequest } from '../models/order.model';
 @Injectable({ providedIn: 'root' })
 export class OrderService {
 
+  // ─── API URL ─────────────────────────────────────
   private apiUrl = 'http://localhost:8088/campConnect/api/orders';
 
+  // ─── Cart state ──────────────────────────────────
   private cartSubject = new BehaviorSubject<CartItem[]>(
     JSON.parse(localStorage.getItem('cart') || '[]')
   );
@@ -15,7 +17,7 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  // ─── Cart ──────────────────────────────────────
+  // ─── Cart Methods ────────────────────────────────
   getCart(): CartItem[] {
     return this.cartSubject.getValue();
   }
@@ -23,16 +25,19 @@ export class OrderService {
   addToCart(product: any, qty: number = 1): void {
     const cart = this.getCart();
     const existing = cart.find(i => i.product.idProduct === product.idProduct);
+
     if (existing) {
       existing.quantity += qty;
     } else {
       cart.push({ product, quantity: qty });
     }
+
     this.saveCart(cart);
   }
 
   removeFromCart(productId: number): void {
-    this.saveCart(this.getCart().filter(i => i.product.idProduct !== productId));
+    const updated = this.getCart().filter(i => i.product.idProduct !== productId);
+    this.saveCart(updated);
   }
 
   updateQuantity(productId: number, qty: number): void {
@@ -56,10 +61,12 @@ export class OrderService {
 
   private saveCart(cart: CartItem[]): void {
     this.cartSubject.next([...cart]);
-    localStorage.setItem('cart', JSON.stringify(cart));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
   }
 
-  // ─── API ───────────────────────────────────────
+  // ─── User / API Methods ─────────────────────────
   createOrder(request: OrderRequest): Observable<OrderDTO> {
     return this.http.post<OrderDTO>(this.apiUrl, request);
   }
@@ -75,23 +82,25 @@ export class OrderService {
   deleteOrder(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
-  confirmOrder(id: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/${id}/confirm`, {});
-}
 
-cancelOrder(id: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/${id}/cancel`, {});
-}
-// ─── Admin API ─────────────────────────────────────────
-getConfirmedOrders(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/confirmed`);
-}
+  confirmOrder(id: number): Observable<OrderDTO> {
+    return this.http.put<OrderDTO>(`${this.apiUrl}/${id}/confirm`, {});
+  }
 
-approveOrder(id: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/${id}/approve`, {});
-}
+  cancelOrder(id: number): Observable<OrderDTO> {
+    return this.http.put<OrderDTO>(`${this.apiUrl}/${id}/cancel`, {});
+  }
 
-rejectOrder(id: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/${id}/reject`, {});
-}
+  // ─── Admin / Approve & Reject ───────────────────
+  getConfirmedOrders(): Observable<OrderDTO[]> {
+    return this.http.get<OrderDTO[]>(`${this.apiUrl}/confirmed`);
+  }
+
+  approveOrder(id: number): Observable<OrderDTO> {
+    return this.http.put<OrderDTO>(`${this.apiUrl}/${id}/approve`, {});
+  }
+
+  rejectOrder(id: number): Observable<OrderDTO> {
+    return this.http.put<OrderDTO>(`${this.apiUrl}/${id}/reject`, {});
+  }
 }
