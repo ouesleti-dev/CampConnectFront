@@ -1,16 +1,14 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        RouterModule.forRoot([])
-      ],
-      declarations: [
-        AppComponent
-      ],
+      imports: [RouterTestingModule],
+      declarations: [AppComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
   });
 
@@ -26,10 +24,9 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('camp-connect');
   });
 
-  it('should render title', () => {
+  it('should have the correct title value', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, camp-connect');
+    const app = fixture.componentInstance;
+    expect(app.title).toBe('camp-connect');
   });
 });

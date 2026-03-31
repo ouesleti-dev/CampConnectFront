@@ -6,7 +6,7 @@ describe('SettingsPageComponent', () => {
   let component: SettingsPageComponent;
   let fixture: ComponentFixture<SettingsPageComponent>;
 
-  beforeEach(async) {
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ SettingsPageComponent ]
     })
