@@ -1,0 +1,46 @@
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-body">
+        <div class="text-muted small">Nombre d offres</div>
+        <div class="fs-3 fw-bold text-primary">{{ stats.offres }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-body">
+        <div class="text-muted small">Contrats actifs</div>
+        <div class="fs-3 fw-bold text-primary">{{ stats.contratsActifs }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-body">
+        <div class="text-muted small">Score moyen partenaires</div>
+        <div class="fs-3 fw-bold text-primary">{{ stats.scoreMoyen }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+      <h6 class="mb-3">Répartition des offres par statut</h6>
+      <app-chart-widget *ngIf="doughnutOffres" [config]="doughnutOffres"></app-chart-widget>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+      <h6 class="mb-3">Évolution du score (entretiens)</h6>
+      <app-chart-widget *ngIf="lineScores" [config]="lineScores"></app-chart-widget>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card border-0 shadow-sm rounded-4 p-3">
+      <h6 class="mb-3">Nombre de contrats par mois (date début)</h6>
+      <app-chart-widget *ngIf="barContrats" [config]="barContrats"></app-chart-widget>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h4 class="mb-0">Offres</h4>
+  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Ajouter</button>
+</div>
+<div class="row g-2 mb-3">
+  <div class="col-md-4">
+    <select class="form-select rounded-pill" [(ngModel)]="filterStatut" (ngModelChange)="applyFilters()">
+      <option [ngValue]="null">Tous les statuts</option>
+      <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
+    </select>
+  </div>
+  <div class="col-md-4">
+    <select class="form-select rounded-pill" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilters()">
+      <option [ngValue]="null">Tous les partenaires</option>
+      <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+    </select>
+  </div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+      <h6 class="mb-2">Offres par statut</h6>
+      <app-chart-widget *ngIf="chartConfig" [config]="chartConfig"></app-chart-widget>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <app-paginated-data-table
+      [columns]="columns"
+      [rows]="rows"
+      [searchKeys]="searchKeys"
+      (editRow)="openEdit($event)"
+      (deleteRow)="remove($event)"
+    ></app-paginated-data-table>
+  </div>
+</div>
+
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Ajouter' }} offre</h5>
+        <button type="button" class="btn-close" (click)="showModal = false"></button>
+      </div>
+      <div class="modal-body" [formGroup]="form">
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="form-label">Titre</label>
+            <input
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('titre')"
+              formControlName="titre"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('titre')">{{ messageField('titre') }}</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea
+              class="form-control rounded-4"
+              rows="2"
+              [class.is-invalid]="invalidField('description')"
+              formControlName="description"
+            ></textarea>
+            <div class="invalid-feedback" *ngIf="invalidField('description')">{{ messageField('description') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Camping</label>
+            <select
+              class="form-select rounded-pill"
+              [class.is-invalid]="invalidField('campingId')"
+              formControlName="campingId"
+            >
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let c of campings" [ngValue]="c.id">{{ c.label }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="invalidField('campingId')">{{ messageField('campingId') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date publication</label>
+            <input
+              type="date"
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('datePublication')"
+              formControlName="datePublication"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('datePublication')">{{ messageField('datePublication') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Statut</label>
+            <select class="form-select rounded-pill" formControlName="statut">
+              <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
+        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>

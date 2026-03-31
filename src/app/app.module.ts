@@ -5,9 +5,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SharedModule } from './frontoffice/shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'; // ✅ HttpClientModule
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http'; // ✅ HttpClientModule
 import { AuthInterceptor } from './frontoffice/shared/interceptors/auth.interceptor';
 import { ReservationsComponent } from './frontoffice/features/reservations/reservations.component';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -15,12 +16,17 @@ import { ReservationsComponent } from './frontoffice/features/reservations/reser
     ReservationsComponent
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     SharedModule,
     RouterModule,
-    HttpClientModule  // ✅ AJOUTE CETTE LIGNE ICI
+    ToastrModule.forRoot({
+      positionClass: 'toast-top-end',
+      timeOut: 3500,
+      preventDuplicates: true
+    })
   ],
   providers: [
     {

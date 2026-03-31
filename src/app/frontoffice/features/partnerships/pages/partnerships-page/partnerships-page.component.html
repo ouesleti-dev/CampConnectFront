@@ -1,15 +1,204 @@
 <div class="partnerships-page">
   <section class="page-hero">
-    <div class="container">
-      <h1 class="page-title">Partnerships</h1>
-      <p class="page-description">Welcome to Partnerships</p>
+    <div class="container hero-inner">
+      <p class="hero-kicker">Réseau & confiance</p>
+      <h1 class="page-title">Nos partenaires</h1>
+      <p class="page-description">
+        Des professionnels du camping et du tourisme durable qui font vivre CampConnect avec vous,
+        tout au long de l’année.
+      </p>
     </div>
   </section>
-  
-  <section class="page-content section">
-    <div class="container">
-      <p>Content for partnerships goes here.</p>
-    </div>
-  </section>
-</div>
 
+  <section class="page-content section">
+    <div class="container showcase">
+      <div class="toolbar">
+        <label class="search-wrap">
+          <span class="sr-only">Rechercher un partenaire</span>
+          <input
+            type="search"
+            class="search-input"
+            [(ngModel)]="searchQuery"
+            placeholder="Rechercher par nom, e-mail…"
+            autocomplete="off"
+          />
+        </label>
+        <div class="toolbar-actions">
+          <button
+            type="button"
+            class="btn-add"
+            *ngIf="canAddPartner"
+            (click)="openAddModal()"
+          >
+            + Ajouter un partenaire
+          </button>
+          <button type="button" class="btn-refresh" (click)="loadPartners()" [disabled]="loading">
+            {{ loading ? 'Chargement…' : 'Actualiser' }}
+          </button>
+        </div>
+      </div>
+
+      <p class="empty-msg" *ngIf="!loading && filteredPartners.length === 0">
+        Aucun partenaire à afficher pour le moment.
+      </p>
+
+      <div class="partner-grid" *ngIf="filteredPartners.length > 0">
+        <article
+          class="partner-card"
+          *ngFor="let p of filteredPartners; trackBy: trackById"
+          [class.partner-card--inactive]="!p.actif"
+        >
+          <div class="partner-card__visual">
+            <div class="partner-card__avatar" [ngStyle]="avatarStyle(p)">
+              <span class="partner-card__initials">{{ initials(p) }}</span>
+            </div>
+            <div class="partner-card__social" aria-label="Liens rapides">
+              <a
+                class="soc-btn"
+                [href]="'mailto:' + p.email"
+                title="Envoyer un e-mail"
+                (click)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="soc-icon"><path fill="currentColor" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/></svg>
+              </a>
+              <a
+                class="soc-btn"
+                [href]="linkedinSearchUrl(p)"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Rechercher sur LinkedIn"
+                (click)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="soc-icon"><path fill="currentColor" d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69A1.69 1.69 0 0 0 5.2 6.88c0 .93.76 1.69 1.69 1.69M8.56 20.5v-8.37H5.79v8.37h2.77z"/></svg>
+              </a>
+              <a
+                class="soc-btn"
+                [href]="'tel:' + (p.phone || '')"
+                *ngIf="p.phone"
+                title="Appeler"
+                (click)="$event.stopPropagation()"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="soc-icon"><path fill="currentColor" d="M6.62 10.79a15.15 15.15 0 0 0 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C7.61 21 3 16.39 3 10.5a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.24.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="partner-card__body">
+            <h2 class="partner-card__name">{{ fullName(p) }}</h2>
+            <p class="partner-card__role">{{ roleLabel(p) }}</p>
+            <p class="partner-card__bio">{{ bio(p) }}</p>
+            <div class="partner-card__meta">
+              <span class="score-pill" *ngIf="p.score != null">Score {{ p.score | number : '1.0-1' }}</span>
+            </div>
+            <button type="button" class="btn-detail" (click)="openDetail(p)">Voir le profil détaillé</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="detail-backdrop" *ngIf="selected as s" (click)="closeDetail()" role="presentation"></div>
+  <aside class="detail-panel" *ngIf="selected as s" aria-modal="true" role="dialog" aria-labelledby="detail-title">
+    <button type="button" class="detail-close" (click)="closeDetail()" aria-label="Fermer">×</button>
+    <div class="detail-header" [ngStyle]="avatarStyle(s)">
+      <span class="detail-initials">{{ initials(s) }}</span>
+    </div>
+    <div class="detail-body">
+      <h2 id="detail-title" class="detail-name">{{ fullName(s) }}</h2>
+      <p class="detail-role">{{ roleLabel(s) }}</p>
+      <p class="detail-bio">{{ bio(s) }}</p>
+      <dl class="detail-dl">
+        <div>
+          <dt>E-mail</dt>
+          <dd><a [href]="'mailto:' + s.email">{{ s.email }}</a></dd>
+        </div>
+        <div *ngIf="s.phone">
+          <dt>Téléphone</dt>
+          <dd><a [href]="'tel:' + s.phone">{{ s.phone }}</a></dd>
+        </div>
+        <div>
+          <dt>Score partenariat</dt>
+          <dd>{{ s.score | number : '1.0-1' }}</dd>
+        </div>
+        <div>
+          <dt>Statut</dt>
+          <dd>{{ s.actif ? 'Actif' : 'Inactif' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </aside>
+
+  <!-- Modal ajout partenaire -->
+  <div
+    class="modal-backdrop"
+    *ngIf="showAddModal"
+    (click)="closeAddModal()"
+    role="presentation"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="modal-sheet"
+    *ngIf="showAddModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="add-partner-title"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-sheet__inner">
+      <div class="modal-sheet__head">
+        <h2 id="add-partner-title">Ajouter un partenaire</h2>
+        <button type="button" class="modal-sheet__close" (click)="closeAddModal()" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <p class="modal-sheet__hint">
+        Le mot de passe est optionnel (mot de passe par défaut côté serveur si vide). Réservé aux comptes
+        administrateur ou partenaire.
+      </p>
+      <form class="add-form" [formGroup]="addForm" (ngSubmit)="submitAdd()">
+        <div class="form-row">
+          <label class="form-label" for="ap-firstName">Prénom</label>
+          <input id="ap-firstName" type="text" class="form-input" formControlName="firstName" />
+          <span class="form-error" *ngIf="addFieldError('firstName')">{{ addFieldError('firstName') }}</span>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="ap-lastName">Nom</label>
+          <input id="ap-lastName" type="text" class="form-input" formControlName="lastName" />
+          <span class="form-error" *ngIf="addFieldError('lastName')">{{ addFieldError('lastName') }}</span>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="ap-email">E-mail</label>
+          <input id="ap-email" type="email" class="form-input" formControlName="email" autocomplete="email" />
+          <span class="form-error" *ngIf="addFieldError('email')">{{ addFieldError('email') }}</span>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="ap-phone">Téléphone</label>
+          <input id="ap-phone" type="tel" class="form-input" formControlName="phone" autocomplete="tel" />
+          <span class="form-error" *ngIf="addFieldError('phone')">{{ addFieldError('phone') }}</span>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="ap-password">Mot de passe (optionnel)</label>
+          <input
+            id="ap-password"
+            type="password"
+            class="form-input"
+            formControlName="password"
+            autocomplete="new-password"
+          />
+        </div>
+        <div class="form-row form-row--check">
+          <label class="form-check">
+            <input type="checkbox" formControlName="actif" />
+            <span>Compte actif</span>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-ghost" (click)="closeAddModal()">Annuler</button>
+          <button type="submit" class="btn-submit" [disabled]="addSubmitting">
+            {{ addSubmitting ? 'Enregistrement…' : 'Créer le partenaire' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

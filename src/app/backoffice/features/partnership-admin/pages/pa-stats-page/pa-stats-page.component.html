@@ -1,0 +1,21 @@
+<h4 class="mb-4">Statistiques avancées</h4>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+      <h6 class="mb-2">Score global par partenaire</h6>
+      <app-chart-widget *ngIf="barScores" [config]="barScores"></app-chart-widget>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+      <h6 class="mb-2">Moyenne des scores de réponses (par quiz)</h6>
+      <app-chart-widget *ngIf="lineQuiz" [config]="lineQuiz"></app-chart-widget>
+    </div>
+  </div>
+  <div class="col-lg-6 mx-auto">
+    <div class="card border-0 shadow-sm rounded-4 p-3">
+      <h6 class="mb-2">Répartition des décisions d entretien</h6>
+      <app-chart-widget *ngIf="pieDecisions" [config]="pieDecisions"></app-chart-widget>
+    </div>
+  </div>
+</div>

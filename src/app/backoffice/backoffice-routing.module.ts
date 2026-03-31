@@ -41,10 +41,6 @@ const routes: Routes = [
         loadChildren: () => import('./features/rent-maintenance/rent-maintenance.module').then(m => m.RentMaintenanceModule)
       },
       {
-        path: 'partnerships',
-        loadChildren: () => import('./features/partnerships/partnerships.module').then(m => m.PartnershipsModule)
-      },
-      {
         path: 'transport',
         loadChildren: () => import('./features/transport/transport.module').then(m => m.TransportModule)
       },
@@ -55,6 +51,10 @@ const routes: Routes = [
       {
         path: 'forum',
         loadChildren: () => import('./features/forum/forum.module').then(m => m.ForumModule)
+      },
+       {
+        path: 'partnership-admin',
+        loadChildren: () => import('./features/partnership-admin/partnership-admin.module').then(m => m.PartnershipAdminModule)
       },
       {
         path: '',

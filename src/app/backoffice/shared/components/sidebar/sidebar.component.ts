@@ -14,7 +14,7 @@ export class SidebarComponent {
     { label: 'Product Management', route: '/admin/product-management' },
     { label: 'Orders & Deliveries', route: '/admin/orders' },
      { label: 'Rent & Maintenance', route: '/admin/rent-maintenance' },
-      { label: 'Partnership', route: '/admin/partnerships' },
+      { label: 'Partnership', route: '/admin/partnership-admin' },
       { label: 'Transport', route: '/admin/transport' },
       { label: 'Reclamation', route: '/admin/reclamation' },
       { label: 'Forum', route: '/admin/forum' },

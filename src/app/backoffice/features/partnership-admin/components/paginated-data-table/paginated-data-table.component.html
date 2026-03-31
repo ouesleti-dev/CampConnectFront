@@ -1,0 +1,57 @@
+<div class="mb-3">
+  <input
+    type="search"
+    class="form-control rounded-pill"
+    [placeholder]="searchPlaceholder"
+    [(ngModel)]="search"
+    (ngModelChange)="onSearchChange()"
+  />
+</div>
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th *ngFor="let col of columns">{{ col.label }}</th>
+        <th *ngIf="showActions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="paged.length === 0">
+        <td
+          [attr.colspan]="columns.length + (showActions ? 1 : 0)"
+          class="text-muted text-center py-4"
+        >
+          Aucune donnée à afficher. Vérifiez le chargement API ou lancez « Actualiser » depuis le menu
+          partenariat.
+        </td>
+      </tr>
+      <tr *ngFor="let row of paged">
+        <td *ngFor="let col of columns">{{ row[col.key] }}</td>
+        <td *ngIf="showActions" class="text-nowrap">
+          <button
+            *ngIf="showEdit"
+            type="button"
+            class="btn btn-sm btn-outline-primary rounded-pill me-1"
+            (click)="editRow.emit(row)"
+          >
+            Modifier
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill" (click)="deleteRow.emit(row)">
+            Supprimer
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<nav *ngIf="totalPages > 1" class="d-flex justify-content-between align-items-center">
+  <span class="text-muted small">Page {{ page }} / {{ totalPages }}</span>
+  <div class="btn-group">
+    <button type="button" class="btn btn-sm btn-outline-secondary rounded-start-pill" (click)="setPage(page - 1)" [disabled]="page <= 1">
+      Précédent
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary rounded-end-pill" (click)="setPage(page + 1)" [disabled]="page >= totalPages">
+      Suivant
+    </button>
+  </div>
+</nav>

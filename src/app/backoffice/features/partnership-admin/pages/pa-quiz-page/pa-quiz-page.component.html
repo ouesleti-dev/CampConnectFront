@@ -1,0 +1,220 @@
+<div class="row g-3 mb-4">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+      <h6 class="mb-2">Scores cumulés par partenaire</h6>
+      <app-chart-widget *ngIf="chartByPartner" [config]="chartByPartner"></app-chart-widget>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+      <h6 class="mb-2">Résultats par quiz</h6>
+      <app-chart-widget *ngIf="chartByQuiz" [config]="chartByQuiz"></app-chart-widget>
+    </div>
+  </div>
+</div>
+
+<section class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Quiz</h5>
+    <button type="button" class="btn btn-primary btn-sm rounded-pill" (click)="openQuiz(true)">Nouveau quiz</button>
+  </div>
+  <app-paginated-data-table
+    [columns]="qCols"
+    [rows]="quizRows"
+    [searchKeys]="['titre', 'partenaireLabel']"
+    [pageSize]="5"
+    (editRow)="openQuiz(false, $event)"
+    (deleteRow)="delQuiz($event)"
+  ></app-paginated-data-table>
+</section>
+
+<section class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Questions</h5>
+    <button type="button" class="btn btn-primary btn-sm rounded-pill" (click)="openQuestion(true)">Nouvelle question</button>
+  </div>
+  <app-paginated-data-table
+    [columns]="quCols"
+    [rows]="questionRows"
+    [searchKeys]="['texte', 'type', 'quizLabel']"
+    [pageSize]="5"
+    (editRow)="openQuestion(false, $event)"
+    (deleteRow)="delQuestion($event)"
+  ></app-paginated-data-table>
+</section>
+
+<section class="mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">Réponses & scoring</h5>
+    <button type="button" class="btn btn-primary btn-sm rounded-pill" (click)="openReponse()">Saisir une réponse</button>
+  </div>
+  <app-paginated-data-table
+    [columns]="rCols"
+    [rows]="reponseRows"
+    [searchKeys]="['valeur', 'partenaireLabel']"
+    [pageSize]="5"
+    [showEdit]="false"
+    (deleteRow)="delReponse($event)"
+  ></app-paginated-data-table>
+</section>
+
+<div class="modal fade" [class.show]="showQuiz" [style.display]="showQuiz ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">{{ editingQuiz != null ? 'Modifier' : 'Nouveau' }} quiz</h5>
+        <button type="button" class="btn-close" (click)="showQuiz = false"></button>
+      </div>
+      <div class="modal-body" [formGroup]="quizForm">
+        <label class="form-label">Titre</label>
+        <input
+          class="form-control rounded-pill mb-1"
+          [class.is-invalid]="qzInvalid('titre')"
+          formControlName="titre"
+        />
+        <div class="invalid-feedback d-block mb-2" *ngIf="qzInvalid('titre')">{{ qzMsg('titre') }}</div>
+        <label class="form-label">Partenaire</label>
+        <select
+          class="form-select rounded-pill"
+          [class.is-invalid]="qzInvalid('partenaireId')"
+          formControlName="partenaireId"
+        >
+          <option [ngValue]="null">—</option>
+          <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+        </select>
+        <div class="invalid-feedback d-block" *ngIf="qzInvalid('partenaireId')">{{ qzMsg('partenaireId') }}</div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showQuiz = false">Annuler</button>
+        <button type="button" class="btn btn-primary rounded-pill" (click)="saveQuiz()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" [class.show]="showQuestion" [style.display]="showQuestion ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">{{ editingQuestion != null ? 'Modifier' : 'Nouvelle' }} question</h5>
+        <button type="button" class="btn-close" (click)="showQuestion = false"></button>
+      </div>
+      <div class="modal-body" [formGroup]="questionForm">
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="form-label">Quiz</label>
+            <select
+              class="form-select rounded-pill"
+              [class.is-invalid]="qnInvalid('quizId')"
+              formControlName="quizId"
+            >
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let q of quizzes" [ngValue]="q.id">{{ q.label }}</option>
+            </select>
+            <div class="invalid-feedback d-block" *ngIf="qnInvalid('quizId')">{{ qnMsg('quizId') }}</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Texte</label>
+            <textarea
+              class="form-control rounded-4"
+              rows="2"
+              [class.is-invalid]="qnInvalid('texte')"
+              formControlName="texte"
+            ></textarea>
+            <div class="invalid-feedback d-block" *ngIf="qnInvalid('texte')">{{ qnMsg('texte') }}</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Type</label>
+            <select
+              class="form-select rounded-pill"
+              [class.is-invalid]="qnInvalid('type')"
+              formControlName="type"
+            >
+              <option *ngFor="let t of types" [ngValue]="t">{{ t }}</option>
+            </select>
+            <div class="invalid-feedback d-block" *ngIf="qnInvalid('type')">{{ qnMsg('type') }}</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Points</label>
+            <input
+              type="number"
+              class="form-control rounded-pill"
+              [class.is-invalid]="qnInvalid('points')"
+              formControlName="points"
+            />
+            <div class="invalid-feedback d-block" *ngIf="qnInvalid('points')">{{ qnMsg('points') }}</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Options QCM (JSON array)</label>
+            <input
+              class="form-control rounded-pill"
+              [class.is-invalid]="qnInvalid('optionsJson')"
+              formControlName="optionsJson"
+              placeholder='["A","B"]'
+            />
+            <div class="invalid-feedback d-block" *ngIf="qnInvalid('optionsJson')">{{ qnMsg('optionsJson') }}</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Bonne réponse / référence</label>
+            <input
+              class="form-control rounded-pill"
+              [class.is-invalid]="qnInvalid('bonneReponse')"
+              formControlName="bonneReponse"
+            />
+            <div class="invalid-feedback d-block" *ngIf="qnInvalid('bonneReponse')">{{ qnMsg('bonneReponse') }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showQuestion = false">Annuler</button>
+        <button type="button" class="btn btn-primary rounded-pill" (click)="saveQuestion()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" [class.show]="showReponse" [style.display]="showReponse ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">Saisir une réponse</h5>
+        <button type="button" class="btn-close" (click)="showReponse = false"></button>
+      </div>
+      <div class="modal-body" [formGroup]="reponseForm">
+        <label class="form-label">Question</label>
+        <select
+          class="form-select rounded-pill mb-1"
+          [class.is-invalid]="rpInvalid('questionId')"
+          formControlName="questionId"
+        >
+          <option [ngValue]="null">—</option>
+          <option *ngFor="let q of questions" [ngValue]="q.id">{{ q.label }}</option>
+        </select>
+        <div class="invalid-feedback d-block mb-2" *ngIf="rpInvalid('questionId')">{{ rpMsg('questionId') }}</div>
+        <label class="form-label">Partenaire</label>
+        <select
+          class="form-select rounded-pill mb-1"
+          [class.is-invalid]="rpInvalid('partenaireId')"
+          formControlName="partenaireId"
+        >
+          <option [ngValue]="null">—</option>
+          <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+        </select>
+        <div class="invalid-feedback d-block mb-2" *ngIf="rpInvalid('partenaireId')">{{ rpMsg('partenaireId') }}</div>
+        <label class="form-label">Réponse</label>
+        <input
+          class="form-control rounded-pill"
+          [class.is-invalid]="rpInvalid('valeur')"
+          formControlName="valeur"
+        />
+        <div class="invalid-feedback d-block" *ngIf="rpInvalid('valeur')">{{ rpMsg('valeur') }}</div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showReponse = false">Annuler</button>
+        <button type="button" class="btn btn-primary rounded-pill" (click)="saveReponse()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade" *ngIf="showQuiz || showQuestion || showReponse" [class.show]="showQuiz || showQuestion || showReponse"></div>

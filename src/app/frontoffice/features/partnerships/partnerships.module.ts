@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PartnershipsRoutingModule } from './partnerships-routing.module';
 import { PartnershipsPageComponent } from './pages/partnerships-page/partnerships-page.component';
-
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -11,7 +11,10 @@ import { PartnershipsPageComponent } from './pages/partnerships-page/partnership
   ],
   imports: [
     CommonModule,
-    PartnershipsRoutingModule
+    FormsModule,
+    ReactiveFormsModule,
+    PartnershipsRoutingModule,
+    ToastrModule
   ]
 })
 export class PartnershipsModule { }

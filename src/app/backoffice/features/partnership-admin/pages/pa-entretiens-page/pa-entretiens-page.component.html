@@ -1,0 +1,97 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h4 class="mb-0">Entretiens partenaires</h4>
+  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Planifier</button>
+</div>
+<div class="row g-2 mb-3 align-items-end">
+  <div class="col-md-4">
+    <label class="form-label small text-muted mb-1">Historique par partenaire</label>
+    <select class="form-select rounded-pill" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilter()">
+      <option [ngValue]="null">Tous</option>
+      <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+    </select>
+  </div>
+  <div class="col-md-8">
+    <span class="text-muted small">Raccourcis :</span>
+    <button
+      *ngFor="let u of users"
+      type="button"
+      class="btn btn-sm btn-outline-secondary rounded-pill ms-1"
+      (click)="historiqueForPartner(u.id)"
+    >
+      {{ u.label }}
+    </button>
+    <button type="button" class="btn btn-sm btn-link" (click)="historiqueForPartner(null)">Réinitialiser</button>
+  </div>
+</div>
+<app-paginated-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [searchKeys]="searchKeys"
+  (editRow)="openEdit($event)"
+  (deleteRow)="remove($event)"
+></app-paginated-data-table>
+
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Planifier' }} entretien</h5>
+        <button type="button" class="btn-close" (click)="showModal = false"></button>
+      </div>
+      <div class="modal-body" [formGroup]="form">
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="form-label">Partenaire</label>
+            <select
+              class="form-select rounded-pill"
+              [class.is-invalid]="invalidField('partenaireId')"
+              formControlName="partenaireId"
+            >
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="invalidField('partenaireId')">{{ messageField('partenaireId') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date</label>
+            <input
+              type="date"
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('date')"
+              formControlName="date"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('date')">{{ messageField('date') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Mode</label>
+            <select class="form-select rounded-pill" formControlName="mode">
+              <option *ngFor="let m of modes" [ngValue]="m">{{ m }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Décision</label>
+            <select class="form-select rounded-pill" formControlName="decision">
+              <option *ngFor="let d of decisions" [ngValue]="d">{{ d }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Score global (0–100)</label>
+            <input
+              type="number"
+              step="0.01"
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('scoreGlobal')"
+              formControlName="scoreGlobal"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('scoreGlobal')">{{ messageField('scoreGlobal') }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
+        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>

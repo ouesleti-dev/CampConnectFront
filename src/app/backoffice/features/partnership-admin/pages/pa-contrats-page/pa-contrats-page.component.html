@@ -1,0 +1,121 @@
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h4 class="mb-0">Contrats</h4>
+  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Ajouter</button>
+</div>
+<p class="text-muted small mb-3">
+  Commission = montant × (taux % / 100), configurable par contrat.
+</p>
+<div class="row g-2 mb-3">
+  <div class="col-md-4">
+    <select class="form-select rounded-pill" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilters()">
+      <option [ngValue]="null">Tous les partenaires</option>
+      <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+    </select>
+  </div>
+  <div class="col-md-4">
+    <select class="form-select rounded-pill" [(ngModel)]="filterStatut" (ngModelChange)="applyFilters()">
+      <option [ngValue]="null">Tous les statuts</option>
+      <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
+    </select>
+  </div>
+</div>
+<app-paginated-data-table
+  [columns]="columns"
+  [rows]="rows"
+  [searchKeys]="searchKeys"
+  (editRow)="openEdit($event)"
+  (deleteRow)="remove($event)"
+></app-paginated-data-table>
+
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content rounded-4">
+      <div class="modal-header border-0">
+        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Ajouter' }} contrat</h5>
+        <button type="button" class="btn-close" (click)="showModal = false"></button>
+      </div>
+      <div class="modal-body" [formGroup]="form">
+        <div class="row g-2">
+          <div class="col-12" *ngIf="invalidDates()">
+            <div class="invalid-feedback d-block">{{ validationMessage({ dateOrder: true }) }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Partenaire</label>
+            <select
+              class="form-select rounded-pill"
+              [class.is-invalid]="invalidField('partenaireId')"
+              formControlName="partenaireId"
+            >
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="invalidField('partenaireId')">{{ messageField('partenaireId') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Offre</label>
+            <select
+              class="form-select rounded-pill"
+              [class.is-invalid]="invalidField('offreId')"
+              formControlName="offreId"
+            >
+              <option [ngValue]="null">—</option>
+              <option *ngFor="let o of offres" [ngValue]="o.id">{{ o.label }}</option>
+            </select>
+            <div class="invalid-feedback" *ngIf="invalidField('offreId')">{{ messageField('offreId') }}</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Montant</label>
+            <input
+              type="number"
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('montant')"
+              formControlName="montant"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('montant')">{{ messageField('montant') }}</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Taux commission %</label>
+            <input
+              type="number"
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('tauxCommission')"
+              formControlName="tauxCommission"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('tauxCommission')">{{ messageField('tauxCommission') }}</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Statut</label>
+            <select class="form-select rounded-pill" formControlName="statut">
+              <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date début</label>
+            <input
+              type="date"
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('dateDebut') || invalidDates()"
+              formControlName="dateDebut"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('dateDebut')">{{ messageField('dateDebut') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Date fin</label>
+            <input
+              type="date"
+              class="form-control rounded-pill"
+              [class.is-invalid]="invalidField('dateFin') || invalidDates()"
+              formControlName="dateFin"
+            />
+            <div class="invalid-feedback" *ngIf="invalidField('dateFin')">{{ messageField('dateFin') }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
+        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>
