@@ -1,0 +1,121 @@
+<section class="recommendation-page">
+  <header class="recommendation-header">
+    <div>
+      <h1>Trip Recommendations</h1>
+      <p>Search for the best trip options based on your budget and travel needs.</p>
+    </div>
+    <button type="button" class="btn-back" (click)="goBack()">
+      Back
+    </button>
+  </header>
+
+  <form
+    class="search-form"
+    [formGroup]="recommendationForm"
+    (ngSubmit)="onSearch()"
+  >
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="departureLocation">Departure</label>
+        <input
+          id="departureLocation"
+          type="text"
+          formControlName="departureLocation"
+          placeholder="Tunis"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="destination">Destination</label>
+        <input
+          id="destination"
+          type="text"
+          formControlName="destination"
+          placeholder="Sousse"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="passengerCount">Passengers</label>
+        <input
+          id="passengerCount"
+          type="number"
+          min="1"
+          formControlName="passengerCount"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="maxPrice">Max price</label>
+        <input
+          id="maxPrice"
+          type="number"
+          min="0"
+          formControlName="maxPrice"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="preferredType">Preferred type</label>
+        <select id="preferredType" formControlName="preferredType">
+          <option *ngFor="let type of preferredTypes" [value]="type">
+            {{ type }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-search" [disabled]="isLoading">
+        {{ isLoading ? 'Searching...' : 'Search' }}
+      </button>
+    </div>
+  </form>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <section *ngIf="isLoading" class="state-card">
+    <h3>Loading recommendations...</h3>
+    <p>We are finding the best trip matches for your request.</p>
+  </section>
+
+  <section *ngIf="!isLoading && recommendations.length > 0" class="results-grid">
+    <article *ngFor="let recommendation of recommendations" class="result-card">
+      <div class="card-top">
+        <span class="score-badge" [ngClass]="getScoreClass(recommendation.score)">
+          {{ recommendation.score | number:'1.0-0' }}/100
+        </span>
+      </div>
+
+      <h3>{{ recommendation.departureLocation }} → {{ recommendation.destination }}</h3>
+
+      <div class="score-track">
+        <div
+          class="score-fill"
+          [ngClass]="getScoreClass(recommendation.score)"
+          [style.width.%]="recommendation.score"
+        ></div>
+      </div>
+
+      <div class="details-grid">
+        <p><strong>Distance:</strong> {{ recommendation.distance }} km</p>
+        <p><strong>Date:</strong> {{ recommendation.departureDate | date:'mediumDate' }}</p>
+        <p><strong>Price:</strong> {{ recommendation.price }}</p>
+        <p><strong>Available seats:</strong> {{ recommendation.availableSeats }}</p>
+        <p><strong>Transport type:</strong> {{ recommendation.transportType }}</p>
+        <p><strong>Vehicle plate:</strong> {{ recommendation.vehicleLicensePlate }}</p>
+      </div>
+
+      <button type="button" class="btn-book" (click)="reserveAd(recommendation.adId)">
+        Book
+      </button>
+    </article>
+  </section>
+
+  <section *ngIf="!isLoading && hasSearched && recommendations.length === 0" class="state-card">
+    <h3>No recommendations found</h3>
+    <p>Try adjusting the route, passenger count, or max price to see more results.</p>
+  </section>
+</section>

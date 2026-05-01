@@ -7,6 +7,8 @@ import { TransportPageComponent } from './pages/transport-page/transport-page.co
 import { OptionServiceComponent } from './pages/option-service/option-service.component';
 import { TripComponent } from './pages/trip/trip.component';
 import { TransportAdComponent } from './pages/transport-ad/transport-ad.component';
+import { RecommendationComponent } from './pages/recommendation/recommendation.component';
+import { AiTransportComponent } from './pages/ai-transport/ai-transport.component';
 import { SharedModule } from '../../shared/shared.module';
 
 
@@ -15,7 +17,9 @@ import { SharedModule } from '../../shared/shared.module';
     TransportPageComponent,
     OptionServiceComponent,
     TripComponent,
-    TransportAdComponent
+    TransportAdComponent,
+    RecommendationComponent,
+    AiTransportComponent
   ],
   imports: [
     SharedModule,

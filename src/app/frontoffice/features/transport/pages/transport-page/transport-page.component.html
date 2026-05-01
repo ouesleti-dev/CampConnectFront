@@ -5,9 +5,17 @@
       <h1>My Vehicles</h1>
       <p>Manage your fleet, your trips, and your ads on a single page.</p>
     </div>
-    <button type="button" class="primary-action" (click)="toggleForm()">
-      {{ showForm ? 'Close form' : 'Add a Vehicle' }}
-    </button>
+    <div class="header-actions">
+      <button type="button" class="primary-action" routerLink="/transport/ai">
+        AI Transport
+      </button>
+      <button type="button" class="primary-action" (click)="goToRecommendations()">
+        Find Best Trip
+      </button>
+      <button type="button" class="primary-action" (click)="toggleForm()">
+        {{ showForm ? 'Close form' : 'Add a Vehicle' }}
+      </button>
+    </div>
   </header>
 
   <div *ngIf="successMessage" class="alert alert-success">
@@ -92,7 +100,7 @@
       <div class="trips-section" *ngIf="(tripsByVehicle[v.vehicleId] || []).length > 0">
         <h4>Trips</h4>
         <div class="trip-item" *ngFor="let t of tripsByVehicle[v.vehicleId]">
-          <span>{{ t.departureLocation }} to {{ t.destination }}</span>
+          <span>{{ t.displayDepartureLocation }} &rarr; {{ t.displayDestinationLocation }}</span>
           <span>{{ t.departureDate | date:'dd/MM/yyyy' }}</span>
           <span>{{ t.distance }} km</span>
 
@@ -126,7 +134,7 @@
   <div class="reservation-overlay" *ngIf="showReservationForm && selectedAd">
     <div class="reservation-modal">
       <h3>Book</h3>
-      <p>{{ selectedAd.departureLocation }} to {{ selectedAd.destination }}</p>
+      <p>{{ selectedAdDisplayDepartureLocation }} to {{ selectedAdDisplayDestinationLocation }}</p>
       <p>Price: {{ selectedAd.price }} TND | Available seats: {{ selectedAd.availableSeats }}</p>
       <form [formGroup]="reservationForm" (ngSubmit)="submitReservation()">
         <div class="form-group">

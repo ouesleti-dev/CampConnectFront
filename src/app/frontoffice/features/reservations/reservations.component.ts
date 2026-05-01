@@ -2,9 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReservationService } from '../../shared/services/reservation.service';
 import {
+  ReservationDetailsResponse,
   ReservationRequest,
   ReservationResponse
 } from '../../shared/models/reservation.model';
+import { LocationDisplayService } from '../../shared/services/location-display.service';
+
+interface ReservationViewModel extends ReservationResponse {
+  displayDepartureLocation: string;
+  displayDestinationLocation: string;
+}
+
+interface ReservationDetailsViewModel extends ReservationDetailsResponse {
+  displayDestination: string;
+}
 
 @Component({
   selector: 'app-reservations',
@@ -12,15 +23,21 @@ import {
   styleUrls: ['./reservations.component.css']
 })
 export class ReservationsComponent implements OnInit {
-  reservations: ReservationResponse[] = [];
+  reservations: ReservationViewModel[] = [];
+  reservationDetails: ReservationDetailsViewModel[] = [];
   reservationForm!: FormGroup;
+  searchForm!: FormGroup;
   editReservationId: number | null = null;
+  isLoadingDetails = false;
   successMessage = '';
   errorMessage = '';
+  private reservationsResolveVersion = 0;
+  private detailsResolveVersion = 0;
 
   constructor(
     private fb: FormBuilder,
-    private reservationService: ReservationService
+    private reservationService: ReservationService,
+    private locationDisplayService: LocationDisplayService
   ) {}
 
   ngOnInit(): void {
@@ -29,18 +46,68 @@ export class ReservationsComponent implements OnInit {
       seatCount: [1, [Validators.required, Validators.min(1)]]
     });
 
+    this.searchForm = this.fb.group({
+      destination: [''],
+      transportType: ['']
+    });
+
     this.loadReservations();
+    this.loadReservationDetails();
   }
 
   loadReservations(): void {
     this.reservationService.getMyReservations().subscribe({
       next: (reservations: ReservationResponse[]) => {
-        this.reservations = reservations;
+        this.setReservations(reservations);
       },
       error: (err: any) => {
         this.errorMessage = err?.error?.message || 'Erreur lors du chargement des reservations.';
       }
     });
+  }
+
+  loadReservationDetails(): void {
+    this.isLoadingDetails = true;
+
+    this.reservationService.getReservationDetails().subscribe({
+      next: (details: ReservationDetailsResponse[]) => {
+        this.setReservationDetails(details);
+        this.isLoadingDetails = false;
+      },
+      error: (err: any) => {
+        this.errorMessage = err?.error?.message || 'Erreur lors du chargement des details des reservations.';
+        this.reservationDetails = [];
+        this.isLoadingDetails = false;
+      }
+    });
+  }
+
+  searchReservationDetails(): void {
+    this.clearMessages();
+    this.isLoadingDetails = true;
+
+    const destination = this.searchForm.get('destination')?.value as string;
+    const transportType = this.searchForm.get('transportType')?.value as string;
+
+    this.reservationService.searchReservations(destination, transportType).subscribe({
+      next: (details: ReservationDetailsResponse[]) => {
+        this.setReservationDetails(details);
+        this.isLoadingDetails = false;
+      },
+      error: (err: any) => {
+        this.errorMessage = err?.error?.message || 'Erreur lors de la recherche des reservations.';
+        this.reservationDetails = [];
+        this.isLoadingDetails = false;
+      }
+    });
+  }
+
+  resetSearch(): void {
+    this.searchForm.reset({
+      destination: '',
+      transportType: ''
+    });
+    this.loadReservationDetails();
   }
 
   editReservation(reservation: ReservationResponse): void {
@@ -70,6 +137,7 @@ export class ReservationsComponent implements OnInit {
         this.successMessage = 'Reservation modifiee avec succes.';
         this.cancelEdit();
         this.loadReservations();
+        this.loadReservationDetails();
       },
       error: (err: any) => {
         this.errorMessage = err?.error?.message || 'Erreur lors de la modification de la reservation.';
@@ -87,6 +155,7 @@ export class ReservationsComponent implements OnInit {
           this.cancelEdit();
         }
         this.loadReservations();
+        this.loadReservationDetails();
       },
       error: (err: any) => {
         this.errorMessage = err?.error?.message || 'Erreur lors de la suppression de la reservation.';
@@ -105,5 +174,86 @@ export class ReservationsComponent implements OnInit {
   private clearMessages(): void {
     this.successMessage = '';
     this.errorMessage = '';
+  }
+
+  private setReservations(reservations: ReservationResponse[]): void {
+    const resolveVersion = ++this.reservationsResolveVersion;
+    const viewModels = reservations.map((reservation: ReservationResponse): ReservationViewModel => ({
+      ...reservation,
+      displayDepartureLocation: this.locationDisplayService.formatLocation(reservation.departureLocation),
+      displayDestinationLocation: this.locationDisplayService.formatLocation(reservation.destination)
+    }));
+
+    this.reservations = viewModels;
+    this.resolveReservationsDisplayLocations(viewModels, resolveVersion);
+  }
+
+  private async resolveReservationsDisplayLocations(
+    reservations: ReservationViewModel[],
+    resolveVersion: number
+  ): Promise<void> {
+    await Promise.all(
+      reservations.map(async (reservation: ReservationViewModel) => {
+        const [departureLocation, destinationLocation] = await Promise.all([
+          this.locationDisplayService.getDisplayLocation(
+            reservation.departureLocation,
+            reservation.departureLat ?? null,
+            reservation.departureLng ?? null
+          ),
+          this.locationDisplayService.getDisplayLocation(
+            reservation.destination,
+            reservation.destinationLat ?? null,
+            reservation.destinationLng ?? null
+          )
+        ]);
+
+        if (resolveVersion !== this.reservationsResolveVersion) {
+          return;
+        }
+
+        reservation.displayDepartureLocation = departureLocation;
+        reservation.displayDestinationLocation = destinationLocation;
+      })
+    );
+
+    if (resolveVersion === this.reservationsResolveVersion) {
+      this.reservations = [...reservations];
+    }
+  }
+
+  private setReservationDetails(details: ReservationDetailsResponse[]): void {
+    const resolveVersion = ++this.detailsResolveVersion;
+    const viewModels = details.map((detail: ReservationDetailsResponse): ReservationDetailsViewModel => ({
+      ...detail,
+      displayDestination: this.locationDisplayService.formatLocation(detail.destination)
+    }));
+
+    this.reservationDetails = viewModels;
+    this.resolveReservationDetailsDisplayLocations(viewModels, resolveVersion);
+  }
+
+  private async resolveReservationDetailsDisplayLocations(
+    details: ReservationDetailsViewModel[],
+    resolveVersion: number
+  ): Promise<void> {
+    await Promise.all(
+      details.map(async (detail: ReservationDetailsViewModel) => {
+        const destination = await this.locationDisplayService.getDisplayLocation(
+          detail.destination,
+          detail.destinationLat ?? null,
+          detail.destinationLng ?? null
+        );
+
+        if (resolveVersion !== this.detailsResolveVersion) {
+          return;
+        }
+
+        detail.displayDestination = destination;
+      })
+    );
+
+    if (resolveVersion === this.detailsResolveVersion) {
+      this.reservationDetails = [...details];
+    }
   }
 }

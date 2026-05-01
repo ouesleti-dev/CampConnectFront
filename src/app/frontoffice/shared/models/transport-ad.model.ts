@@ -13,5 +13,9 @@ export interface TransportAdResponse {
   tripId: number;
   departureLocation: string;
   destination: string;
+  departureLat?: number | null;
+  departureLng?: number | null;
+  destinationLat?: number | null;
+  destinationLng?: number | null;
   vehicleLicensePlate: string;
 }

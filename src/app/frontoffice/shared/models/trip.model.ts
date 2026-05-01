@@ -4,6 +4,10 @@ export interface TripRequest {
   departureDate: string;
   distance: number;
   vehicleId: number;
+  departureLat?: number | null;
+  departureLng?: number | null;
+  destinationLat?: number | null;
+  destinationLng?: number | null;
 }
 
 export interface TripResponse {
@@ -15,4 +19,8 @@ export interface TripResponse {
   vehicleId: number;
   vehicleLicensePlate: string;
   vehicleType: string;
+  departureLat?: number | null;
+  departureLng?: number | null;
+  destinationLat?: number | null;
+  destinationLng?: number | null;
 }

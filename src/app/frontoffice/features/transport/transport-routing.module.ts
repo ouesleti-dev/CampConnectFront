@@ -4,6 +4,9 @@ import { TransportPageComponent } from './pages/transport-page/transport-page.co
 import { OptionServiceComponent } from './pages/option-service/option-service.component';
 import { TripComponent } from './pages/trip/trip.component';
 import { TransportAdComponent } from './pages/transport-ad/transport-ad.component';
+import { RecommendationComponent } from './pages/recommendation/recommendation.component';
+import { AiTransportComponent } from './pages/ai-transport/ai-transport.component';
+import { AuthGuard } from '../../shared/guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -21,6 +24,15 @@ const routes: Routes = [
   {
     path: 'transport-ads',
     component: TransportAdComponent
+  },
+  {
+    path: 'recommendations',
+    component: RecommendationComponent
+  },
+  {
+    path: 'ai',
+    component: AiTransportComponent,
+    canActivate: [AuthGuard]
   }
 ];
 

@@ -14,5 +14,20 @@ export interface ReservationResponse {
   adPrice: number;
   departureLocation: string;
   destination: string;
+  departureLat?: number | null;
+  departureLng?: number | null;
+  destinationLat?: number | null;
+  destinationLng?: number | null;
   userEmail: string;
+}
+
+export interface ReservationDetailsResponse {
+  reservationId: number;
+  destination: string;
+  destinationLat?: number | null;
+  destinationLng?: number | null;
+  price: number;
+  vehicle: string;
+  seats: number;
+  status: string;
 }

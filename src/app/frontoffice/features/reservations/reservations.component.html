@@ -5,23 +5,88 @@
       <p>View and manage all your transport reservations.</p>
     </div>
   </header>
- 
+
   <div *ngIf="successMessage" class="alert alert-success">
     {{ successMessage }}
   </div>
- 
+
   <div *ngIf="errorMessage" class="alert alert-error">
     {{ errorMessage }}
   </div>
- 
+
+  <section class="details-section">
+    <div class="section-heading">
+      <div>
+        <h2>Reservation Details</h2>
+        <p>View reservation details and search by destination or transport type.</p>
+      </div>
+    </div>
+
+    <form class="search-form" [formGroup]="searchForm" (ngSubmit)="searchReservationDetails()">
+      <div class="form-group">
+        <label for="searchDestination">Destination</label>
+        <input
+          id="searchDestination"
+          type="text"
+          formControlName="destination"
+          placeholder="Sousse"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="searchTransportType">Transport Type</label>
+        <input
+          id="searchTransportType"
+          type="text"
+          formControlName="transportType"
+          placeholder="Ride_sharing"
+        />
+      </div>
+
+      <div class="search-actions">
+        <button type="submit" class="btn-save" [disabled]="isLoadingDetails">
+          {{ isLoadingDetails ? 'Searching...' : 'Search' }}
+        </button>
+        <button type="button" class="btn-cancel" (click)="resetSearch()" [disabled]="isLoadingDetails">
+          Reset
+        </button>
+      </div>
+    </form>
+
+    <div class="details-table-wrapper" *ngIf="reservationDetails.length > 0; else noDetails">
+      <table class="details-table">
+        <thead>
+          <tr>
+            <th>Reservation ID</th>
+            <th>Destination</th>
+            <th>Price</th>
+            <th>Vehicle</th>
+            <th>Seats</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let detail of reservationDetails">
+            <td>{{ detail.reservationId }}</td>
+            <td>{{ detail.displayDestination }}</td>
+            <td>{{ detail.price }} TND</td>
+            <td>{{ detail.vehicle }}</td>
+            <td>{{ detail.seats }}</td>
+            <td>{{ detail.status }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <section *ngIf="reservations.length > 0; else emptyState" class="reservations-grid">
     <article *ngFor="let reservation of reservations" class="reservation-card">
-      <h3>{{ reservation.departureLocation }} → {{ reservation.destination }}</h3>
+      <h3>{{ reservation.displayDepartureLocation }} &rarr; {{ reservation.displayDestinationLocation }}</h3>
       <p><strong>Date:</strong> {{ reservation.reservationDate | date:'dd/MM/yyyy' }}</p>
       <p><strong>Seats:</strong> {{ reservation.seatCount }}</p>
       <p><strong>Price:</strong> {{ reservation.adPrice }} TND</p>
       <p><strong>Status:</strong> {{ reservation.status }}</p>
- 
+
       <form
         *ngIf="editReservationId === reservation.reservationId"
         class="edit-form"
@@ -36,7 +101,7 @@
             formControlName="reservationDate"
           />
         </div>
- 
+
         <div class="form-group">
           <label for="seatCount">Number of Seats</label>
           <input
@@ -46,24 +111,31 @@
             formControlName="seatCount"
           />
         </div>
- 
+
         <div class="form-actions">
           <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancel</button>
           <button type="submit" class="btn-save">Save</button>
         </div>
       </form>
- 
+
       <div class="card-actions" *ngIf="editReservationId !== reservation.reservationId">
         <button type="button" class="btn-edit" (click)="editReservation(reservation)">Edit</button>
         <button type="button" class="btn-delete" (click)="deleteReservation(reservation.reservationId)">Delete</button>
       </div>
     </article>
   </section>
- 
+
   <ng-template #emptyState>
     <section class="empty-state">
       <h3>No Reservations</h3>
       <p>Your reservations will appear here once you book a transport ad.</p>
+    </section>
+  </ng-template>
+
+  <ng-template #noDetails>
+    <section class="empty-state details-empty-state">
+      <h3>No Reservation Details</h3>
+      <p>Reservation details will appear here when data is available.</p>
     </section>
   </ng-template>
 </section>

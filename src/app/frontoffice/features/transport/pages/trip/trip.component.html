@@ -34,6 +34,10 @@
     </div>
 
     <input type="hidden" formControlName="vehicleId" />
+    <input type="hidden" formControlName="departureLat" />
+    <input type="hidden" formControlName="departureLng" />
+    <input type="hidden" formControlName="destinationLat" />
+    <input type="hidden" formControlName="destinationLng" />
 
     <div class="form-grid">
       <div class="form-field">
@@ -77,6 +81,33 @@
       </div>
     </div>
 
+    <section class="map-panel">
+      <div class="map-header">
+        <div>
+          <h3>Interactive route map</h3>
+          <p>{{ mapInstruction }}</p>
+        </div>
+        <button type="button" class="btn-reset-map" (click)="resetMap()">
+          Reset map
+        </button>
+      </div>
+
+      <div class="map-wrapper">
+        <div #tripMap class="trip-map"></div>
+        <div class="map-loading" *ngIf="isRouteLoading">
+          Calculating route...
+        </div>
+      </div>
+
+      <div class="map-status" *ngIf="!mapErrorMessage">
+        First click sets departure. Second click sets destination and calculates distance automatically.
+      </div>
+
+      <div class="alert alert-error map-error" *ngIf="mapErrorMessage">
+        {{ mapErrorMessage }}
+      </div>
+    </section>
+
     <div class="form-actions">
       <button type="button" class="secondary-action" (click)="resetForm()">
         Cancel
@@ -93,9 +124,9 @@
         <span class="vehicle-badge">{{ trip.vehicleLicensePlate || ('#' + trip.vehicleId) }}</span>
       </div>
 
-      <h3>{{ trip.departureLocation }} to {{ trip.destination }}</h3>
-      <p><strong>Date:</strong> {{ trip.departureDate | date:'mediumDate' }}</p>
-      <p><strong>Distance:</strong> {{ trip.distance }} km</p>
+      <h3>{{ trip.displayDepartureLocation }} &rarr; {{ trip.displayDestinationLocation }}</h3>
+      <p><strong>Date:</strong> {{ trip.departureDate | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Distance:</strong> {{ trip.distance | number:'1.0-0' }} km</p>
 
       <div class="card-actions">
         <button type="button" class="secondary-action" (click)="editTrip(trip)">

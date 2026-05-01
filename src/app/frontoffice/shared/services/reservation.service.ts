@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
+  ReservationDetailsResponse,
   ReservationRequest,
   ReservationResponse
 } from '../models/reservation.model';
@@ -36,6 +37,27 @@ export class ReservationService {
 
   getMyReservations(): Observable<ReservationResponse[]> {
     return this.http.get<ReservationResponse[]>(`${this.baseUrl}/my`);
+  }
+
+  getReservationDetails(): Observable<ReservationDetailsResponse[]> {
+    return this.http.get<ReservationDetailsResponse[]>(`${this.baseUrl}/details`);
+  }
+
+  searchReservations(
+    destination: string,
+    transportType: string
+  ): Observable<ReservationDetailsResponse[]> {
+    let params = new HttpParams();
+
+    if (destination.trim()) {
+      params = params.set('destination', destination.trim());
+    }
+
+    if (transportType.trim()) {
+      params = params.set('transportType', transportType.trim());
+    }
+
+    return this.http.get<ReservationDetailsResponse[]>(`${this.baseUrl}/search`, { params });
   }
 
   getByAdId(adId: number): Observable<ReservationResponse[]> {

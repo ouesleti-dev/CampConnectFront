@@ -1,4 +1,75 @@
-<div class="container">
-  <h1>Transport Management</h1>
-  <p>Manage transportation and logistics.</p>
+<div class="stats-section">
+
+  <div *ngIf="loadingStats">Chargement des statistiques...</div>
+
+  <div *ngIf="statsError" class="stats-error">
+    {{ statsError }}
+  </div>
+
+  <div *ngIf="stats" class="stats-grid">
+
+    <div class="stat-card">
+      <h4>Reservations</h4>
+      <p>{{ stats.totalReservations }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h4>Vehicles</h4>
+      <p>{{ stats.totalVehicles }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h4>Trips</h4>
+      <p>{{ stats.totalTrips }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h4>Ads</h4>
+      <p>{{ stats.totalAds }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h4>Reserved Seats</h4>
+      <p>{{ stats.totalReservedSeats }}</p>
+    </div>
+
+    <div class="stat-card">
+      <h4>Revenue</h4>
+      <p>{{ stats.totalRevenue }} DT</p>
+    </div>
+
+  </div>
+
+  <div *ngIf="stats" class="stats-tables">
+
+    <div>
+      <h3>Reservations by Transport Type</h3>
+      <table>
+        <tr>
+          <th>Type</th>
+          <th>Total</th>
+        </tr>
+        <tr *ngFor="let item of stats.reservationsByTransportType">
+          <td>{{ item.label }}</td>
+          <td>{{ item.value }}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>Reservations by Destination</h3>
+      <table>
+        <tr>
+          <th>Destination</th>
+          <th>Total</th>
+        </tr>
+        <tr *ngFor="let item of stats.reservationsByDestination">
+          <td>{{ item.label }}</td>
+          <td>{{ item.value }}</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+
 </div>

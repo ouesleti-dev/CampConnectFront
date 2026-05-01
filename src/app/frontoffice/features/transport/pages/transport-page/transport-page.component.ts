@@ -12,6 +12,12 @@ import {
 import { TripResponse } from '../../../../shared/models/trip.model';
 import { TransportAdResponse } from '../../../../shared/models/transport-ad.model';
 import { ReservationRequest } from '../../../../shared/models/reservation.model';
+import { LocationDisplayService } from '../../../../shared/services/location-display.service';
+
+interface TripDisplayResponse extends TripResponse {
+  displayDepartureLocation: string;
+  displayDestinationLocation: string;
+}
 
 @Component({
   selector: 'app-transport-page',
@@ -22,10 +28,12 @@ export class TransportPageComponent implements OnInit {
   vehicleForm!: FormGroup;
   reservationForm!: FormGroup;
   vehicles: VehicleResponse[] = [];
-  tripsByVehicle: { [vehicleId: number]: TripResponse[] } = {};
+  tripsByVehicle: { [vehicleId: number]: TripDisplayResponse[] } = {};
   adsByTrip: { [tripId: number]: TransportAdResponse[] } = {};
   showReservationForm = false;
   selectedAd: TransportAdResponse | null = null;
+  selectedAdDisplayDepartureLocation = '';
+  selectedAdDisplayDestinationLocation = '';
   isLoading = false;
   showForm = false;
   editMode = false;
@@ -42,6 +50,7 @@ export class TransportPageComponent implements OnInit {
     private tripService: TripService,
     private transportAdService: TransportAdService,
     private reservationService: ReservationService,
+    private locationDisplayService: LocationDisplayService,
     private router: Router
   ) {}
 
@@ -61,24 +70,35 @@ export class TransportPageComponent implements OnInit {
     this.loadVehicles();
   }
 
-  loadVehicles(): void {
-    this.vehicleService.getAllVehicles().subscribe({
-      next: (vehicles: VehicleResponse[]) => {
-        this.vehicles = vehicles;
-        this.tripsByVehicle = {};
-        this.adsByTrip = {};
-        vehicles.forEach(v => this.loadTripsByVehicle(v.vehicleId));
-      },
-      error: (err: any) => {
-        console.error(err);
-      }
-    });
-  }
+ loadVehicles(): void {
+  this.vehicleService.getAllVehicles().subscribe({
+    next: (vehicles: VehicleResponse[]) => {
+      this.vehicles = [...vehicles].sort(
+        (a, b) => b.vehicleId - a.vehicleId
+      );
+
+      this.tripsByVehicle = {};
+      this.adsByTrip = {};
+
+      this.vehicles.forEach(v => this.loadTripsByVehicle(v.vehicleId));
+    },
+    error: (err: any) => {
+      console.error(err);
+    }
+  });
+}
 
   loadTripsByVehicle(vehicleId: number): void {
     this.tripService.getTripsByVehicleId(vehicleId).subscribe({
       next: (trips: TripResponse[]) => {
-        this.tripsByVehicle[vehicleId] = trips;
+        const displayTrips = trips.map((trip: TripResponse): TripDisplayResponse => ({
+          ...trip,
+          displayDepartureLocation: this.locationDisplayService.formatLocation(trip.departureLocation),
+          displayDestinationLocation: this.locationDisplayService.formatLocation(trip.destination)
+        }));
+
+        this.tripsByVehicle[vehicleId] = displayTrips;
+        this.resolveTripDisplayLocations(vehicleId, displayTrips);
         trips.forEach(t => this.loadAdsByTrip(t.tripId));
       },
       error: (err: any) => {
@@ -151,15 +171,24 @@ export class TransportPageComponent implements OnInit {
     this.router.navigate(['/transport/transport-ads'], { queryParams: { tripId } });
   }
 
+  goToRecommendations(): void {
+    this.router.navigate(['/transport/recommendations']);
+  }
+
   openReservation(ad: TransportAdResponse): void {
     this.clearMessages();
     this.selectedAd = ad;
+    this.selectedAdDisplayDepartureLocation = this.locationDisplayService.formatLocation(ad.departureLocation);
+    this.selectedAdDisplayDestinationLocation = this.locationDisplayService.formatLocation(ad.destination);
     this.showReservationForm = true;
+    this.resolveSelectedAdDisplayLocations(ad);
   }
 
   cancelReservation(): void {
     this.showReservationForm = false;
     this.selectedAd = null;
+    this.selectedAdDisplayDepartureLocation = '';
+    this.selectedAdDisplayDestinationLocation = '';
     this.reservationForm.reset({
       seatCount: 1,
       reservationDate: new Date().toISOString().split('T')[0]
@@ -269,5 +298,57 @@ export class TransportPageComponent implements OnInit {
   private clearMessages(): void {
     this.successMessage = '';
     this.errorMessage = '';
+  }
+
+  private async resolveTripDisplayLocations(
+    vehicleId: number,
+    trips: TripDisplayResponse[]
+  ): Promise<void> {
+    await Promise.all(
+      trips.map(async (trip: TripDisplayResponse) => {
+        const [departureLocation, destinationLocation] = await Promise.all([
+          this.locationDisplayService.getDisplayLocation(
+            trip.departureLocation,
+            trip.departureLat ?? null,
+            trip.departureLng ?? null
+          ),
+          this.locationDisplayService.getDisplayLocation(
+            trip.destination,
+            trip.destinationLat ?? null,
+            trip.destinationLng ?? null
+          )
+        ]);
+
+        trip.displayDepartureLocation = departureLocation;
+        trip.displayDestinationLocation = destinationLocation;
+      })
+    );
+
+    this.tripsByVehicle = {
+      ...this.tripsByVehicle,
+      [vehicleId]: [...trips]
+    };
+  }
+
+  private async resolveSelectedAdDisplayLocations(ad: TransportAdResponse): Promise<void> {
+    const [departureLocation, destinationLocation] = await Promise.all([
+      this.locationDisplayService.getDisplayLocation(
+        ad.departureLocation,
+        ad.departureLat ?? null,
+        ad.departureLng ?? null
+      ),
+      this.locationDisplayService.getDisplayLocation(
+        ad.destination,
+        ad.destinationLat ?? null,
+        ad.destinationLng ?? null
+      )
+    ]);
+
+    if (this.selectedAd?.adId !== ad.adId) {
+      return;
+    }
+
+    this.selectedAdDisplayDepartureLocation = departureLocation;
+    this.selectedAdDisplayDestinationLocation = destinationLocation;
   }
 }

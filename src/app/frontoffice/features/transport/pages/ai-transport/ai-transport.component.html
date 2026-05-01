@@ -1,0 +1,103 @@
+<section class="ai-transport-page">
+  <header class="ai-header">
+    <div>
+      <h1>AI Transport</h1>
+      <p>Predict the estimated transport price from trip details.</p>
+    </div>
+    <button type="button" class="btn-back" (click)="goBack()">Back</button>
+  </header>
+
+  <form class="ai-form" [formGroup]="aiForm" (ngSubmit)="predictPrice()">
+    <div class="form-title">
+      <h2>Price prediction</h2>
+      <p>Enter the trip context to get an AI estimate.</p>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="distanceKm">Distance (km)</label>
+        <input
+          id="distanceKm"
+          type="number"
+          min="0.1"
+          step="0.1"
+          formControlName="distanceKm"
+          [class.invalid]="isInvalid('distanceKm')"
+        />
+        <span class="field-error" *ngIf="isInvalid('distanceKm')">
+          Distance must be greater than 0.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="passengerCount">Passengers</label>
+        <input
+          id="passengerCount"
+          type="number"
+          min="1"
+          formControlName="passengerCount"
+          [class.invalid]="isInvalid('passengerCount')"
+        />
+        <span class="field-error" *ngIf="isInvalid('passengerCount')">
+          Passenger count must be at least 1.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="hour">Hour</label>
+        <input
+          id="hour"
+          type="number"
+          min="0"
+          max="23"
+          formControlName="hour"
+          [class.invalid]="isInvalid('hour')"
+        />
+        <span class="field-error" *ngIf="isInvalid('hour')">
+          Hour must be between 0 and 23.
+        </span>
+      </div>
+
+      <div class="form-field">
+        <label for="weekday">Weekday</label>
+        <select
+          id="weekday"
+          formControlName="weekday"
+          [class.invalid]="isInvalid('weekday')"
+        >
+          <option *ngFor="let day of weekdayOptions" [ngValue]="day.value">
+            {{ day.label }}
+          </option>
+        </select>
+        <span class="field-error" *ngIf="isInvalid('weekday')">
+          Weekday is required.
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-predict" [disabled]="aiForm.invalid || isLoading">
+        {{ isLoading ? 'Prediction...' : 'Prédire le prix' }}
+      </button>
+    </div>
+  </form>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <section *ngIf="hasPrediction" class="result-panel">
+    <div>
+      <span class="result-label">Predicted price</span>
+      <strong *ngIf="predictedPrice !== null; else rawPrediction">
+        {{ predictedPrice | number:'1.2-2' }} {{ currency }}
+      </strong>
+      <ng-template #rawPrediction>
+        <strong>Prediction received</strong>
+      </ng-template>
+    </div>
+
+    <p>{{ resultMessage }}</p>
+    <pre *ngIf="predictedPrice === null">{{ rawResultText }}</pre>
+  </section>
+</section>

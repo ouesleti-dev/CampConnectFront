@@ -1,7 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ReservationService } from './reservation.service';
-import { ReservationRequest, ReservationResponse } from '../models/reservation.model';
+import {
+  ReservationDetailsResponse,
+  ReservationRequest,
+  ReservationResponse
+} from '../models/reservation.model';
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -214,6 +218,54 @@ describe('ReservationService', () => {
     });
 
     const req = httpMock.expectOne(`${baseUrl}/ad/${adId}`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('should get reservation details', () => {
+    const mockResponse: ReservationDetailsResponse[] = [
+      {
+        reservationId: 1,
+        destination: 'Sousse',
+        price: 25,
+        vehicle: 'Bus AB-123-CD',
+        seats: 2,
+        status: 'CONFIRMED'
+      }
+    ];
+
+    service.getReservationDetails().subscribe((res: ReservationDetailsResponse[]) => {
+      expect(res.length).toBe(1);
+      expect(res[0].destination).toBe('Sousse');
+      expect(res[0].vehicle).toContain('Bus');
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}/details`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockResponse);
+  });
+
+  it('should search reservation details with destination and transport type', () => {
+    const mockResponse: ReservationDetailsResponse[] = [
+      {
+        reservationId: 2,
+        destination: 'Gabes',
+        price: 40,
+        vehicle: 'Van XY-456-ZT',
+        seats: 1,
+        status: 'PENDING'
+      }
+    ];
+
+    service.searchReservations('Gabes', 'Ride_sharing').subscribe((res: ReservationDetailsResponse[]) => {
+      expect(res.length).toBe(1);
+      expect(res[0].reservationId).toBe(2);
+      expect(res[0].status).toBe('PENDING');
+    });
+
+    const req = httpMock.expectOne(
+      `${baseUrl}/search?destination=Gabes&transportType=Ride_sharing`
+    );
     expect(req.request.method).toBe('GET');
     req.flush(mockResponse);
   });
