@@ -12,6 +12,10 @@ import { MyRentalsComponent } from './pages/my-rentals/my-rentals.component';
 import { ReceivedRentalsComponent } from './pages/received-rentals/received-rentals.component';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { EquipmentSearchComponent } from './pages/equipment-search/equipment-search.component';
+import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analyticsdashboard.component';
+import { StoryBarComponent } from './pages/story-bar/story-bar.component';
+
 
 
 
@@ -23,6 +27,9 @@ import { FormsModule } from '@angular/forms';
     RentEquipmentComponent,
     MyRentalsComponent,
     ReceivedRentalsComponent,
+    EquipmentSearchComponent,
+    AnalyticsDashboardComponent,
+    StoryBarComponent,
   ],
   imports: [
     CommonModule,

@@ -15,12 +15,33 @@
 
         <div class="badges">
           <span class="badge type">{{ eq.type }}</span>
+          <span class="badge rating" *ngIf="eq.averageRating && eq.averageRating > 0">
+            ⭐ {{ eq.averageRating | number:'1.1-1' }}
+          </span>
+          <span class="badge no-rating" *ngIf="!eq.averageRating || eq.averageRating === 0">
+            No rating
+          </span>
         </div>
 
-        <p class="price">{{ eq.price }} DT/day</p>
+        <!-- APRÈS -->
+<p class="price">
+  <!-- Prix normal (pas de promo appliquée) -->
+  <ng-container *ngIf="!promoResult[eq.idEquipement]">
+    {{ eq.price }} DT/day
+  </ng-container>
+
+  <!-- Prix réduit après promo valide -->
+  <ng-container *ngIf="promoResult[eq.idEquipement]">
+    <span class="price-old-inline">{{ eq.price }} DT</span>
+    <span class="price-new-inline">
+      {{ promoResult[eq.idEquipement]!.discountedPrice | number:'1.2-2' }} DT/day
+    </span>
+    <span class="price-badge-inline">-{{ promoResult[eq.idEquipement]!.discount }}%</span>
+  </ng-container>
+</p>
         <p class="owner">👤 {{ eq.owner }}</p>
 
-        <!-- Action Buttons -->
+        <!-- ── Boutons d'action ───────────────────────── -->
         <div class="action-buttons">
           <div class="secondary-buttons">
             <button class="review-toggle-btn" (click)="toggleReviewForm(eq.idEquipement)" *ngIf="isLoggedIn()">
@@ -30,9 +51,65 @@
               💬 {{ showReviews[eq.idEquipement] ? 'Hide' : 'See' }} Reviews
             </button>
           </div>
+
+          <!-- Bouton code promo (toujours visible) -->
+          <button class="promo-toggle-btn" (click)="togglePromoForm(eq.idEquipement)">
+            {{ showPromoForm[eq.idEquipement] ? '✕ Fermer promo' : '🎟️ Code promo' }}
+          </button>
         </div>
 
-        <!-- Review Form -->
+        <!-- ── Formulaire Code Promo ──────────────────── -->
+        <div class="promo-form" *ngIf="showPromoForm[eq.idEquipement]">
+          <h5>🎟️ Appliquer un code promo</h5>
+
+          <div class="promo-input-row">
+            <input
+              type="text"
+              class="promo-input"
+              placeholder="Ex : SUMMER20"
+              [(ngModel)]="promoCode[eq.idEquipement]"
+              (keyup.enter)="applyPromo(eq.idEquipement)"
+            />
+            <button
+              class="promo-apply-btn"
+              (click)="applyPromo(eq.idEquipement)"
+              [disabled]="promoLoading[eq.idEquipement]"
+            >
+              {{ promoLoading[eq.idEquipement] ? '...' : 'Appliquer' }}
+            </button>
+          </div>
+
+          <!-- Erreur promo -->
+          <div class="alert-error" *ngIf="promoError[eq.idEquipement]">
+            ❌ {{ promoError[eq.idEquipement] }}
+          </div>
+
+          <!-- Résultat succès promo -->
+          <div class="promo-result" *ngIf="promoResult[eq.idEquipement]">
+            <div class="promo-success-badge">✅ Code valide !</div>
+            <div class="promo-prices">
+              <span class="promo-old">
+                {{ promoResult[eq.idEquipement]!.originalPrice | number:'1.2-2' }} TND
+              </span>
+              <span class="promo-arrow">→</span>
+              <span class="promo-new">
+                {{ promoResult[eq.idEquipement]!.discountedPrice | number:'1.2-2' }} TND
+              </span>
+            </div>
+            <div class="promo-discount-lbl">
+              Économie :
+              <strong>-{{ promoResult[eq.idEquipement]!.discount }}%</strong>
+              avec le code
+              <strong class="promo-code-tag">{{ promoResult[eq.idEquipement]!.promoCode }}</strong>
+            </div>
+            <div class="promo-expires" *ngIf="promoResult[eq.idEquipement]!.minutesRemaining > 0">
+              ⏱ Offre valable encore
+              <strong>{{ formatMinutes(promoResult[eq.idEquipement]!.minutesRemaining) }}</strong>
+            </div>
+          </div>
+        </div><!-- /promo-form -->
+
+        <!-- ── Formulaire Review ───────────────────────── -->
         <div class="review-form" *ngIf="showReviewForm[eq.idEquipement]">
           <h5>{{ isEditMode[eq.idEquipement] ? '✏️ Edit Your Review' : '⭐ Your Review' }}</h5>
 
@@ -67,9 +144,9 @@
               {{ isEditMode[eq.idEquipement] ? 'Update' : 'Submit' }}
             </button>
           </div>
-        </div>
+        </div><!-- /review-form -->
 
-        <!-- Reviews List -->
+        <!-- ── Liste des Reviews ──────────────────────── -->
         <div class="reviews-list" *ngIf="showReviews[eq.idEquipement]">
           <div *ngIf="!reviews[eq.idEquipement] || reviews[eq.idEquipement].length === 0" class="no-reviews">
             No reviews yet.
@@ -82,19 +159,14 @@
                   {{ s <= review.rating ? '★' : '☆' }}
                 </span>
               </span>
-
               <div class="review-actions" *ngIf="review.userEmail === currentUserEmail">
-                <button class="edit-review-btn" (click)="editReview(review, eq.idEquipement)" title="Edit">
-                  ✏️
-                </button>
-                <button class="delete-review-btn" (click)="deleteReview(review.idreview, eq.idEquipement)" title="Delete">
-                  🗑️
-                </button>
+                <button class="edit-review-btn"   (click)="editReview(review, eq.idEquipement)" title="Edit">✏️</button>
+                <button class="delete-review-btn" (click)="deleteReview(review.idreview, eq.idEquipement)" title="Delete">🗑️</button>
               </div>
             </div>
             <p class="review-comment">{{ review.comment }}</p>
           </div>
-        </div>
+        </div><!-- /reviews-list -->
 
       </div>
     </div>

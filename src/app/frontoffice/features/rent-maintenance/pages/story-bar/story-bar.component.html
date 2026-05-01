@@ -1,0 +1,248 @@
+<!-- ══════════════════════════════════════════════════════════
+     BARRE DE STORIES  (style Instagram)
+     ══════════════════════════════════════════════════════════ -->
+<section class="sb-wrap">
+
+  <!-- En-tête -->
+  <div class="sb-head">
+    <span class="sb-title">🔥 Offres Flash</span>
+    <span class="sb-sub">Disponibles 24h seulement</span>
+  </div>
+
+  <!-- Rail horizontal -->
+  <div class="sb-rail">
+
+    <!-- Skeletons pendant chargement -->
+    <ng-container *ngIf="loading">
+      <div class="sb-skeleton" *ngFor="let n of [1,2,3,4,5]"></div>
+    </ng-container>
+
+    <!-- Bouton "Publier ma story" (CAMPOWNER / ADMIN) -->
+    <button
+      *ngIf="!loading && canPublish"
+      class="sb-bubble sb-bubble--add"
+      (click)="openPublishModal()"
+    >
+      <div class="sb-ring sb-ring--add">
+        <div class="sb-avatar"><span class="sb-plus">＋</span></div>
+      </div>
+      <span class="sb-label">Ma story</span>
+    </button>
+
+    <!-- Stories existantes -->
+    <button
+      *ngFor="let story of stories; trackBy: trackByStory; let i = index"
+      class="sb-bubble"
+      [class.sb-bubble--viewed]="viewedStories.has(story.idStory)"
+      (click)="openStory(i)"
+    >
+      <div
+        class="sb-ring"
+        [class.sb-ring--urgent]="story.minutesRemaining < 60"
+        [class.sb-ring--viewed]="viewedStories.has(story.idStory)"
+      >
+        <div class="sb-avatar"><span class="sb-icon">🏕️</span></div>
+        <!-- Badge minuteur rouge si < 60min -->
+        <span class="sb-timer" *ngIf="story.minutesRemaining < 60">
+          {{ story.minutesRemaining }}m
+        </span>
+        <!-- Badge discount toujours visible -->
+        <span class="sb-disc">-{{ story.discount }}%</span>
+      </div>
+      <span class="sb-label">{{ story.equipmentName | slice:0:10 }}</span>
+    </button>
+
+    <!-- État vide -->
+    <div class="sb-empty" *ngIf="!loading && stories.length === 0">
+      <span>🌿</span><span>Aucune offre active</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     VIEWER PLEIN ÉCRAN
+     ══════════════════════════════════════════════════════════ -->
+<div class="sv-overlay" *ngIf="isViewerOpen" (click)="closeViewer()">
+  <div class="sv-card" (click)="$event.stopPropagation()">
+
+    <!-- Barre de progression -->
+    <div class="sv-prog-track">
+      <div class="sv-prog-fill" [style.width.%]="progressWidth"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="sv-header">
+      <div class="sv-user">
+        <div class="sv-uavatar">🏕️</div>
+        <div>
+          <div class="sv-uname">{{ currentStory?.equipmentName }}</div>
+          <div class="sv-utime">{{ getTimeAgo(currentStory?.createdAt) }}</div>
+        </div>
+      </div>
+      <button class="sv-close" (click)="closeViewer()">✕</button>
+    </header>
+
+    <!-- Corps -->
+    <div class="sv-body" *ngIf="currentStory">
+
+      <!-- Fond décoratif -->
+      <div class="sv-bg"></div>
+
+      <!-- Badge réduction pulsant -->
+      <div class="sv-badge">
+        <span class="sv-badge-pct">-{{ currentStory.discount }}%</span>
+        <span class="sv-badge-lbl">RÉDUCTION</span>
+      </div>
+
+      <!-- Carte contenu -->
+      <div class="sv-content">
+
+        <h2 class="sv-eq-name">{{ currentStory.equipmentName }}</h2>
+
+        <p class="sv-msg">"{{ currentStory.message }}"</p>
+
+        <!-- Prix barré → prix réduit -->
+        <div class="sv-prices">
+          <span class="sv-p-old">{{ currentStory.originalPrice | number:'1.2-2' }} TND</span>
+          <span class="sv-p-arrow">→</span>
+          <span class="sv-p-new">{{ currentStory.discountedPrice | number:'1.2-2' }} TND</span>
+        </div>
+
+        <!-- Code promo copiable -->
+        <button class="sv-promo" (click)="copyPromoCode(currentStory.promoCode)">
+          <span class="sv-promo-lbl">CODE PROMO</span>
+          <span class="sv-promo-code">{{ currentStory.promoCode }}</span>
+          <span class="sv-promo-hint">{{ copied ? '✓ Copié !' : '👆 Touchez pour copier' }}</span>
+        </button>
+
+        <!-- Timer -->
+        <div class="sv-timer-row">
+          <span>⏱</span>
+          <span>Expire dans <strong>{{ formatMinutes(currentStory.minutesRemaining) }}</strong></span>
+        </div>
+
+      </div><!-- /sv-content -->
+
+      <!-- Actions propriétaire -->
+      <div class="sv-owner-acts" *ngIf="isMyStory(currentStory)">
+        <button class="sv-act sv-act--edit"   (click)="openEditModal(currentStory)">✏️ Modifier</button>
+        <button class="sv-act sv-act--delete" (click)="confirmDelete(currentStory.idStory)">🗑 Supprimer</button>
+      </div>
+
+    </div><!-- /sv-body -->
+
+    <!-- Navigation prev / next -->
+    <button class="sv-nav sv-nav--prev" *ngIf="currentIndex > 0"
+            (click)="prevStory()">‹</button>
+    <button class="sv-nav sv-nav--next" *ngIf="currentIndex < stories.length - 1"
+            (click)="nextStory()">›</button>
+
+    <!-- Dots indicateurs -->
+    <div class="sv-dots">
+      <span
+        *ngFor="let s of stories; let i = index"
+        class="sv-dot"
+        [class.sv-dot--active]="i === currentIndex"
+      ></span>
+    </div>
+
+  </div><!-- /sv-card -->
+</div><!-- /sv-overlay -->
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL PUBLIER / MODIFIER  (bottom-sheet)
+     ══════════════════════════════════════════════════════════ -->
+<div class="sf-overlay" *ngIf="isFormOpen" (click)="closeForm()">
+  <div class="sf-sheet" (click)="$event.stopPropagation()">
+
+    <div class="sf-header">
+      <h3>{{ editingStory ? '✏️ Modifier la story' : '✨ Nouvelle offre flash' }}</h3>
+      <button class="sf-close" (click)="closeForm()">✕</button>
+    </div>
+
+    <form (ngSubmit)="submitStory()" class="sf-form">
+
+      <!-- Équipement (création seulement) -->
+      <div class="sf-group" *ngIf="!editingStory">
+        <label class="sf-label">Équipement *</label>
+        <select [(ngModel)]="formData.equipmentId" name="equipmentId" class="sf-input" required>
+          <option [ngValue]="0" disabled>— Choisir —</option>
+          <option *ngFor="let eq of myEquipments" [ngValue]="eq.idEquipement">
+            {{ eq.name }} — {{ eq.price }} TND/j
+          </option>
+        </select>
+      </div>
+
+      <!-- Message -->
+      <div class="sf-group">
+        <label class="sf-label">Message *</label>
+        <textarea
+          [(ngModel)]="formData.message"
+          name="message"
+          class="sf-input"
+          rows="3"
+          placeholder="Ex : Tente premium dispo ce week-end !"
+          required
+        ></textarea>
+      </div>
+
+      <!-- Code promo -->
+      <div class="sf-group">
+        <label class="sf-label">Code promo *</label>
+        <input
+          type="text"
+          [(ngModel)]="formData.promoCode"
+          name="promoCode"
+          class="sf-input sf-input--upper"
+          placeholder="EX : SUMMER20"
+          required
+        />
+      </div>
+
+      <!-- Slider réduction -->
+      <div class="sf-group">
+        <label class="sf-label">
+          Réduction : <strong class="sf-disc-val">{{ formData.discount }}%</strong>
+        </label>
+        <input
+          type="range"
+          [(ngModel)]="formData.discount"
+          name="discount"
+          class="sf-slider"
+          min="1" max="80" step="1"
+        />
+        <div class="sf-slider-labels">
+          <span>1%</span><span>80%</span>
+        </div>
+      </div>
+
+      <!-- Aperçu prix -->
+      <div class="sf-preview" *ngIf="selectedEquipmentPrice">
+        <span class="sf-prev-lbl">Aperçu :</span>
+        <span class="sf-prev-old">{{ selectedEquipmentPrice | number:'1.2-2' }} TND</span>
+        <span>→</span>
+        <span class="sf-prev-new">{{ previewDiscountedPrice | number:'1.2-2' }} TND</span>
+      </div>
+
+      <!-- Erreur -->
+      <div class="sf-error" *ngIf="formError">{{ formError }}</div>
+
+      <!-- Boutons -->
+      <div class="sf-actions">
+        <button type="button" class="sf-btn sf-btn--cancel" (click)="closeForm()">Annuler</button>
+        <button type="submit" class="sf-btn sf-btn--submit" [disabled]="submitting">
+          {{ submitting ? 'Envoi...' : (editingStory ? 'Mettre à jour' : 'Publier 24h 🔥') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOAST
+     ══════════════════════════════════════════════════════════ -->
+<div class="sb-toast" [class.sb-toast--show]="toastVisible" [class.sb-toast--error]="toastType === 'error'">
+  {{ toastMessage }}
+</div>

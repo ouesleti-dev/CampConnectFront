@@ -7,6 +7,9 @@ import { RentMaintenancePageComponent } from './pages/rent-maintenance-page/rent
 import { RentEquipmentComponent } from './pages/rent-equipment/rent-equipment.component';
 import { MyRentalsComponent } from './pages/my-rentals/my-rentals.component';
 import { ReceivedRentalsComponent } from './pages/received-rentals/received-rentals.component';
+import { EquipmentSearchComponent } from './pages/equipment-search/equipment-search.component';
+import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analyticsdashboard.component';
+import { StoryBarComponent } from './pages/story-bar/story-bar.component';
 
 
 const routes: Routes = [
@@ -22,7 +25,10 @@ const routes: Routes = [
       },
       { path: 'rent', component: RentEquipmentComponent },
 { path: 'my-rentals', component: MyRentalsComponent },
-{ path: 'received', component: ReceivedRentalsComponent }
+{ path: 'received', component: ReceivedRentalsComponent },
+{ path: 'search', component: EquipmentSearchComponent },
+{ path: 'analytics', component: AnalyticsDashboardComponent },
+{ path: 'storyies', component : StoryBarComponent },
     ]
   }
   

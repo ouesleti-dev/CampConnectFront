@@ -4,6 +4,7 @@ import { RentMaintenanceRoutingModule } from './rent-maintenance-routing.module'
 import { RentMaintenancePageComponent } from './pages/rent-maintenance-page/rent-maintenance-page.component';
 import { EquipmentManagementComponent } from './pages/equipment-management/equipment-management.component';
 import { RouterModule } from '@angular/router';
+import { EquipmentStatsComponent } from './pages/equipment-stats/equipment-stats.component';
 
 @NgModule({
   imports: [
@@ -11,6 +12,6 @@ import { RouterModule } from '@angular/router';
     RouterModule,
     RentMaintenanceRoutingModule
   ],
-  declarations: [RentMaintenancePageComponent, EquipmentManagementComponent]
+  declarations: [RentMaintenancePageComponent, EquipmentManagementComponent, EquipmentStatsComponent]
 })
 export class RentMaintenanceModule {}

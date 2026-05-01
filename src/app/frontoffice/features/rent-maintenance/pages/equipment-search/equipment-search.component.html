@@ -1,0 +1,76 @@
+<div class="search-container">
+  <h2>Recherche d'équipements</h2>
+
+  <!-- Filters -->
+  <div class="filters">
+    <select [(ngModel)]="filters.type">
+  <option value="">Tous les types</option>
+
+  <option value="TENTS">Tente</option>
+  <option value="SLEEPING_BAGS">Sac de couchage</option>
+  <option value="BACKPACKS">Sac à dos</option>
+  <option value="COOKING_EQUIPMENT">Cuisine</option>
+  <option value="LIGHTING">Éclairage</option>
+  <option value="CLOTHING">Vêtements</option>
+  <option value="FOOTWEAR">Chaussures</option>
+  <option value="TOOLS">Outils</option>
+  <option value="SAFETY_EQUIPMENT">Sécurité</option>
+  <option value="FURNITURE">Mobilier</option>
+  <option value="OTHER">Autre</option>
+</select>
+
+    <select [(ngModel)]="filters.state">
+  <option value="">Tous les états</option>
+
+  <option value="Not_Reserve">Disponible</option>
+  <option value="Reserve">Reservede</option>
+</select>
+
+    <input
+      type="number"
+      placeholder="Prix max (TND)"
+      [(ngModel)]="filters.maxPrice"
+    />
+
+    <button (click)="search()">
+      🔍 Rechercher
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <p class="loading" *ngIf="loading">Chargement...</p>
+
+  <!-- Results -->
+  <div class="cards" *ngIf="!loading && results.length > 0">
+    <div class="card" *ngFor="let eq of results">
+      
+      <img
+        [src]="eq.picture || 'assets/placeholder.png'"
+        alt="image équipement"
+      />
+
+      <div class="card-body">
+        <h3>{{ eq.name }}</h3>
+
+        <p class="description">
+          {{ eq.description }}
+        </p>
+
+        <div class="card-footer">
+          <span class="type">
+            {{ eq.type }}
+          </span>
+
+          <span class="price">
+            {{ eq.price | currency:'TND' }}/jour
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <p class="empty" *ngIf="!loading && results.length === 0">
+    Aucun résultat.
+  </p>
+</div>

@@ -1,8 +1,7 @@
 <app-navbar *ngIf="!isBackoffice"></app-navbar>
-<h1>Hello, camp-connect</h1>
-<app-navbar></app-navbar>
-<router-outlet></router-outlet>
+
 <main class="main-content" [class.backoffice-mode]="isBackoffice">
   <router-outlet></router-outlet>
 </main>
+
 <app-footer *ngIf="!isBackoffice"></app-footer>
