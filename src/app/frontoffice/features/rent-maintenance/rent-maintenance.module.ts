@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { EquipmentSearchComponent } from './pages/equipment-search/equipment-search.component';
 import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analyticsdashboard.component';
 import { StoryBarComponent } from './pages/story-bar/story-bar.component';
+import { MaintenancePredictionComponent } from './pages/maintenance-prediction/maintenance-prediction.component';
 
 
 
@@ -30,6 +31,7 @@ import { StoryBarComponent } from './pages/story-bar/story-bar.component';
     EquipmentSearchComponent,
     AnalyticsDashboardComponent,
     StoryBarComponent,
+    MaintenancePredictionComponent,
   ],
   imports: [
     CommonModule,

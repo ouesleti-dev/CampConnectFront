@@ -10,6 +10,7 @@ import { ReceivedRentalsComponent } from './pages/received-rentals/received-rent
 import { EquipmentSearchComponent } from './pages/equipment-search/equipment-search.component';
 import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analyticsdashboard.component';
 import { StoryBarComponent } from './pages/story-bar/story-bar.component';
+import { MaintenancePredictionComponent } from './pages/maintenance-prediction/maintenance-prediction.component';
 
 
 const routes: Routes = [
@@ -29,6 +30,7 @@ const routes: Routes = [
 { path: 'search', component: EquipmentSearchComponent },
 { path: 'analytics', component: AnalyticsDashboardComponent },
 { path: 'storyies', component : StoryBarComponent },
+{ path : 'prediction', component : MaintenancePredictionComponent },
     ]
   }
   
