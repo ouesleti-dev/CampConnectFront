@@ -1,0 +1,87 @@
+<div class="page-container">
+
+  <div class="page-header">
+    <span class="page-title">Equipment Recommendation</span>
+  </div>
+
+  <!-- Form Card -->
+  <div class="form-card">
+    <span class="form-card-title">🏕️ Find the right gear for your trip</span>
+    <form (ngSubmit)="recommend()">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>📍 Place *</label>
+          <select [(ngModel)]="form.place" name="place" required>
+            <option value="">Choose...</option>
+            <option *ngFor="let p of places" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>🌤️ Season *</label>
+          <select [(ngModel)]="form.season" name="season" required>
+            <option value="">Choose...</option>
+            <option *ngFor="let s of seasons" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>👥 People *</label>
+          <input type="number" [(ngModel)]="form.people" name="people" min="1" required>
+        </div>
+        <div class="form-group">
+          <label>📅 Days *</label>
+          <input type="number" [(ngModel)]="form.duration_days" name="duration_days" min="1" required>
+        </div>
+        <div class="form-group">
+          <label>💰 Budget (DT) *</label>
+          <input type="number" [(ngModel)]="form.budget" name="budget" min="1" required>
+        </div>
+      </div>
+
+      <div class="alert-error" *ngIf="error">{{ error }}</div>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" [disabled]="loading">
+          {{ loading ? 'Chargement...' : 'Get Recommendations' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Results -->
+  <div *ngIf="message">
+    <span class="result-badge">✓ {{ message }}</span>
+
+    <div *ngIf="cards.length > 0" class="equipment-grid">
+      <div class="equipment-card" *ngFor="let eq of cards">
+        <div class="card-img-wrap">
+          <img *ngIf="eq.picture" [src]="eq.picture" [alt]="eq.name" class="card-img">
+          <div *ngIf="!eq.picture" class="card-img no-img">No image</div>
+        </div>
+        <div class="card-body">
+          <span class="card-name">{{ eq.name }}</span>
+          <p *ngIf="eq.description" class="description">{{ eq.description }}</p>
+          <div class="badges">
+            <span class="badge type">{{ eq.type }}</span>
+          </div>
+          <p class="price">{{ eq.price }} DT/day</p>
+          <p class="owner">👤 {{ eq.owner }}</p>
+          <div class="card-actions">
+            <button class="edit-btn">⭐ Review</button>
+            <button class="delete-btn">💬 See Reviews</button>
+          </div>
+          <button class="btn-promo">🎁 Code promo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="cards.length === 0">
+      <p>Aucun équipement disponible. Modifiez vos critères.</p>
+    </div>
+  </div>
+
+</div>

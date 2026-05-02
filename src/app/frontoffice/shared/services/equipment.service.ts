@@ -54,4 +54,8 @@ searchEquipments(type?: string, state?: string, maxPrice?: number): Observable<a
   if (maxPrice) params = params.set('maxPrice', maxPrice.toString());
   return this.http.get<any[]>(`${this.baseUrl}/search`, { params });
 }
+
+getRecommendations(body: { place: string; season: string; people: number; duration_days: number; budget: number }): Observable<any> {
+  return this.http.post<any>('http://localhost:8000/recommend-with-equipment', body);
+}
 }

@@ -11,6 +11,7 @@ import { EquipmentSearchComponent } from './pages/equipment-search/equipment-sea
 import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analyticsdashboard.component';
 import { StoryBarComponent } from './pages/story-bar/story-bar.component';
 import { MaintenancePredictionComponent } from './pages/maintenance-prediction/maintenance-prediction.component';
+import { EquipmentRecommendationComponent } from './pages/equipment-recommendation/equipment-recommendation.component';
 
 
 const routes: Routes = [
@@ -31,6 +32,7 @@ const routes: Routes = [
 { path: 'analytics', component: AnalyticsDashboardComponent },
 { path: 'storyies', component : StoryBarComponent },
 { path : 'prediction', component : MaintenancePredictionComponent },
+{ path: 'recommendation', component: EquipmentRecommendationComponent },
     ]
   }
   

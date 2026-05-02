@@ -16,6 +16,7 @@ import { EquipmentSearchComponent } from './pages/equipment-search/equipment-sea
 import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analyticsdashboard.component';
 import { StoryBarComponent } from './pages/story-bar/story-bar.component';
 import { MaintenancePredictionComponent } from './pages/maintenance-prediction/maintenance-prediction.component';
+import { EquipmentRecommendationComponent } from './pages/equipment-recommendation/equipment-recommendation.component';
 
 
 
@@ -32,6 +33,7 @@ import { MaintenancePredictionComponent } from './pages/maintenance-prediction/m
     AnalyticsDashboardComponent,
     StoryBarComponent,
     MaintenancePredictionComponent,
+    EquipmentRecommendationComponent,
   ],
   imports: [
     CommonModule,
