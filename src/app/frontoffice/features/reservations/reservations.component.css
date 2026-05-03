@@ -224,6 +224,262 @@
   margin-top: 0;
 }
 
+/* Header Actions - My Ads Details Button */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: flex-end;
+}
+
+.btn-my-ads {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.btn-my-ads:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
+}
+
+.btn-my-ads:active {
+  transform: translateY(0);
+}
+
+/* My Ads Section */
+.my-ads-section {
+  margin-bottom: 28px;
+  padding: 24px;
+  background: #ffffff;
+  border: 2px solid #16a34a;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(22, 163, 74, 0.12);
+}
+
+.my-ads-section .section-heading {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #d1fae5;
+}
+
+.my-ads-section .section-heading h2 {
+  color: #15803d;
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+}
+
+.my-ads-section .section-heading p {
+  color: #4b5563;
+  margin: 0;
+}
+
+.loading-state {
+  padding: 40px 24px;
+  text-align: center;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* Ads Grid and Cards */
+.ads-grid {
+  display: grid;
+  gap: 24px;
+}
+
+.ad-card {
+  background: #f9fffb;
+  border: 1px solid #d1fae5;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.06);
+  transition: all 0.3s ease;
+}
+
+.ad-card:hover {
+  border-color: #16a34a;
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.12);
+}
+
+.ad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #d1fae5;
+}
+
+.ad-header h3 {
+  margin: 0;
+  color: #15803d;
+  font-size: 1.25rem;
+}
+
+.ad-id {
+  background: #dcfce7;
+  color: #166534;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ad-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-item .label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+/* Reservations Container */
+.reservations-container {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid #d1fae5;
+}
+
+.reservations-container h4 {
+  margin: 0 0 16px;
+  color: #166534;
+  font-size: 1.1rem;
+}
+
+.no-reservations {
+  padding: 20px;
+  background: #f0fdf4;
+  border-radius: 12px;
+  text-align: center;
+  color: #4b5563;
+}
+
+.reservations-table-wrapper {
+  overflow-x: auto;
+}
+
+.reservations-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.reservations-table th {
+  background: #f0fdf4;
+  color: #166534;
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #d1fae5;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reservations-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #dcfce7;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.reservations-table tbody tr:hover {
+  background: #f9fffb;
+}
+
+.seats-count {
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.total-price {
+  font-weight: 700;
+  color: #15803d;
+}
+
+/* Status Badges */
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-confirmed {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.badge-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.badge-completed {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+/* Options Display */
+.no-options {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.option-badge {
+  display: inline-block;
+  background: #f0fdf4;
+  color: #15803d;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  border: 1px solid #d1fae5;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .reservations-page {
     padding: 24px 16px 40px;
@@ -241,5 +497,55 @@
 
   .details-section {
     padding: 20px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+  }
+
+  .btn-my-ads {
+    width: 100%;
+  }
+
+  .my-ads-section {
+    padding: 16px;
+  }
+
+  .ad-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .ad-details-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .detail-item .label {
+    font-size: 0.75rem;
+  }
+
+  .detail-item .value {
+    font-size: 0.95rem;
+  }
+
+  .reservations-table {
+    font-size: 0.85rem;
+  }
+
+  .reservations-table th,
+  .reservations-table td {
+    padding: 10px 8px;
+  }
+
+  .badge {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .option-badge {
+    padding: 4px 8px;
+    font-size: 0.75rem;
   }
 }

@@ -12,6 +12,9 @@
       <button type="button" class="primary-action" (click)="goToRecommendations()">
         Find Best Trip
       </button>
+      <button type="button" class="primary-action" (click)="goToDemandAnalysis()">
+        Demand Analytics
+      </button>
       <button type="button" class="primary-action" (click)="toggleForm()">
         {{ showForm ? 'Close form' : 'Add a Vehicle' }}
       </button>
@@ -133,33 +136,105 @@
 
   <div class="reservation-overlay" *ngIf="showReservationForm && selectedAd">
     <div class="reservation-modal">
-      <h3>Book</h3>
-      <p>{{ selectedAdDisplayDepartureLocation }} to {{ selectedAdDisplayDestinationLocation }}</p>
-      <p>Price: {{ selectedAd.price }} TND | Available seats: {{ selectedAd.availableSeats }}</p>
-      <form [formGroup]="reservationForm" (ngSubmit)="submitReservation()">
-        <div class="form-group">
-          <label for="reservation-seat-count">Number of seats</label>
-          <input
-            id="reservation-seat-count"
-            type="number"
-            formControlName="seatCount"
-            min="1"
-            [max]="selectedAd.availableSeats"
-          />
+      <div class="modal-header">
+        <h3>Book Your Trip</h3>
+        <button type="button" class="modal-close" (click)="cancelReservation()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="trip-info">
+          <p class="route">{{ selectedAdDisplayDepartureLocation }} → {{ selectedAdDisplayDestinationLocation }}</p>
+          <p class="details">
+            <span class="price-badge">{{ selectedAd.price }} TND</span>
+            <span class="seats-badge">{{ selectedAd.availableSeats }} seats available</span>
+          </p>
         </div>
-        <div class="form-group">
-          <label for="reservation-date">Reservation date</label>
-          <input
-            id="reservation-date"
-            type="date"
-            formControlName="reservationDate"
-          />
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn-cancel" (click)="cancelReservation()">Cancel</button>
-          <button type="submit" class="btn-submit" [disabled]="reservationForm.invalid">Confirm</button>
-        </div>
-      </form>
+
+        <form [formGroup]="reservationForm" class="booking-form">
+          <!-- Seats Selection -->
+          <div class="form-group">
+            <label for="reservation-seat-count">
+              <span class="label-text">Number of Seats</span>
+              <span class="required">*</span>
+            </label>
+            <input
+              id="reservation-seat-count"
+              type="number"
+              formControlName="seatCount"
+              min="1"
+              [max]="selectedAd.availableSeats"
+              class="form-input"
+            />
+            <small class="input-hint">Max: {{ selectedAd.availableSeats }} seats</small>
+          </div>
+
+          <!-- Reservation Date -->
+          <div class="form-group">
+            <label for="reservation-date">
+              <span class="label-text">Reservation Date</span>
+              <span class="required">*</span>
+            </label>
+            <input
+              id="reservation-date"
+              type="date"
+              formControlName="reservationDate"
+              class="form-input"
+            />
+          </div>
+
+          <!-- Available Options with Loading State -->
+          <div class="options-section" *ngIf="availableOptions.length > 0">
+            <h4>Available Services</h4>
+            <div class="loading-options" *ngIf="isLoadingOptions">
+              <div class="spinner-small"></div>
+              <span>Loading services...</span>
+            </div>
+
+            <div class="options-list" *ngIf="!isLoadingOptions">
+              <div class="option-item" *ngFor="let option of availableOptions">
+                <label class="option-checkbox">
+                  <input
+                    type="checkbox"
+                    [checked]="isOptionSelected(option)"
+                    (change)="toggleOption(option)"
+                    class="checkbox-input"
+                  />
+                  <span class="checkbox-label">
+                    <span class="option-name">{{ option.optionName }}</span>
+                    <span class="option-type">{{ option.optionType }}</span>
+                  </span>
+                </label>
+                <span class="option-price">+{{ option.price }} TND</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Price Summary -->
+          <div class="price-summary">
+            <div class="price-row">
+              <span>Base Price:</span>
+              <span class="price-value">{{ (selectedAd.price * (reservationForm.get('seatCount')?.value || 1)) | number:'1.2-2' }} TND</span>
+            </div>
+            <div class="price-row" *ngIf="selectedOptions.length > 0">
+              <span>Services:</span>
+<span class="price-value">{{ getOptionsTotal() | number:'1.2-2' }} TND</span>               </div>
+            <div class="price-row total">
+              <span>Total:</span>
+              <span class="price-value-total">{{ getTotalPrice() | number:'1.2-2' }} TND</span>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="cancelReservation()">
+              Cancel
+            </button>
+            <button type="submit" class="btn-submit" (click)="submitReservation()" [disabled]="reservationForm.invalid">
+              Confirm Booking
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 

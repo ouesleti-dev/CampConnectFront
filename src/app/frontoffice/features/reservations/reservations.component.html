@@ -6,6 +6,12 @@
     </div>
   </header>
 
+  <div class="header-actions">
+    <button type="button" class="btn-my-ads" (click)="toggleMyAdsDetails()">
+      {{ showMyAdsDetails ? '✓ Hide My Ads Details' : 'My Ads Details' }}
+    </button>
+  </div>
+
   <div *ngIf="successMessage" class="alert alert-success">
     {{ successMessage }}
   </div>
@@ -25,28 +31,19 @@
     <form class="search-form" [formGroup]="searchForm" (ngSubmit)="searchReservationDetails()">
       <div class="form-group">
         <label for="searchDestination">Destination</label>
-        <input
-          id="searchDestination"
-          type="text"
-          formControlName="destination"
-          placeholder="Sousse"
-        />
+        <input id="searchDestination" type="text" formControlName="destination" placeholder="Sousse" />
       </div>
 
       <div class="form-group">
         <label for="searchTransportType">Transport Type</label>
-        <input
-          id="searchTransportType"
-          type="text"
-          formControlName="transportType"
-          placeholder="Ride_sharing"
-        />
+        <input id="searchTransportType" type="text" formControlName="transportType" placeholder="Ride_sharing" />
       </div>
 
       <div class="search-actions">
         <button type="submit" class="btn-save" [disabled]="isLoadingDetails">
           {{ isLoadingDetails ? 'Searching...' : 'Search' }}
         </button>
+
         <button type="button" class="btn-cancel" (click)="resetSearch()" [disabled]="isLoadingDetails">
           Reset
         </button>
@@ -65,6 +62,7 @@
             <th>Status</th>
           </tr>
         </thead>
+
         <tbody>
           <tr *ngFor="let detail of reservationDetails">
             <td>{{ detail.reservationId }}</td>
@@ -81,11 +79,30 @@
 
   <section *ngIf="reservations.length > 0; else emptyState" class="reservations-grid">
     <article *ngFor="let reservation of reservations" class="reservation-card">
-      <h3>{{ reservation.displayDepartureLocation }} &rarr; {{ reservation.displayDestinationLocation }}</h3>
-      <p><strong>Date:</strong> {{ reservation.reservationDate | date:'dd/MM/yyyy' }}</p>
-      <p><strong>Seats:</strong> {{ reservation.seatCount }}</p>
-      <p><strong>Price:</strong> {{ reservation.adPrice }} TND</p>
-      <p><strong>Status:</strong> {{ reservation.status }}</p>
+      <h3>
+        {{ reservation.displayDepartureLocation }} &rarr;
+        {{ reservation.displayDestinationLocation }}
+      </h3>
+
+      <p>
+        <strong>Date:</strong>
+        {{ reservation.reservationDate | date:'dd/MM/yyyy' }}
+      </p>
+
+      <p>
+        <strong>Seats:</strong>
+        {{ reservation.seatCount }}
+      </p>
+
+      <p>
+        <strong>Price:</strong>
+        {{ reservation.adPrice }} TND
+      </p>
+
+      <p>
+        <strong>Status:</strong>
+        {{ reservation.status }}
+      </p>
 
       <form
         *ngIf="editReservationId === reservation.reservationId"
@@ -95,21 +112,12 @@
       >
         <div class="form-group">
           <label for="reservationDate">Reservation Date</label>
-          <input
-            id="reservationDate"
-            type="date"
-            formControlName="reservationDate"
-          />
+          <input id="reservationDate" type="date" formControlName="reservationDate" />
         </div>
 
         <div class="form-group">
           <label for="seatCount">Number of Seats</label>
-          <input
-            id="seatCount"
-            type="number"
-            min="1"
-            formControlName="seatCount"
-          />
+          <input id="seatCount" type="number" min="1" formControlName="seatCount" />
         </div>
 
         <div class="form-actions">
@@ -138,4 +146,103 @@
       <p>Reservation details will appear here when data is available.</p>
     </section>
   </ng-template>
+
+  <!-- My Transport Ads Details Section -->
+  <section *ngIf="showMyAdsDetails" class="my-ads-section">
+    <div class="section-heading">
+      <div>
+        <h2>My Transport Ads Details</h2>
+        <p>View your transport ads and reservations from other users.</p>
+      </div>
+    </div>
+
+    <div *ngIf="isLoadingMyAds" class="loading-state">
+      <p>Loading your ads...</p>
+    </div>
+
+    <div *ngIf="!isLoadingMyAds && myAdsError" class="alert alert-error">
+      {{ myAdsError }}
+    </div>
+
+    <div *ngIf="!isLoadingMyAds && myAdsDetails.length > 0" class="ads-grid">
+      <article *ngFor="let ad of myAdsDetails" class="ad-card">
+        <div class="ad-header">
+          <h3>{{ ad.departureLocation }} → {{ ad.destination }}</h3>
+          <span class="ad-id">Ad #{{ ad.adId }}</span>
+        </div>
+
+        <div class="ad-details-grid">
+          <div class="detail-item">
+            <span class="label">Price</span>
+            <span class="value">{{ ad.price }} TND</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Available Seats</span>
+            <span class="value">{{ ad.availableSeats }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Transport Type</span>
+            <span class="value">{{ ad.transportType }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Vehicle License Plate</span>
+            <span class="value">{{ ad.vehicleLicensePlate }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Vehicle Type</span>
+            <span class="value">{{ ad.vehicleType }}</span>
+          </div>
+        </div>
+
+        <!-- Reservations Table -->
+        <div class="reservations-container">
+          <h4>Reservations</h4>
+
+          <div *ngIf="ad.reservations.length === 0" class="no-reservations">
+            <p>No reservations for this ad.</p>
+          </div>
+
+          <div *ngIf="ad.reservations.length > 0" class="reservations-table-wrapper">
+            <table class="reservations-table">
+              <thead>
+                <tr>
+                  <th>Passenger Email</th>
+                  <th>Phone</th>
+                  <th>Seats</th>
+                  <th>Total Price</th>
+                  <th>Status</th>
+                  <th>Reservation Date</th>
+                  <th>Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let reservation of ad.reservations">
+                  <td>{{ reservation.userEmail }}</td>
+                  <td>{{ reservation.userPhone }}</td>
+                  <td class="seats-count">{{ reservation.seatCount }}</td>
+                  <td class="total-price">{{ reservation.totalPrice }} TND</td>
+                  <td>
+                    <span [class]="'badge badge-' + reservation.status.toLowerCase()">
+                      {{ reservation.status }}
+                    </span>
+                  </td>
+                  <td>{{ reservation.reservationDate | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span *ngIf="reservation.selectedOptions.length === 0" class="no-options">
+                      -
+                    </span>
+                    <div *ngIf="reservation.selectedOptions.length > 0" class="options-list">
+                      <span *ngFor="let option of reservation.selectedOptions" class="option-badge">
+                        {{ option.name }} (+{{ option.price }} TND)
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
 </section>

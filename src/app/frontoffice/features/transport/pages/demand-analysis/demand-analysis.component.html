@@ -1,0 +1,247 @@
+<section class="demand-analysis-page">
+  <header class="demand-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()" title="Go back">
+        <span class="back-icon">←</span>
+      </button>
+      <div>
+        <h1>Demand Analysis Dashboard</h1>
+        <p>Real-time insights into transport demand and occupancy rates</p>
+      </div>
+    </div>
+  </header>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading demand data...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="alert alert-error">
+    <span class="error-icon">⚠️</span>
+    <span>{{ error }}</span>
+    <button (click)="error = ''" class="close-btn">×</button>
+  </div>
+
+  <ng-container *ngIf="!showSearchResults && globalData && !isLoading">
+    <div class="score-container">
+      <div
+        class="score-circle"
+        [style.background-color]="getDemandColor(globalData.currentDemandLevel)"
+        [style.box-shadow]="'0 0 30px ' + getDemandColor(globalData.currentDemandLevel) + '40'"
+      >
+        <div class="score-inner">
+          <span class="score-number">{{ globalData.demandScore | number:'1.0-0' }}</span>
+          <span class="score-label">Score</span>
+          <span class="score-icon">{{ getDemandIcon(globalData.currentDemandLevel) }}</span>
+        </div>
+      </div>
+
+      <div class="score-info">
+        <h2>Current Demand Level</h2>
+        <p
+          class="demand-level"
+          [style.color]="getDemandColor(globalData.currentDemandLevel)"
+        >
+          {{ getDemandLabel(globalData.currentDemandLevel) }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="advice-banner"
+      [style.border-left]="'4px solid ' + getDemandColor(globalData.currentDemandLevel)"
+    >
+      <span class="advice-icon">💡</span>
+      <p>{{ globalData.demandAdvice }}</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>Total Reservations</h3>
+          <span class="stat-icon">🎫</span>
+        </div>
+        <div class="stat-value">{{ globalData.totalReservations }}</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>Total Trips</h3>
+          <span class="stat-icon">🚗</span>
+        </div>
+        <div class="stat-value">{{ globalData.totalTrips }}</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <h3>Avg Occupancy Rate</h3>
+          <span class="stat-icon">👥</span>
+        </div>
+        <div class="stat-value">
+          {{ globalData.averageOccupancyRate | number:'1.0-0' }}%
+        </div>
+      </div>
+    </div>
+
+    <div class="peak-analysis">
+      <h2>Peak Times Analysis</h2>
+      <div class="peak-grid">
+        <div class="peak-card">
+          <div class="peak-label">Peak Hour</div>
+          <div class="peak-value">{{ globalData.peakHour }}</div>
+        </div>
+
+        <div class="peak-card">
+          <div class="peak-label">Peak Day</div>
+          <div class="peak-value">{{ globalData.peakDay }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="top-destinations">
+      <h2>Top 5 Destinations</h2>
+
+      <div
+        *ngIf="globalData.topDestinations && globalData.topDestinations.length > 0; else noDestinations"
+        class="destinations-list"
+      >
+        <div
+          class="destination-item"
+          *ngFor="let dest of globalData.topDestinations"
+        >
+          <div class="destination-header">
+            <span class="destination-name">{{ dest.destination }}</span>
+            <span class="destination-count">{{ dest.tripCount }} trips</span>
+          </div>
+
+          <div class="destination-bar-container">
+            <div
+              class="destination-bar"
+              [style.width.%]="getBarWidth(dest.tripCount, getMaxDestinationCount(globalData))"
+              [style.background-color]="getDemandColor(
+                getBarWidth(dest.tripCount, getMaxDestinationCount(globalData)) > 70 ? 'VERY_HIGH' :
+                getBarWidth(dest.tripCount, getMaxDestinationCount(globalData)) > 50 ? 'HIGH' :
+                getBarWidth(dest.tripCount, getMaxDestinationCount(globalData)) > 30 ? 'MEDIUM' : 'LOW'
+              )"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noDestinations>
+        <p class="empty-message">No destination data available.</p>
+      </ng-template>
+    </div>
+  </ng-container>
+
+  <div class="search-section">
+    <h2>Search by Destination</h2>
+
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Enter destination name..."
+        [(ngModel)]="searchDestination"
+        (keyup.enter)="searchByDestination()"
+      />
+
+      <button
+        class="search-btn"
+        (click)="searchByDestination()"
+        [disabled]="isLoading || !searchDestination.trim()"
+      >
+        {{ isLoading ? 'Searching...' : 'Search' }}
+      </button>
+
+      <button
+        *ngIf="showSearchResults"
+        class="clear-btn"
+        (click)="clearSearch()"
+      >
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="showSearchResults && destinationData && !isLoading">
+    <div class="search-results">
+      <h2>Results for "{{ searchDestination }}"</h2>
+
+      <div class="score-container">
+        <div
+          class="score-circle"
+          [style.background-color]="getDemandColor(destinationData.currentDemandLevel)"
+          [style.box-shadow]="'0 0 30px ' + getDemandColor(destinationData.currentDemandLevel) + '40'"
+        >
+          <div class="score-inner">
+            <span class="score-number">{{ destinationData.demandScore | number:'1.0-0' }}</span>
+            <span class="score-label">Score</span>
+            <span class="score-icon">{{ getDemandIcon(destinationData.currentDemandLevel) }}</span>
+          </div>
+        </div>
+
+        <div class="score-info">
+          <h3>Demand Level for {{ searchDestination }}</h3>
+          <p
+            class="demand-level"
+            [style.color]="getDemandColor(destinationData.currentDemandLevel)"
+          >
+            {{ getDemandLabel(destinationData.currentDemandLevel) }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="advice-banner"
+        [style.border-left]="'4px solid ' + getDemandColor(destinationData.currentDemandLevel)"
+      >
+        <span class="advice-icon">💡</span>
+        <p>{{ destinationData.demandAdvice }}</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <h3>Total Reservations</h3>
+            <span class="stat-icon">🎫</span>
+          </div>
+          <div class="stat-value">{{ destinationData.totalReservations }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <h3>Total Trips</h3>
+            <span class="stat-icon">🚗</span>
+          </div>
+          <div class="stat-value">{{ destinationData.totalTrips }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <h3>Avg Occupancy Rate</h3>
+            <span class="stat-icon">👥</span>
+          </div>
+          <div class="stat-value">
+            {{ destinationData.averageOccupancyRate | number:'1.0-0' }}%
+          </div>
+        </div>
+      </div>
+
+      <div class="peak-analysis">
+        <h3>Peak Times Analysis</h3>
+        <div class="peak-grid">
+          <div class="peak-card">
+            <div class="peak-label">Peak Hour</div>
+            <div class="peak-value">{{ destinationData.peakHour }}</div>
+          </div>
+
+          <div class="peak-card">
+            <div class="peak-label">Peak Day</div>
+            <div class="peak-value">{{ destinationData.peakDay }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</section>

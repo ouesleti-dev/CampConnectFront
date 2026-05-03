@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { ReservationService } from '../../shared/services/reservation.service';
 import {
   ReservationDetailsResponse,
@@ -17,6 +18,37 @@ interface ReservationDetailsViewModel extends ReservationDetailsResponse {
   displayDestination: string;
 }
 
+interface OptionResponse {
+  optionId: number;
+  name: string;
+  price: number;
+  optionType: string;
+}
+
+interface AdReservationUserDetail {
+  reservationId: number;
+  userEmail: string;
+  userPhone: string;
+  seatCount: number;
+  totalPrice: number;
+  status: string;
+  reservationDate: string;
+  selectedOptions: OptionResponse[];
+}
+
+interface MyTransportAdDetails {
+  adId: number;
+  price: number;
+  availableSeats: number;
+  transportType: string;
+  departureLocation: string;
+  destination: string;
+  vehicleId: number;
+  vehicleLicensePlate: string;
+  vehicleType: string;
+  reservations: AdReservationUserDetail[];
+}
+
 @Component({
   selector: 'app-reservations',
   templateUrl: './reservations.component.html',
@@ -25,19 +57,24 @@ interface ReservationDetailsViewModel extends ReservationDetailsResponse {
 export class ReservationsComponent implements OnInit {
   reservations: ReservationViewModel[] = [];
   reservationDetails: ReservationDetailsViewModel[] = [];
+  myAdsDetails: MyTransportAdDetails[] = [];
   reservationForm!: FormGroup;
   searchForm!: FormGroup;
   editReservationId: number | null = null;
   isLoadingDetails = false;
+  isLoadingMyAds = false;
+  showMyAdsDetails = false;
   successMessage = '';
   errorMessage = '';
+  myAdsError = '';
   private reservationsResolveVersion = 0;
   private detailsResolveVersion = 0;
 
   constructor(
     private fb: FormBuilder,
     private reservationService: ReservationService,
-    private locationDisplayService: LocationDisplayService
+    private locationDisplayService: LocationDisplayService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -53,6 +90,46 @@ export class ReservationsComponent implements OnInit {
 
     this.loadReservations();
     this.loadReservationDetails();
+  }
+
+  loadMyAdsDetails(): void {
+    this.myAdsError = '';
+    this.isLoadingMyAds = true;
+    const url = 'http://localhost:8088/campConnect/transport-ads/my-ads-details';
+
+    this.http.get<MyTransportAdDetails[]>(url).subscribe({
+      next: (ads: MyTransportAdDetails[]) => {
+        this.myAdsDetails = ads;
+        this.showMyAdsDetails = true;
+        this.isLoadingMyAds = false;
+
+        if (ads.length === 0) {
+          this.myAdsError = 'No ads found.';
+        }
+      },
+      error: (err: any) => {
+        this.isLoadingMyAds = false;
+
+        if (err.status === 403 || err.status === 401) {
+          this.myAdsError = 'You are not authorized to view your ads. Please login.';
+        } else {
+          this.myAdsError = err?.error?.message || 'Error loading your ads. Please try again later.';
+        }
+
+        this.myAdsDetails = [];
+        this.showMyAdsDetails = true;
+      }
+    });
+  }
+
+  toggleMyAdsDetails(): void {
+    if (!this.showMyAdsDetails) {
+      this.loadMyAdsDetails();
+    } else {
+      this.showMyAdsDetails = false;
+      this.myAdsDetails = [];
+      this.myAdsError = '';
+    }
   }
 
   loadReservations(): void {

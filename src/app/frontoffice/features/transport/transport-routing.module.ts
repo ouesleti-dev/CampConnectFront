@@ -6,6 +6,7 @@ import { TripComponent } from './pages/trip/trip.component';
 import { TransportAdComponent } from './pages/transport-ad/transport-ad.component';
 import { RecommendationComponent } from './pages/recommendation/recommendation.component';
 import { AiTransportComponent } from './pages/ai-transport/ai-transport.component';
+import { DemandAnalysisComponent } from './pages/demand-analysis/demand-analysis.component';
 import { AuthGuard } from '../../shared/guards/auth.guard';
 
 const routes: Routes = [
@@ -33,6 +34,10 @@ const routes: Routes = [
     path: 'ai',
     component: AiTransportComponent,
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'demand-analysis',
+    component: DemandAnalysisComponent
   }
 ];
 

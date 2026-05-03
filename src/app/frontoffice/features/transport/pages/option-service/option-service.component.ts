@@ -50,6 +50,7 @@ export class OptionServiceComponent implements OnInit {
   private initForm(): void {
     this.optionForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
+      price: [0, [Validators.required, Validators.min(0)]],
       optionType: ['', Validators.required],
       vehicleId: [null, [Validators.required, Validators.min(1)]]
     });
@@ -90,6 +91,7 @@ export class OptionServiceComponent implements OnInit {
 
     const optionPayload: OptionServiceRequest = {
       name: this.optionForm.get('name')?.value as string,
+      price: Number(this.optionForm.get('price')?.value),
       optionType: this.optionForm.get('optionType')?.value as string,
       vehicleId: Number(this.optionForm.get('vehicleId')?.value)
     };
@@ -127,6 +129,7 @@ export class OptionServiceComponent implements OnInit {
     this.editOptionId = option.optionId;
     this.optionForm.patchValue({
       name: option.name,
+      price: option.price || 0,
       optionType: option.optionType,
       vehicleId: option.vehicleId
     });
@@ -160,6 +163,7 @@ export class OptionServiceComponent implements OnInit {
 
   resetForm(): void {
     this.optionForm.reset({
+      price: 0,
       name: '',
       optionType: '',
       vehicleId: null

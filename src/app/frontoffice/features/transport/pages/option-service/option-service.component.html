@@ -4,10 +4,12 @@
       <h1>Options {{ selectedVehicleId ? 'for vehicle #' + selectedVehicleId : '' }}</h1>
       <p>Manage the services associated with your vehicles.</p>
     </div>
+
     <div class="header-actions">
       <button type="button" class="btn-back" (click)="goBack()">
         Back
       </button>
+
       <button type="button" class="btn-add" (click)="toggleForm()">
         {{ showForm ? 'Close' : 'Add an Option' }}
       </button>
@@ -45,6 +47,18 @@
       </div>
 
       <div class="form-field">
+        <label for="price">Price (TND)</label>
+        <input
+          id="price"
+          type="number"
+          min="0"
+          step="0.1"
+          formControlName="price"
+          placeholder="5"
+        />
+      </div>
+
+      <div class="form-field">
         <label for="optionType">Option type</label>
         <select id="optionType" formControlName="optionType">
           <option value="">Select a type</option>
@@ -70,7 +84,8 @@
       <button type="button" class="secondary-action" (click)="resetForm()">
         Cancel
       </button>
-      <button type="submit" class="primary-action" [disabled]="isLoading">
+
+      <button type="submit" class="primary-action" [disabled]="isLoading || optionForm.invalid">
         {{ isLoading ? 'Saving...' : (editMode ? 'Update' : 'Create Option') }}
       </button>
     </div>
@@ -83,6 +98,7 @@
       </div>
 
       <h3>{{ option.name }}</h3>
+      <p><strong>Price:</strong> {{ option.price }} TND</p>
       <p><strong>Vehicle:</strong> {{ option.vehicleLicensePlate || ('#' + option.vehicleId) }}</p>
       <p><strong>Vehicle type:</strong> {{ option.vehicleType || 'Not provided' }}</p>
 
@@ -90,6 +106,7 @@
         <button type="button" class="secondary-action" (click)="editOption(option)">
           Edit
         </button>
+
         <button type="button" class="danger-action" (click)="deleteOption(option.optionId)">
           Delete
         </button>

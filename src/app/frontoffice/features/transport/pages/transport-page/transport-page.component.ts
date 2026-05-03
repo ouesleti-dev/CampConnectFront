@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { VehicleService } from '../../../../shared/services/vehicle.service';
 import { TripService } from '../../../../shared/services/trip.service';
@@ -41,11 +42,17 @@ export class TransportPageComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  // Booking options variables
+  availableOptions: any[] = [];
+  selectedOptions: any[] = [];
+  isLoadingOptions = false;
+
   readonly vehicleTypes: string[] = ['Car', 'Bus', 'Van', 'Truck', 'Motorcycle'];
   readonly statusOptions: string[] = ['active', 'inactive', 'maintenance'];
 
   constructor(
     private fb: FormBuilder,
+    private http: HttpClient,
     private vehicleService: VehicleService,
     private tripService: TripService,
     private transportAdService: TransportAdService,
@@ -175,13 +182,97 @@ export class TransportPageComponent implements OnInit {
     this.router.navigate(['/transport/recommendations']);
   }
 
+  goToDemandAnalysis(): void {
+    this.router.navigate(['/transport/demand-analysis']);
+  }
+
   openReservation(ad: TransportAdResponse): void {
     this.clearMessages();
     this.selectedAd = ad;
     this.selectedAdDisplayDepartureLocation = this.locationDisplayService.formatLocation(ad.departureLocation);
     this.selectedAdDisplayDestinationLocation = this.locationDisplayService.formatLocation(ad.destination);
     this.showReservationForm = true;
+    this.selectedOptions = [];
+    this.availableOptions = [];
+    this.loadBookingOptions(ad);
     this.resolveSelectedAdDisplayLocations(ad);
+  }
+
+ loadBookingOptions(ad: any): void {
+    console.log('Loading booking options for ad:', ad);
+
+    // First, get the trip details to extract vehicleId
+    if (!ad.tripId) {
+      this.errorMessage = 'Trip ID not found for this ad.';
+      this.availableOptions = [];
+      return;
+    }
+
+    this.isLoadingOptions = true;
+    this.errorMessage = '';
+
+    // Get trip details to find vehicleId
+    this.tripService.getTripById(ad.tripId).subscribe({
+      next: (trip) => {
+        console.log('Trip details:', trip);
+
+        const vehicleId = trip.vehicleId;
+        if (!vehicleId) {
+          this.errorMessage = 'Vehicle ID not found for this trip.';
+          this.availableOptions = [];
+          this.isLoadingOptions = false;
+          return;
+        }
+
+        console.log('Using vehicleId:', vehicleId);
+
+        // Now fetch options for this vehicle
+        const optionUrl = `http://localhost:8088/campConnect/options/vehicle/${vehicleId}`;
+
+        this.http.get<any[]>(optionUrl).subscribe({
+          next: (options: any[]) => {
+            console.log('Loaded options:', options);
+            this.availableOptions = options || [];
+            this.isLoadingOptions = false;
+          },
+          error: (err: any) => {
+            console.error('Error loading options:', err);
+            this.availableOptions = [];
+            this.isLoadingOptions = false;
+            this.errorMessage = 'Failed to load booking options.';
+          }
+        });
+      },
+      error: (err: any) => {
+        console.error('Error loading trip details:', err);
+        this.errorMessage = 'Failed to load trip information.';
+        this.availableOptions = [];
+        this.isLoadingOptions = false;
+      }
+    });
+  }
+
+  toggleOption(option: any): void {
+    const index = this.selectedOptions.findIndex(o => o.optionId === option.optionId);
+    if (index > -1) {
+      this.selectedOptions.splice(index, 1);
+    } else {
+      this.selectedOptions.push(option);
+    }
+  }
+
+  isOptionSelected(option: any): boolean {
+    return this.selectedOptions.some(o => o.optionId === option.optionId);
+  }
+
+  getTotalPrice(): number {
+    if (!this.selectedAd) return 0;
+    
+    const seatCount = Number(this.reservationForm.get('seatCount')?.value) || 0;
+    const basePrice = this.selectedAd.price * seatCount;
+    const optionsPrice = this.selectedOptions.reduce((total, option) => total + (option.price || 0), 0);
+    
+    return basePrice + optionsPrice;
   }
 
   cancelReservation(): void {
@@ -189,6 +280,9 @@ export class TransportPageComponent implements OnInit {
     this.selectedAd = null;
     this.selectedAdDisplayDepartureLocation = '';
     this.selectedAdDisplayDestinationLocation = '';
+    this.availableOptions = [];
+    this.selectedOptions = [];
+    this.isLoadingOptions = false;
     this.reservationForm.reset({
       seatCount: 1,
       reservationDate: new Date().toISOString().split('T')[0]
@@ -200,11 +294,12 @@ export class TransportPageComponent implements OnInit {
       return;
     }
 
-    const req: ReservationRequest = {
+    const req: any = {
       reservationDate: this.reservationForm.value.reservationDate as string,
       seatCount: Number(this.reservationForm.value.seatCount),
       status: 'CONFIRMED',
-      transportAdId: this.selectedAd.adId
+      transportAdId: this.selectedAd.adId,
+      optionIds: this.selectedOptions.map(o => o.optionId)
     };
 
     this.reservationService.createReservation(req).subscribe({
@@ -351,4 +446,10 @@ export class TransportPageComponent implements OnInit {
     this.selectedAdDisplayDepartureLocation = departureLocation;
     this.selectedAdDisplayDestinationLocation = destinationLocation;
   }
+  getOptionsTotal(): number {
+  return this.selectedOptions.reduce(
+    (sum: number, option: any) => sum + Number(option.price || 0),
+    0
+  );
+}
 }
