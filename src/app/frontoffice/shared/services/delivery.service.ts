@@ -35,4 +35,12 @@ export class DeliveryService {
   markDelivered(deliveryId: number, userId: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${deliveryId}/deliver/${userId}`, {});
   }
+  getActiveDeliveriesForCustomer(customerId: number): Observable<any[]> {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/customer/${customerId}/active`
+  );
+}
+getTopPerformers(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/stats/top-performers`);
+}
 }

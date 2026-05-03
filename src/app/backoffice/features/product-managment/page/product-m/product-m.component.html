@@ -1,10 +1,16 @@
 <div class="product-admin-container">
 
+
   <!-- Header -->
   <div class="admin-header">
     <h2>Marketplace Admin</h2>
     <p>Manage products submitted by users</p>
   </div>
+  <button class="tab-btn" 
+  [class.active]="activeTab === 'analytics'" 
+  (click)="activeTab='analytics'">
+  Analytics
+</button>
 
   <!-- Stats -->
   <div class="admin-stats">
@@ -118,5 +124,29 @@
       </tbody>
     </table>
   </div>
+</div>
+<div *ngIf="activeTab === 'analytics'" class="table-wrapper">
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Sold</th>
+        <th>Revenue</th>
+        <th>Buyers</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let s of salesStats">
+        <td>{{ s.nameProduct }}</td>
+        <td>{{ s.priceProduct }} TND</td>
+        <td>{{ s.totalQuantitySold }}</td>
+        <td>{{ s.totalRevenue }} TND</td>
+        <td>{{ s.distinctBuyers }}</td>
+      </tr>
+    </tbody>
+  </table>
 
 </div>

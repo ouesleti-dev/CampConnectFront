@@ -8,11 +8,12 @@ import { ProductService } from '../../../../../frontoffice/shared/services/produ
   styleUrl: './product-m.component.css'
 })
 export class ProductMComponent implements OnInit {
- activeTab: 'pending' | 'approved' | 'rejected' = 'pending';
+ activeTab: 'pending' | 'approved' | 'rejected' | 'analytics' = 'pending';
 
   pendingProducts: ProductResponse[] = [];
   approvedProducts: ProductResponse[] = [];
   rejectedProducts: ProductResponse[] = [];
+  salesStats: any[] = [];
 
   successMessage = '';
   errorMessage = '';
@@ -21,6 +22,7 @@ export class ProductMComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadSalesStats();
   }
 
   loadProducts(): void {
@@ -73,4 +75,10 @@ export class ProductMComponent implements OnInit {
   getCategoryName(category: any): string {
     return category?.name || category || '—';
   }
+  loadSalesStats(): void {
+  this.productService.getSalesStats().subscribe({
+    next: (res) => this.salesStats = res,
+    error: (err) => console.error(err)
+  });
+}
 }

@@ -52,4 +52,17 @@ export class ProductService {
   reject(id: number): Observable<ProductResponse> {
     return this.http.put<ProductResponse>(`${this.api}/${id}/reject`, {});
   }
+  getSalesStats() {
+    return this.http.get<any[]>(`${this.api}/sales-stats`);
+  }
+
+  getNearby(lat: number, lng: number, radius: number): Observable<ProductResponse[]> {
+    return this.http.get<ProductResponse[]>(`${this.api}/nearby?lat=${lat}&lng=${lng}&radius=${radius}`);
+  }
+
+  getRecommendations(productId: number, topN: number = 4): Observable<ProductResponse[]> {
+    return this.http.get<ProductResponse[]>(
+      `http://localhost:8088/campConnect/api/recommendations/${productId}?topN=${topN}`
+    );
+  }
 }

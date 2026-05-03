@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { CartItem, OrderDTO, OrderRequest } from '../models/order.model';
+import { CouponResponse } from '../models/coupon.model';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
@@ -102,5 +103,9 @@ export class OrderService {
 
   rejectOrder(id: number): Observable<OrderDTO> {
     return this.http.put<OrderDTO>(`${this.apiUrl}/${id}/reject`, {});
+  }
+
+  validateCoupon(code: string): Observable<CouponResponse> {
+    return this.http.get<CouponResponse>(`http://localhost:8088/campConnect/api/coupons/validate/${code}`);
   }
 }
