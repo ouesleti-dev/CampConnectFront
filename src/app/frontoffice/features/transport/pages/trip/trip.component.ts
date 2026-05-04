@@ -35,6 +35,9 @@ export class TripComponent implements OnInit, AfterViewInit, OnDestroy {
   errorMessage = '';
   mapErrorMessage = '';
 
+  mapSearchQuery = '';
+  mapSearchResults: any[] = [];
+
   private map?: L.Map;
   private departureMarker?: L.Marker;
   private destinationMarker?: L.Marker;
@@ -262,6 +265,70 @@ export class TripComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/transport/transport-ads'], {
       queryParams: { tripId }
     });
+  }
+
+  searchLocation(): void {
+    const query = this.mapSearchQuery.trim();
+
+    if (!query) {
+      return;
+    }
+
+    this.mapErrorMessage = '';
+
+    fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`
+    )
+      .then(response => response.json())
+      .then((data: any[]) => {
+        this.mapSearchResults = data || [];
+      })
+      .catch(() => {
+        this.mapSearchResults = [];
+        this.mapErrorMessage = 'Failed to search location.';
+      });
+  }
+
+  selectSearchResult(result: any): void {
+    const lat = Number(result.lat);
+    const lng = Number(result.lon);
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      this.mapErrorMessage = 'Invalid location selected.';
+      return;
+    }
+
+    const latlng = L.latLng(lat, lng);
+
+    this.mapSearchResults = [];
+    this.mapSearchQuery = result.display_name || '';
+
+    this.requireMap().setView(latlng, 13);
+    void this.handleMapClick(latlng);
+  }
+
+  useMyLocation(): void {
+    if (!navigator.geolocation) {
+      this.mapErrorMessage = 'Geolocation is not supported by this browser.';
+      return;
+    }
+
+    this.mapErrorMessage = '';
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const latlng = L.latLng(
+          position.coords.latitude,
+          position.coords.longitude
+        );
+
+        this.requireMap().setView(latlng, 13);
+        void this.handleMapClick(latlng);
+      },
+      () => {
+        this.mapErrorMessage = 'Unable to get your location.';
+      }
+    );
   }
 
   private initMap(): void {

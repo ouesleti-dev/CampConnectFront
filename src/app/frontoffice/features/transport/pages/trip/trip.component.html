@@ -4,10 +4,12 @@
       <h1>Trips {{ selectedVehicleId ? 'for vehicle #' + selectedVehicleId : '' }}</h1>
       <p>Manage the trips associated with your vehicles.</p>
     </div>
+
     <div class="header-actions">
       <button type="button" class="btn-back" (click)="goBack()">
         Back
       </button>
+
       <button type="button" class="btn-add" (click)="toggleForm()">
         {{ showForm ? 'Close' : 'Add a Trip' }}
       </button>
@@ -87,13 +89,45 @@
           <h3>Interactive route map</h3>
           <p>{{ mapInstruction }}</p>
         </div>
+
         <button type="button" class="btn-reset-map" (click)="resetMap()">
           Reset map
         </button>
       </div>
 
+      <div class="map-tools">
+        <div class="map-search">
+          <input
+            type="text"
+            placeholder="Search location..."
+            [(ngModel)]="mapSearchQuery"
+            [ngModelOptions]="{ standalone: true }"
+            (keyup.enter)="searchLocation()"
+          />
+
+          <button type="button" (click)="searchLocation()">
+            Search
+          </button>
+        </div>
+
+        <button type="button" class="btn-my-location" (click)="useMyLocation()">
+          My Location
+        </button>
+      </div>
+
+      <div class="search-results" *ngIf="mapSearchResults.length > 0">
+        <button
+          type="button"
+          *ngFor="let result of mapSearchResults"
+          (click)="selectSearchResult(result)"
+        >
+          {{ result.display_name }}
+        </button>
+      </div>
+
       <div class="map-wrapper">
         <div #tripMap class="trip-map"></div>
+
         <div class="map-loading" *ngIf="isRouteLoading">
           Calculating route...
         </div>
@@ -112,6 +146,7 @@
       <button type="button" class="secondary-action" (click)="resetForm()">
         Cancel
       </button>
+
       <button type="submit" class="primary-action" [disabled]="isLoading">
         {{ isLoading ? 'Saving...' : (editMode ? 'Update' : 'Create Trip') }}
       </button>
@@ -121,20 +156,36 @@
   <section *ngIf="myTrips.length > 0; else emptyState" class="trip-grid">
     <article *ngFor="let trip of myTrips" class="trip-card">
       <div class="trip-card-top">
-        <span class="vehicle-badge">{{ trip.vehicleLicensePlate || ('#' + trip.vehicleId) }}</span>
+        <span class="vehicle-badge">
+          {{ trip.vehicleLicensePlate || ('#' + trip.vehicleId) }}
+        </span>
       </div>
 
-      <h3>{{ trip.displayDepartureLocation }} &rarr; {{ trip.displayDestinationLocation }}</h3>
-      <p><strong>Date:</strong> {{ trip.departureDate | date:'dd/MM/yyyy' }}</p>
-      <p><strong>Distance:</strong> {{ trip.distance | number:'1.0-0' }} km</p>
+      <h3>
+        {{ trip.displayDepartureLocation }}
+        &rarr;
+        {{ trip.displayDestinationLocation }}
+      </h3>
+
+      <p>
+        <strong>Date:</strong>
+        {{ trip.departureDate | date:'dd/MM/yyyy' }}
+      </p>
+
+      <p>
+        <strong>Distance:</strong>
+        {{ trip.distance | number:'1.0-0' }} km
+      </p>
 
       <div class="card-actions">
         <button type="button" class="secondary-action" (click)="editTrip(trip)">
           Edit
         </button>
+
         <button type="button" class="danger-action" (click)="deleteTrip(trip.tripId)">
           Delete
         </button>
+
         <button type="button" class="btn-ad" (click)="goToAds(trip.tripId)">
           Ads
         </button>
