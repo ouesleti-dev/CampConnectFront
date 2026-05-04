@@ -6,7 +6,6 @@
 
   <form [formGroup]="rentalForm" (ngSubmit)="onSubmit()">
 
-    <!-- Equipment Select -->
     <div class="form-card">
       <div class="form-group">
         <label>Equipment *</label>
@@ -30,17 +29,14 @@
       </div>
     </div>
 
-    <!-- Calendar -->
     <div class="form-card" *ngIf="selectedEquipment">
       <h3 class="calendar-title">Availability</h3>
 
       <div class="calendar-wrapper">
         <div class="cal-nav-row">
-
           <button type="button" class="nav-btn" (click)="prevMonth()">‹</button>
 
           <div class="calendars">
-
             <!-- LEFT MONTH -->
             <div class="calendar">
               <div class="cal-header">
@@ -53,15 +49,17 @@
                   <div *ngIf="day !== null"
                        class="day-cell"
                        [class.reserved]="isReserved(day)"
+                       [class.maintenance]="isMaintenance(day)"
                        [class.start]="isStart(day)"
                        [class.end]="isEnd(day)"
                        [class.in-range]="isInRange(day)"
                        (mousedown)="onDateClick(day)"
                        (mouseenter)="onDateHover(day)">
                     <span class="day-number">{{ day.getDate() }}</span>
-                    <span class="day-price" *ngIf="!isReserved(day)">
+                    <span class="day-price" *ngIf="!isReserved(day) && !isMaintenance(day)">
                       {{ selectedEquipment!.price }} DT
                     </span>
+                    <span class="day-maint" *ngIf="isMaintenance(day)">🔧</span>
                   </div>
                 </ng-container>
               </div>
@@ -79,20 +77,21 @@
                   <div *ngIf="day !== null"
                        class="day-cell"
                        [class.reserved]="isReserved(day)"
+                       [class.maintenance]="isMaintenance(day)"
                        [class.start]="isStart(day)"
                        [class.end]="isEnd(day)"
                        [class.in-range]="isInRange(day)"
                        (mousedown)="onDateClick(day)"
                        (mouseenter)="onDateHover(day)">
                     <span class="day-number">{{ day.getDate() }}</span>
-                    <span class="day-price" *ngIf="!isReserved(day)">
+                    <span class="day-price" *ngIf="!isReserved(day) && !isMaintenance(day)">
                       {{ selectedEquipment!.price }} DT
                     </span>
+                    <span class="day-maint" *ngIf="isMaintenance(day)">🔧</span>
                   </div>
                 </ng-container>
               </div>
             </div>
-
           </div>
 
           <button type="button" class="nav-btn" (click)="nextMonth()">›</button>
@@ -101,15 +100,20 @@
         <!-- Legend -->
         <div class="calendar-legend">
           <div class="legend-item">
-            <span class="legend-box available-box"></span> Avaiable
+            <span class="legend-box available-box"></span>
+            <span>Available</span>
           </div>
           <div class="legend-item">
-            <span class="legend-box reserved-box"></span> Not Available
+            <span class="legend-box reserved-box"></span>
+            <span>Not Available</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-box maintenance-box"></span>
+            <span class="maintenance-label">🔴 Maintenance</span>
           </div>
         </div>
       </div>
 
-      <!-- Summary -->
       <div class="dates-summary" *ngIf="startDate">
         <div class="summary-item">
           <span class="summary-label">Departure</span>
@@ -136,6 +140,5 @@
         {{ isLoading ? 'Sending...' : 'Send Rental Request' }}
       </button>
     </div>
-
   </form>
 </div>

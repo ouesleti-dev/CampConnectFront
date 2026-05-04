@@ -23,6 +23,7 @@ export class RentEquipmentComponent implements OnInit {
   endDate: Date | null = null;
   hoveredDate: Date | null = null;
   reservedRanges: { startDate: Date, endDate: Date }[] = [];
+  maintenanceRanges: { startDate: Date, endDate: Date }[] = []; // ✅
 
   weekDays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
   months = ['janvier','février','mars','avril','mai','juin',
@@ -54,11 +55,23 @@ export class RentEquipmentComponent implements OnInit {
     this.endDate = null;
     this.hoveredDate = null;
     this.reservedRanges = [];
+    this.maintenanceRanges = []; // ✅ reset
     this.rentalForm.patchValue({ startDate: '', endDate: '' });
+
     if (id) {
       this.rentalService.getReservedDates(id).subscribe({
         next: (dates) => {
           this.reservedRanges = dates.map(d => ({
+            startDate: new Date(d.startDate),
+            endDate: new Date(d.endDate)
+          }));
+        }
+      });
+
+      // ✅ Charger dates maintenance
+      this.rentalService.getMaintenanceDates(id).subscribe({
+        next: (dates) => {
+          this.maintenanceRanges = dates.map(d => ({
             startDate: new Date(d.startDate),
             endDate: new Date(d.endDate)
           }));
@@ -90,7 +103,7 @@ export class RentEquipmentComponent implements OnInit {
   }
 
   onDateClick(date: Date): void {
-    if (this.isReserved(date)) return;
+    if (this.isReserved(date) || this.isMaintenance(date)) return; // ✅
 
     if (!this.startDate) {
       this.startDate = date;
@@ -119,7 +132,6 @@ export class RentEquipmentComponent implements OnInit {
       return;
     }
 
-    // Reset et recommence
     this.startDate = date;
     this.endDate = null;
     this.hoveredDate = null;
@@ -130,6 +142,11 @@ export class RentEquipmentComponent implements OnInit {
     if (this.startDate && !this.endDate) {
       this.hoveredDate = date;
     }
+  }
+
+  // ✅ Nouvelle méthode
+  isMaintenance(date: Date): boolean {
+    return this.maintenanceRanges.some(r => date >= r.startDate && date <= r.endDate);
   }
 
   isReserved(date: Date): boolean {
@@ -189,6 +206,7 @@ export class RentEquipmentComponent implements OnInit {
         this.hoveredDate = null;
         this.selectedEquipment = null;
         this.reservedRanges = [];
+        this.maintenanceRanges = []; // ✅
       },
       error: (err) => {
         this.isLoading = false;

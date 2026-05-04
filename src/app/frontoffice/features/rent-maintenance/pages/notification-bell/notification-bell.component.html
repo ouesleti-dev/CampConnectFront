@@ -1,0 +1,58 @@
+<div class="notif-container">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="header-left">
+      <h4>🔔 Notifications</h4>
+      <span class="count-chip" *ngIf="unreadCount > 0">
+        {{ unreadCount }} new
+      </span>
+    </div>
+
+    <button class="mark-read-btn" *ngIf="unreadCount > 0" (click)="markAllRead()">
+      ✓ Mark all as read
+    </button>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="notifications.length === 0">
+    <div class="empty-icon">🔕</div>
+    <p>No notifications at the moment</p>
+  </div>
+
+  <!-- List -->
+  <div class="notif-list">
+    <div *ngFor="let n of notifications"
+         class="notif-item"
+         [class.unread]="!n.isRead"
+         [class.affected]="n.type === 'MAINTENANCE_AFFECTED'"
+         [class.info]="n.type === 'MAINTENANCE_INFO'">
+
+      <div class="notif-dot"
+           [class.dot-red]="n.type === 'MAINTENANCE_AFFECTED'"
+           [class.dot-blue]="n.type === 'MAINTENANCE_INFO'">
+      </div>
+
+      <div class="notif-body">
+        <p class="notif-message">{{ n.message }}</p>
+
+        <div class="notif-meta">
+          <span class="notif-tag"
+                [class.tag-red]="n.type === 'MAINTENANCE_AFFECTED'"
+                [class.tag-blue]="n.type === 'MAINTENANCE_INFO'">
+
+            {{ n.type === 'MAINTENANCE_AFFECTED' ? 'Affected' : 'Info' }}
+          </span>
+
+          <span class="notif-equip">{{ n.equipmentName }}</span>
+          <span class="notif-date">
+            {{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+      </div>
+
+      <button class="del-btn" (click)="remove(n.id)">✕</button>
+    </div>
+  </div>
+
+</div>

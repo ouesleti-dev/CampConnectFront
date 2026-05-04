@@ -17,6 +17,8 @@ import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analytic
 import { StoryBarComponent } from './pages/story-bar/story-bar.component';
 import { MaintenancePredictionComponent } from './pages/maintenance-prediction/maintenance-prediction.component';
 import { EquipmentRecommendationComponent } from './pages/equipment-recommendation/equipment-recommendation.component';
+import { MaintenanceSchedulerComponent } from './pages/maintenance-scheduler/maintenance-scheduler.component';
+import { NotificationBellComponent } from './pages/notification-bell/notification-bell.component';
 
 
 
@@ -34,6 +36,8 @@ import { EquipmentRecommendationComponent } from './pages/equipment-recommendati
     StoryBarComponent,
     MaintenancePredictionComponent,
     EquipmentRecommendationComponent,
+    MaintenanceSchedulerComponent,
+    NotificationBellComponent,
   ],
   imports: [
     CommonModule,

@@ -1,0 +1,92 @@
+<div class="container">
+  <h2>🛠 Schedule Maintenance</h2>
+
+  <!-- Form -->
+  <div class="form-row">
+    <label>
+      Equipment
+      <select [(ngModel)]="equipmentId" (ngModelChange)="onEquipmentChange()">
+        <option [value]="0">— Select —</option>
+        <option *ngFor="let e of myEquipments" [value]="e.idEquipement">
+          {{ e.name }} — {{ e.price }} TND/day
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Duration (days)
+      <input type="number" [(ngModel)]="durationDays" min="1" max="30"/>
+    </label>
+
+    <button (click)="loadSlots()" [disabled]="loading || equipmentId == 0">
+      {{ loading ? '⏳ Loading...' : '🔍 View slots' }}
+    </button>
+  </div>
+
+  <!-- Error -->
+  <p class="error" *ngIf="error">⚠️ {{ error }}</p>
+
+  <!-- Suggested slots -->
+  <div *ngIf="slots.length > 0">
+    <h3>📅 Available Slots</h3>
+    <p class="hint">Click on a slot to see the impact</p>
+
+    <div
+      *ngFor="let slot of slots"
+      class="slot-card"
+      [class.selected]="selectedSlot === slot"
+      (click)="select(slot)">
+
+      <strong>
+        {{ slot.start | date:'dd/MM/yyyy' }}
+        → {{ slot.end | date:'dd/MM/yyyy' }}
+      </strong>
+
+      <span class="buffer">
+        {{ slot.bufferDaysAfter }} free days after
+      </span>
+    </div>
+  </div>
+
+  <!-- Impact + confirmation -->
+  <div class="impact-box" *ngIf="impact">
+    <h3>⚠️ Impact — {{ impact.equipmentName }}</h3>
+
+    <div [class.has-impact]="impact.affectedRentalCount > 0" class="impact-info">
+      <p>
+        <strong>{{ impact.affectedRentalCount }}</strong>
+        rental(s) affected
+      </p>
+
+      <ul *ngIf="impact.affectedEmails.length > 0">
+        <li *ngFor="let e of impact.affectedEmails">{{ e }}</li>
+      </ul>
+
+      <p class="ok" *ngIf="impact.affectedEmails.length === 0">
+        ✅ No rentals affected
+      </p>
+    </div>
+
+    <div class="confirm-form">
+      <label>
+        Maintenance type
+        <select [(ngModel)]="selectedKind">
+          <option *ngFor="let k of kinds" [value]="k">{{ k }}</option>
+        </select>
+      </label>
+
+      <label>
+        Description
+        <input [(ngModel)]="description" placeholder="e.g. Annual inspection"/>
+      </label>
+
+      <button
+        class="btn-confirm"
+        [disabled]="confirmed"
+        (click)="confirm()">
+
+        {{ confirmed ? '✅ Confirmed — Notifications sent' : '🔒 Confirm and notify' }}
+      </button>
+    </div>
+  </div>
+</div>
