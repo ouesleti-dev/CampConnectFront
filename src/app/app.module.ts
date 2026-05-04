@@ -7,12 +7,13 @@ import { SharedModule } from './frontoffice/shared/shared.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { AuthInterceptor } from './frontoffice/shared/interceptors/auth.interceptor';
-
+import { BaseChartDirective } from 'ng2-charts';
 @NgModule({
   declarations: [
     AppComponent
   ],
   imports: [
+   BaseChartDirective,
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,

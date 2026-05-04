@@ -41,6 +41,9 @@ imagePreview = '';
   myProducts: ProductResponse[] = [];
   activeDeliveries: any[] = [];
 activeDeliveriesLoading = false;
+// Ajouter ces champs
+deliveryLat: number | null = null;
+deliveryLng: number | null = null;
 
   searchTerm = '';
   selectedCategory = '';
@@ -474,6 +477,8 @@ placeOrder(): void {
   const request = {
     userId: userId,
     deliveryAddress: this.deliveryAddress,
+    deliveryLat: this.deliveryLat,   // ← NOUVEAU
+  deliveryLng: this.deliveryLng,
     paymentMethod: this.paymentMethod,
     items: this.cartItems.map(i => ({
       productId: i.product.idProduct,
@@ -762,19 +767,23 @@ initDeliveryMap(): void {
   }
 
   // Click on map → reverse geocode
-  this.deliveryMap.on('click', (e: any) => {
-    const { lat, lng } = e.latlng;
-    if (this.deliveryMapMarker) this.deliveryMap.removeLayer(this.deliveryMapMarker);
-    this.deliveryMapMarker = L.marker([lat, lng]).addTo(this.deliveryMap);
+ this.deliveryMap.on('click', (e: any) => {
+  const { lat, lng } = e.latlng;
+  // ── SAUVEGARDER les coords ────────────────────────────
+  this.deliveryLat = lat;
+  this.deliveryLng = lng;
+  // ─────────────────────────────────────────────────────
+  if (this.deliveryMapMarker) this.deliveryMap.removeLayer(this.deliveryMapMarker);
+  this.deliveryMapMarker = L.marker([lat, lng]).addTo(this.deliveryMap);
 
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=fr`)
-      .then(r => r.json())
-      .then(data => {
-        const short = this.formatAddress(data);
-        this.deliveryAddress = short;
-        this.deliveryMapMarker.bindPopup(`📍 ${short}`).openPopup();
-      });
-  });
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=fr`)
+    .then(r => r.json())
+    .then(data => {
+      const short = this.formatAddress(data);
+      this.deliveryAddress = short;
+      this.deliveryMapMarker.bindPopup(`📍 ${short}`).openPopup();
+    });
+});
 }
 
 searchDeliveryAddress(): void {
@@ -794,6 +803,8 @@ searchDeliveryAddress(): void {
 selectDeliverySearchResult(result: any): void {
   const lat = parseFloat(result.lat);
   const lng = parseFloat(result.lon);
+    this.deliveryLat = lat;
+  this.deliveryLng = lng;
   this.deliveryMap.setView([lat, lng], 14);
 
   if (this.deliveryMapMarker) this.deliveryMap.removeLayer(this.deliveryMapMarker);
@@ -818,6 +829,8 @@ useMyLocationForDelivery(): void {
     (position) => {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
+         this.deliveryLat = lat;
+      this.deliveryLng = lng;
 
       this.deliveryMap.setView([lat, lng], 15);
 

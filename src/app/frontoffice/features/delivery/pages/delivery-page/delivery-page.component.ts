@@ -21,6 +21,10 @@ export class DeliveryPageComponent implements OnInit {
   toastType = 'success';
   userId: number | null = null;
 
+  feePreview: any = null;
+  feeLoading = false;
+  feeError = '';
+
   constructor(
     private deliveryService: DeliveryService,
     private authService: AuthService
@@ -54,17 +58,15 @@ export class DeliveryPageComponent implements OnInit {
     if (tab === 'available') this.loadPending();
   }
 
- 
-
   markDelivered(deliveryId: number): void {
     if (!this.userId) return;
     if (!confirm('Mark as delivered?')) return;
     this.deliveryService.markDelivered(deliveryId, this.userId).subscribe({
       next: () => {
-        this.showToast('🎉 Marked as delivered!', 'success');
+        this.showToast('Marked as delivered!', 'success');
         this.loadMyDeliveries();
       },
-      error: (err) => this.showToast(err.error?.message || '❌ Failed.', 'danger')
+      error: (err) => this.showToast(err.error?.message || 'Failed.', 'danger')
     });
   }
 
@@ -83,34 +85,53 @@ export class DeliveryPageComponent implements OnInit {
     this.toastType = type;
     setTimeout(() => this.toastMsg = '', 3000);
   }
-  selectedDate: string = '';
-showDatePicker: number | null = null; 
 
-openDatePicker(deliveryId: number): void {
-  this.showDatePicker = deliveryId;
-  // date minimum = demain
+  selectedDate: string = '';
+  showDatePicker: number | null = null;
+
+  openDatePicker(delivery: any): void {
+  this.showDatePicker = delivery.idDelivery;
+  this.feePreview = null;
+  this.feeError = '';
+  this.feeLoading = true;
+
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   this.selectedDate = tomorrow.toISOString().split('T')[0];
-}
 
-confirmTakeDelivery(deliveryId: number): void {
-  if (!this.userId || !this.selectedDate) return;
-  this.deliveryService.takeDelivery(deliveryId, this.userId, 
-                                    this.selectedDate).subscribe({
-    next: () => {
-      this.showDatePicker = null;
-      this.showToast('✅ Delivery taken!', 'success');
-      this.loadPending();
-      this.loadMyDeliveries();
-      this.activeTab = 'my-deliveries';
-    },
-    error: (err) => this.showToast(err.error?.message || '❌ Failed.', 'danger')
+  // ✅ Passer les coords → zéro appel Nominatim côté backend
+  this.deliveryService.previewFee(
+    delivery.departureAddress,
+    delivery.arrivalAddress,
+    delivery.departureLat,   // ← coords directes
+    delivery.departureLng,
+    delivery.arrivalLat,
+    delivery.arrivalLng
+  ).subscribe({
+    next: data => { this.feePreview = data; this.feeLoading = false; },
+    error: () => { this.feeError = 'Unable to calculate fee'; this.feeLoading = false; }
   });
 }
-getTomorrow(): string {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toISOString().split('T')[0];
-}
+
+  confirmTakeDelivery(deliveryId: number): void {
+    if (!this.userId || !this.selectedDate) return;
+    this.deliveryService.takeDelivery(deliveryId, this.userId,
+                                      this.selectedDate).subscribe({
+      next: () => {
+        this.showDatePicker = null;
+        this.feePreview = null;
+        this.showToast('Delivery taken!', 'success');
+        this.loadPending();
+        this.loadMyDeliveries();
+        this.activeTab = 'my-deliveries';
+      },
+      error: (err) => this.showToast(err.error?.message || 'Failed.', 'danger')
+    });
+  }
+
+  getTomorrow(): string {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  }
 }

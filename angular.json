@@ -41,7 +41,9 @@
               "node_modules/leaflet/dist/leaflet.css"
             ],
             "scripts": [
-              "node_modules/leaflet/dist/leaflet.js"
+              "node_modules/leaflet/dist/leaflet.js",
+              "node_modules/sockjs-client/dist/sockjs.min.js",
+              "node_modules/stompjs/lib/stomp.min.js"
             ]
           },
           "configurations": {
