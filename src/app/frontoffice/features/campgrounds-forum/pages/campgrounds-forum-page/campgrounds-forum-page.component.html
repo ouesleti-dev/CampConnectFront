@@ -1,197 +1,252 @@
 <div class="campgrounds-forum-page">
-
+ 
   <!-- Hero -->
   <section class="page-hero">
     <div class="container">
       <h1 class="page-title">🏕️ Campgrounds & Forum</h1>
-      <p class="page-description">Explorez les campings, rejoignez des événements et participez aux activités</p>
+      <p class="page-description">
+        Explore campgrounds, join events and participate in activities
+      </p>
     </div>
   </section>
-
-  <!-- Barre de navigation par onglets (style Wildly) -->
+ 
+  <!-- Tabs -->
   <div class="tabs-bar">
     <div class="tabs-container">
-
+ 
       <button class="tab-btn" [class.active]="activeTab === 'events'"
               (click)="setTab('events')">
         <span class="tab-icon">📅</span>
-        <span class="tab-label">Événements</span>
+        <span class="tab-label">Events</span>
       </button>
-
+ 
       <button class="tab-btn" [class.active]="activeTab === 'activities'"
               (click)="setTab('activities')">
         <span class="tab-icon">🎯</span>
-        <span class="tab-label">Activités</span>
+        <span class="tab-label">Activities</span>
       </button>
-
+ 
       <button class="tab-btn" [class.active]="activeTab === 'campings'"
               (click)="setTab('campings')">
         <span class="tab-icon">⛺</span>
-        <span class="tab-label">Campings</span>
+        <span class="tab-label">Campgrounds</span>
       </button>
-
+ 
       <div class="tab-separator"></div>
-
-      <!-- Boutons Ajouter -->
+ 
       <button class="tab-btn add-btn" [class.active]="addTab === 'add-camping'"
               (click)="setAddTab('add-camping')">
         <span class="tab-icon">➕</span>
-        <span class="tab-label">Camping</span>
+        <span class="tab-label">Campground</span>
       </button>
-
+ 
       <button class="tab-btn add-btn" [class.active]="addTab === 'add-event'"
               (click)="setAddTab('add-event')">
         <span class="tab-icon">➕</span>
-        <span class="tab-label">Événement</span>
+        <span class="tab-label">Event</span>
       </button>
-
+ 
       <button class="tab-btn add-btn" [class.active]="addTab === 'add-activity'"
               (click)="setAddTab('add-activity')">
         <span class="tab-icon">➕</span>
-        <span class="tab-label">Activité</span>
+        <span class="tab-label">Activity</span>
       </button>
-
+ 
     </div>
   </div>
-
+ 
   <!-- Messages -->
   <div class="container msg-container">
-    <div class="alert alert-success" *ngIf="successMessage">✅ {{ successMessage }}</div>
-    <div class="alert alert-error"   *ngIf="errorMessage">❌ {{ errorMessage }}</div>
+    <div class="alert alert-success" *ngIf="successMessage">
+      ✅ {{ successMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="errorMessage">
+      ❌ {{ errorMessage }}
+    </div>
   </div>
-
+ 
   <section class="page-content">
     <div class="container">
-
-      <!-- ══════════════ ONGLET ÉVÉNEMENTS ══════════════ -->
+ 
+      <!-- ══ EVENTS TAB ══ -->
       <div *ngIf="activeTab === 'events'" class="forum-layout">
-
-        <!-- Sidebar events -->
+ 
         <aside class="events-sidebar">
-          <h2 class="sidebar-title">📅 Événements</h2>
-          <div class="loading" *ngIf="loadingEvents">Chargement...</div>
-          <div class="empty-msg" *ngIf="!loadingEvents && events.length === 0">
-            Aucun événement disponible.
+          <h2 class="sidebar-title">📅 Events</h2>
+          <div class="loading" *ngIf="loadingEvents">Loading...</div>
+          <div class="empty-msg"
+               *ngIf="!loadingEvents && events.length === 0">
+            No events available.
           </div>
+ 
           <div class="event-card"
                *ngFor="let event of events"
                [class.active]="selectedEvent?.id === event.id"
                (click)="selectEvent(event)">
+ 
             <div class="event-card-title">{{ event.title }}</div>
             <div class="event-card-meta">
               <span class="event-date">📆 {{ event.eventDate }}</span>
-              <span [class]="'event-status ' + getStatusClass(event.status)">{{ event.status }}</span>
+              <span [class]="'event-status ' + getStatusClass(event.status)">
+                {{ event.status }}
+              </span>
             </div>
             <div class="event-camping">⛺ {{ event.campingName }}</div>
-            <div class="event-participants">👥 {{ event.maxParticipants }} participants max</div>
+            <div class="event-participants">
+              👥 {{ event.maxParticipants }} max participants
+            </div>
+ 
+            <div class="ticket-actions" (click)="$event.stopPropagation()">
+              <button class="btn-ticket"
+                      *ngIf="!hasTicketForEvent(event.id)"
+                      [disabled]="loadingTicket
+                                  || event.status === 'COMPLETED'
+                                  || event.status === 'CANCELLED'"
+                      (click)="generateTicket(event.id)">
+                🎟️ Get a ticket
+              </button>
+              <button class="btn-ticket-view"
+                      *ngIf="hasTicketForEvent(event.id)"
+                      (click)="viewMyTicket(event.id)">
+                ✅ View my ticket
+              </button>
+            </div>
+ 
           </div>
         </aside>
-
-        <!-- Forum principal -->
+ 
+        <!-- Main Forum -->
         <main class="forum-main" *ngIf="selectedEvent; else noSelection">
-
+ 
           <div class="forum-header">
             <h2>💬 Forum — {{ selectedEvent.title }}</h2>
-            <span class="event-camping-badge">{{ selectedEvent.campingName }}</span>
+            <span class="event-camping-badge">
+              {{ selectedEvent.campingName }}
+            </span>
           </div>
-
-          <!-- Activités de l'event -->
+ 
+          <!-- Event activities -->
           <div class="activities-section" *ngIf="activities.length > 0">
-            <h3>🎯 Activités de cet événement</h3>
+            <h3>🎯 Activities for this event</h3>
             <div class="activities-grid">
+ 
+              <!-- ⭐ Activity card with Register / Cancel toggle -->
               <div class="activity-card" *ngFor="let activity of activities">
                 <div class="activity-name">{{ activity.name }}</div>
                 <div class="activity-info">
-                  <span [class]="'difficulty-badge ' + getDifficultyClass(activity.difficulty)">
+                  <span [class]="'difficulty-badge '
+                        + getDifficultyClass(activity.difficulty)">
                     {{ activity.difficulty }}
                   </span>
-                  <span class="activity-duration">⏱ {{ activity.duration }} min</span>
-                  <span class="activity-participants">👥 {{ activity.totalParticipations }}</span>
+                  <span class="activity-duration">
+                    ⏱ {{ activity.duration }} min
+                  </span>
+                  <span class="activity-participants">
+                    👥 {{ activity.totalParticipations }}
+                  </span>
                 </div>
                 <p class="activity-desc">{{ activity.description }}</p>
+ 
                 <button class="btn-join"
-                        [disabled]="isAlreadyJoined(activity.id)"
+                        *ngIf="!isAlreadyJoined(activity.id)"
                         (click)="joinActivity(activity)">
-                  {{ isAlreadyJoined(activity.id) ? '✅ Inscrit' : "S'inscrire" }}
+                  ✅ Register
+                </button>
+ 
+                <button class="btn-cancel-join"
+                        *ngIf="isAlreadyJoined(activity.id)"
+                        (click)="cancelMyParticipation(activity)">
+                  ❌ Cancel my registration
                 </button>
               </div>
+ 
             </div>
           </div>
-
-          <!-- Nouveau post -->
+ 
+          <!-- New post -->
           <div class="new-post-box">
-            <h3>✏️ Nouveau post</h3>
+            <h3>✏️ New post</h3>
             <textarea [(ngModel)]="newPostContent"
-                      placeholder="Partagez vos questions, expériences..."
+                      placeholder="Share your questions, experiences..."
                       rows="3"></textarea>
             <button class="btn-primary" (click)="submitPost()"
                     [disabled]="!newPostContent.trim()">
-              Publier
+              Publish
             </button>
           </div>
-
+ 
           <!-- Posts -->
-          <div class="loading" *ngIf="loadingPosts">Chargement des posts...</div>
-          <div class="empty-msg" *ngIf="!loadingPosts && posts.length === 0">
-            Soyez le premier à poster !
+          <div class="loading" *ngIf="loadingPosts">
+            Loading posts...
           </div>
-
-          <!-- ⭐ MODIFICATION : bloc post-card modifié -->
+          <div class="empty-msg"
+               *ngIf="!loadingPosts && posts.length === 0">
+            Be the first to post!
+          </div>
+ 
           <div class="post-card" *ngFor="let post of posts"
                [class.selected]="selectedPost?.id === post.id">
-
-            <!-- Mode lecture -->
+ 
+            <!-- Read mode -->
             <ng-container *ngIf="editingPost?.id !== post.id">
               <div class="post-header">
-                <span class="post-author">👤 {{ post.authorFullName }}</span>
+                <span class="post-author">
+                  👤 {{ post.authorFullName }}
+                </span>
                 <span class="post-date">{{ post.createDate }}</span>
               </div>
               <p class="post-content">{{ post.content }}</p>
               <div class="post-actions">
                 <button class="btn-comments" (click)="selectPost(post)">
-                  💬 Commentaires
+                  💬 Comments
                 </button>
-                <!-- ⭐ Bouton Modifier (visible si connecté) -->
                 <button class="btn-edit-inline"
                         *ngIf="currentUserEmail"
                         (click)="openEditPost(post)">
-                  ✏️ Modifier
+                  ✏️ Edit
                 </button>
               </div>
             </ng-container>
-
-            <!-- ⭐ Mode édition inline post -->
-            <div class="edit-inline-box" *ngIf="editingPost?.id === post.id">
+ 
+            <!-- Inline post edit mode -->
+            <div class="edit-inline-box"
+                 *ngIf="editingPost?.id === post.id">
               <div class="post-header">
-                <span class="post-author">👤 {{ post.authorFullName }}</span>
-                <span class="edit-label">✏️ Modification en cours</span>
+                <span class="post-author">
+                  👤 {{ post.authorFullName }}
+                </span>
+                <span class="edit-label">✏️ Editing in progress</span>
               </div>
-              <textarea [(ngModel)]="editingPost!.content" rows="3"></textarea>
+              <textarea [(ngModel)]="editingPost!.content"
+                        rows="3"></textarea>
               <div class="edit-actions">
                 <button class="btn-cancel-edit" (click)="cancelEditPost()">
-                  Annuler
+                  Cancel
                 </button>
                 <button class="btn-save-edit" (click)="saveEditPost()"
                         [disabled]="!editingPost!.content.trim()">
-                  💾 Sauvegarder
+                  💾 Save
                 </button>
               </div>
             </div>
-
-            <!-- Commentaires (visibles seulement si pas en mode édition du post) -->
+ 
+            <!-- Comments -->
             <div class="comments-section"
-                 *ngIf="selectedPost?.id === post.id && editingPost?.id !== post.id">
-              <div class="loading" *ngIf="loadingComments">Chargement...</div>
-
-              <!-- ⭐ MODIFICATION : bloc comment-card modifié -->
+                 *ngIf="selectedPost?.id === post.id
+                        && editingPost?.id !== post.id">
+              <div class="loading" *ngIf="loadingComments">
+                Loading...
+              </div>
+ 
               <div class="comment-card" *ngFor="let comment of comments">
-
-                <!-- Mode lecture commentaire -->
+ 
+                <!-- Read mode comment -->
                 <ng-container *ngIf="editingComment?.id !== comment.id">
                   <div class="comment-header">
-                    <span class="comment-author">👤 {{ comment.authorFullName }}</span>
+                    <span class="comment-author">
+                      👤 {{ comment.authorFullName }}
+                    </span>
                     <span class="comment-date">{{ comment.createDate }}</span>
-                    <!-- ⭐ Bouton Modifier commentaire -->
                     <button class="btn-edit-comment"
                             *ngIf="currentUserEmail"
                             (click)="openEditComment(comment)">
@@ -200,68 +255,74 @@
                   </div>
                   <p class="comment-content">{{ comment.content }}</p>
                 </ng-container>
-
-                <!-- ⭐ Mode édition inline commentaire -->
+ 
+                <!-- Inline comment edit mode -->
                 <div *ngIf="editingComment?.id === comment.id">
                   <div class="comment-header">
-                    <span class="comment-author">👤 {{ comment.authorFullName }}</span>
-                    <span class="edit-label">✏️ Modification</span>
+                    <span class="comment-author">
+                      👤 {{ comment.authorFullName }}
+                    </span>
+                    <span class="edit-label">✏️ Editing</span>
                   </div>
                   <input [(ngModel)]="editingComment!.content"/>
                   <div class="edit-actions" style="margin-top: 0.4rem">
-                    <button class="btn-cancel-edit" (click)="cancelEditComment()">
-                      Annuler
+                    <button class="btn-cancel-edit"
+                            (click)="cancelEditComment()">
+                      Cancel
                     </button>
-                    <button class="btn-save-edit" (click)="saveEditComment()"
+                    <button class="btn-save-edit"
+                            (click)="saveEditComment()"
                             [disabled]="!editingComment!.content.trim()">
-                      💾 Sauvegarder
+                      💾 Save
                     </button>
                   </div>
                 </div>
-
+ 
               </div>
-              <!-- fin comment-card -->
-
-              <!-- Nouveau commentaire — identique à l'original -->
+ 
               <div class="new-comment-box">
                 <input [(ngModel)]="newCommentContent"
-                       placeholder="Ajouter un commentaire..."
+                       placeholder="Add a comment..."
                        (keyup.enter)="submitComment()"/>
                 <button class="btn-secondary" (click)="submitComment()"
                         [disabled]="!newCommentContent.trim()">
-                  Commenter
+                  Comment
                 </button>
               </div>
             </div>
-
+ 
           </div>
-          <!-- fin post-card -->
-
+ 
         </main>
-
+ 
         <ng-template #noSelection>
           <main class="forum-main forum-placeholder">
             <div class="placeholder-content">
               <span class="placeholder-icon">👈</span>
-              <p>Sélectionnez un événement pour accéder à son forum</p>
+              <p>Select an event to access its forum</p>
             </div>
           </main>
         </ng-template>
-
+ 
       </div>
-
-      <!-- ══════════════ ONGLET ACTIVITÉS ══════════════ -->
+ 
+      <!-- ══ ACTIVITIES TAB ══ -->
       <div *ngIf="activeTab === 'activities'">
-        <h2 class="section-title">🎯 Toutes les activités</h2>
-        <div class="loading" *ngIf="loadingActivities">Chargement...</div>
-        <div class="empty-msg" *ngIf="!loadingActivities && activities.length === 0">
-          Aucune activité disponible.
+        <h2 class="section-title">🎯 All activities</h2>
+        <div class="loading" *ngIf="loadingActivities">Loading...</div>
+        <div class="empty-msg"
+             *ngIf="!loadingActivities && activities.length === 0">
+          No activities available.
         </div>
         <div class="activities-grid-full">
-          <div class="activity-card-full" *ngFor="let activity of activities">
+ 
+          <!-- ⭐ Activity card with Register / Cancel toggle -->
+          <div class="activity-card-full"
+               *ngFor="let activity of activities">
             <div class="acf-header">
               <span class="activity-name">{{ activity.name }}</span>
-              <span [class]="'difficulty-badge ' + getDifficultyClass(activity.difficulty)">
+              <span [class]="'difficulty-badge '
+                    + getDifficultyClass(activity.difficulty)">
                 {{ activity.difficulty }}
               </span>
             </div>
@@ -270,23 +331,32 @@
               <span>⏱ {{ activity.duration }} min</span>
               <span>📅 {{ activity.eventTitle }}</span>
               <span>⛺ {{ activity.campingName }}</span>
-              <span>👥 {{ activity.totalParticipations }} inscrits</span>
+              <span>👥 {{ activity.totalParticipations }} registered</span>
             </div>
+ 
             <button class="btn-join"
-                    [disabled]="isAlreadyJoined(activity.id)"
+                    *ngIf="!isAlreadyJoined(activity.id)"
                     (click)="joinActivity(activity)">
-              {{ isAlreadyJoined(activity.id) ? '✅ Inscrit' : "S'inscrire" }}
+              ✅ Register
             </button>
+ 
+            <button class="btn-cancel-join"
+                    *ngIf="isAlreadyJoined(activity.id)"
+                    (click)="cancelMyParticipation(activity)">
+              ❌ Cancel my registration
+            </button>
+ 
           </div>
         </div>
       </div>
-
-      <!-- ══════════════ ONGLET CAMPINGS ══════════════ -->
+ 
+      <!-- ══ CAMPGROUNDS TAB ══ -->
       <div *ngIf="activeTab === 'campings'">
-        <h2 class="section-title">⛺ Campings disponibles</h2>
-        <div class="loading" *ngIf="loadingCampings">Chargement...</div>
-        <div class="empty-msg" *ngIf="!loadingCampings && campings.length === 0">
-          Aucun camping disponible.
+        <h2 class="section-title">⛺ Available campgrounds</h2>
+        <div class="loading" *ngIf="loadingCampings">Loading...</div>
+        <div class="empty-msg"
+             *ngIf="!loadingCampings && campings.length === 0">
+          No campgrounds available.
         </div>
         <div class="campings-grid">
           <div class="camping-card" *ngFor="let camping of campings">
@@ -295,60 +365,66 @@
             <p class="camping-desc">{{ camping.description }}</p>
             <div class="camping-meta">
               <span class="camping-postal">🏷️ {{ camping.postalCode }}</span>
-              <span [class]="'camping-status ' + (camping.status === 'OPEN' ? 'status-open' : 'status-closed')">
+              <span [class]="'camping-status '
+                    + (camping.status === 'OPEN'
+                       ? 'status-open' : 'status-closed')">
                 {{ camping.status }}
               </span>
             </div>
             <div class="camping-stats">
-              <span>📅 {{ camping.totalEvents }} événements</span>
-              <span>🎯 {{ camping.totalActivities }} activités</span>
+              <span>📅 {{ camping.totalEvents }} events</span>
+              <span>🎯 {{ camping.totalActivities }} activities</span>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- ══════════════ ONGLETS AJOUT ══════════════ -->
-
-      <!-- Formulaire ajout camping -->
+ 
+      <!-- ══ ADD CAMPGROUND FORM ══ -->
       <div *ngIf="addTab === 'add-camping'" class="form-container">
-        <h2 class="section-title">➕ Ajouter un camping</h2>
+        <h2 class="section-title">➕ Add a campground</h2>
         <div class="add-form">
           <div class="form-group">
-            <label>Nom *</label>
-            <input [(ngModel)]="newCamping.name" placeholder="Nom du camping"
-            [class.input-error]="validationErrors['name']"/>
-      <span class="field-error" *ngIf="validationErrors['name']">
-        ⚠️ {{ validationErrors['name'] }}
-      </span>
+            <label>Name *</label>
+            <input [(ngModel)]="newCamping.name"
+                   placeholder="Campground name"
+                   [class.input-error]="validationErrors['name']"/>
+            <span class="field-error" *ngIf="validationErrors['name']">
+              ⚠️ {{ validationErrors['name'] }}
+            </span>
           </div>
           <div class="form-group">
-            <label>Adresse *</label>
-            <input [(ngModel)]="newCamping.address" placeholder="Adresse complète"
-            [class.input-error]="validationErrors['address']"/>
-      <span class="field-error" *ngIf="validationErrors['address']">
-        ⚠️ {{ validationErrors['address'] }}
-      </span>
+            <label>Address *</label>
+            <input [(ngModel)]="newCamping.address"
+                   placeholder="Full address"
+                   [class.input-error]="validationErrors['address']"/>
+            <span class="field-error" *ngIf="validationErrors['address']">
+              ⚠️ {{ validationErrors['address'] }}
+            </span>
           </div>
-          <div class="form-group" [class.has-error]="validationErrors['description']">
+          <div class="form-group">
             <label>Description</label>
             <textarea [(ngModel)]="newCamping.description" rows="3"
-                      placeholder="Décrivez le camping..." 
-                      [class.input-error]="validationErrors['description']"></textarea>
-      <span class="field-error" *ngIf="validationErrors['description']">
-        ⚠️ {{ validationErrors['description'] }}</span>
+                      placeholder="Describe the campground..."
+                      [class.input-error]="validationErrors['description']">
+            </textarea>
+            <span class="field-error"
+                  *ngIf="validationErrors['description']">
+              ⚠️ {{ validationErrors['description'] }}
+            </span>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Code postal *</label>
-              <input [(ngModel)]="newCamping.postalCode" placeholder="Ex: 8142"
-              [class.input-error]="validationErrors['postalCode']"/>
-      <span class="field-error" *ngIf="validationErrors['postalCode']">
-        ⚠️ {{ validationErrors['postalCode'] }} 
-      </span>
-
+              <label>Postal code *</label>
+              <input [(ngModel)]="newCamping.postalCode"
+                     placeholder="e.g.: 8142"
+                     [class.input-error]="validationErrors['postalCode']"/>
+              <span class="field-error"
+                    *ngIf="validationErrors['postalCode']">
+                ⚠️ {{ validationErrors['postalCode'] }}
+              </span>
             </div>
             <div class="form-group">
-              <label>Statut</label>
+              <label>Status</label>
               <select [(ngModel)]="newCamping.status">
                 <option value="OPEN">OPEN</option>
                 <option value="CLOSED">CLOSED</option>
@@ -357,38 +433,38 @@
             </div>
           </div>
           <button class="btn-submit" (click)="submitCamping()">
-            ⛺ Créer le camping
+            ⛺ Create campground
           </button>
         </div>
       </div>
-
-      <!-- Formulaire ajout événement -->
+ 
+      <!-- ══ ADD EVENT FORM ══ -->
       <div *ngIf="addTab === 'add-event'" class="form-container">
-        <h2 class="section-title">➕ Ajouter un événement</h2>
+        <h2 class="section-title">➕ Add an event</h2>
         <div class="add-form">
-          <<div class="form-group">
-  <label>Titre *</label>
-  <input [(ngModel)]="newEvent.title"
-         placeholder="Titre de l'événement"
-         [class.input-error]="validationErrors['title']"/>
-  <!-- ⭐ Message sous le champ -->
-  <span class="field-error" *ngIf="validationErrors['title']">
-    ⚠️ {{ validationErrors['title'] }}
-  </span>
-</div>
+          <div class="form-group">
+            <label>Title *</label>
+            <input [(ngModel)]="newEvent.title"
+                   placeholder="Event title"
+                   [class.input-error]="validationErrors['title']"/>
+            <span class="field-error" *ngIf="validationErrors['title']">
+              ⚠️ {{ validationErrors['title'] }}
+            </span>
+          </div>
           <div class="form-row">
             <div class="form-group">
               <label>Date *</label>
               <input type="date" [(ngModel)]="newEvent.eventDate"/>
             </div>
             <div class="form-group">
-              <label>Participants max</label>
-              <input type="number" [(ngModel)]="newEvent.maxParticipants" min="1"/>
+              <label>Max participants</label>
+              <input type="number" [(ngModel)]="newEvent.maxParticipants"
+                     min="1"/>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Statut</label>
+              <label>Status</label>
               <select [(ngModel)]="newEvent.status">
                 <option value="PLANNED">PLANNED</option>
                 <option value="ONGOING">ONGOING</option>
@@ -397,50 +473,58 @@
               </select>
             </div>
             <div class="form-group">
-              <label>Camping *</label>
+              <label>Campground *</label>
               <select [(ngModel)]="newEvent.campingId"
                       [class.input-error]="validationErrors['campingId']">
-                <option [ngValue]="null" disabled>-- Choisir --</option>
-                <option *ngFor="let c of campings" [ngValue]="c.campingId">{{ c.name }}</option>
+                <option [ngValue]="null" disabled>-- Choose --</option>
+                <option *ngFor="let c of campings" [ngValue]="c.campingId">
+                  {{ c.name }}
+                </option>
               </select>
-              <span class="field-error" *ngIf="validationErrors['campingId']">
-                ⚠️ {{ validationErrors['campingId'] }}</span>
+              <span class="field-error"
+                    *ngIf="validationErrors['campingId']">
+                ⚠️ {{ validationErrors['campingId'] }}
+              </span>
             </div>
           </div>
           <button class="btn-submit" (click)="submitEvent()">
-            📅 Créer l'événement
+            📅 Create event
           </button>
         </div>
       </div>
-
-      <!-- Formulaire ajout activité -->
+ 
+      <!-- ══ ADD ACTIVITY FORM ══ -->
       <div *ngIf="addTab === 'add-activity'" class="form-container">
-        <h2 class="section-title">➕ Ajouter une activité</h2>
+        <h2 class="section-title">➕ Add an activity</h2>
         <div class="add-form">
-          <div class="form-group" [class.has-error]="validationErrors['name']">
-            <label>Nom *</label>
-            <input [(ngModel)]="newActivity.name" placeholder="Nom de l'activité"
-              [class.input-error]="validationErrors['name']"/>
-      <span class="field-error" *ngIf="validationErrors['name']">
-        ⚠️ {{ validationErrors['name'] }}
-        </span>
+          <div class="form-group">
+            <label>Name *</label>
+            <input [(ngModel)]="newActivity.name"
+                   placeholder="Activity name"
+                   [class.input-error]="validationErrors['name']"/>
+            <span class="field-error" *ngIf="validationErrors['name']">
+              ⚠️ {{ validationErrors['name'] }}
+            </span>
           </div>
-          <div class="form-group" [class.has-error]="validationErrors['description']">
+          <div class="form-group">
             <label>Description</label>
             <textarea [(ngModel)]="newActivity.description" rows="2"
-                      placeholder="Décrivez l'activité..."
-                      [class.input-error]="validationErrors['description']"></textarea>
-      <span class="field-error" *ngIf="validationErrors['description']">
-        ⚠️ {{ validationErrors['description'] }}
-        </span>
+                      placeholder="Describe the activity..."
+                      [class.input-error]="validationErrors['description']">
+            </textarea>
+            <span class="field-error"
+                  *ngIf="validationErrors['description']">
+              ⚠️ {{ validationErrors['description'] }}
+            </span>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Durée (minutes)</label>
-              <input type="number" [(ngModel)]="newActivity.duration" min="5"/>
+              <label>Duration (minutes)</label>
+              <input type="number" [(ngModel)]="newActivity.duration"
+                     min="5"/>
             </div>
             <div class="form-group">
-              <label>Difficulté</label>
+              <label>Difficulty</label>
               <select [(ngModel)]="newActivity.difficulty">
                 <option value="EASY">EASY</option>
                 <option value="MEDIUM">MEDIUM</option>
@@ -450,26 +534,81 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Événement (optionnel)</label>
+              <label>Event (optional)</label>
               <select [(ngModel)]="newActivity.eventId">
-                <option [ngValue]="null">-- Aucun --</option>
-                <option *ngFor="let e of events" [ngValue]="e.id">{{ e.title }}</option>
+                <option [ngValue]="null">-- None --</option>
+                <option *ngFor="let e of events" [ngValue]="e.id">
+                  {{ e.title }}
+                </option>
               </select>
             </div>
             <div class="form-group">
-              <label>Camping (optionnel)</label>
+              <label>Campground (optional)</label>
               <select [(ngModel)]="newActivity.campingId">
-                <option [ngValue]="null">-- Aucun --</option>
-                <option *ngFor="let c of campings" [ngValue]="c.campingId">{{ c.name }}</option>
+                <option [ngValue]="null">-- None --</option>
+                <option *ngFor="let c of campings" [ngValue]="c.campingId">
+                  {{ c.name }}
+                </option>
               </select>
             </div>
           </div>
           <button class="btn-submit" (click)="submitActivity()">
-            🎯 Créer l'activité
+            🎯 Create activity
           </button>
         </div>
       </div>
-
+ 
     </div>
   </section>
+ 
+  <!-- ══ TICKET QR CODE MODAL ══ -->
+  <div class="ticket-modal-overlay"
+       *ngIf="showTicketModal && selectedTicket"
+       (click)="closeTicketModal()">
+    <div class="ticket-modal-box" (click)="$event.stopPropagation()">
+ 
+      <div class="ticket-modal-header">
+        <h3>🎟️ My Ticket</h3>
+        <button class="modal-close" (click)="closeTicketModal()">✕</button>
+      </div>
+ 
+      <div class="ticket-modal-body">
+        <div class="ticket-info">
+          <div class="ticket-code">{{ selectedTicket.ticketCode }}</div>
+          <div class="ticket-event-title">
+            📅 {{ selectedTicket.eventTitle }}
+          </div>
+          <div class="ticket-event-date">
+            🗓️ {{ selectedTicket.eventDate }}
+          </div>
+          <div class="ticket-holder">
+            👤 {{ selectedTicket.participantFullName }}
+          </div>
+          <div class="ticket-issued">
+            Issued on: {{ selectedTicket.issueDate }}
+          </div>
+          <span [class]="'ticket-status-badge '
+                  + getTicketStatusClass(selectedTicket.status)">
+            {{ selectedTicket.status }}
+          </span>
+        </div>
+ 
+        <div class="qr-container" *ngIf="selectedTicket.qrCodeBase64">
+          <img [src]="'data:image/png;base64,'
+                      + selectedTicket.qrCodeBase64"
+               alt="Ticket QR Code"
+               class="qr-image"/>
+          <p class="qr-hint">Present this QR code at the entrance</p>
+        </div>
+      </div>
+ 
+      <div class="ticket-modal-footer">
+        <button class="btn-close-ticket" (click)="closeTicketModal()">
+          Close
+        </button>
+      </div>
+ 
+    </div>
+  </div>
+ 
 </div>

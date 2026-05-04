@@ -22,4 +22,12 @@ export class ParticipationService {
   cancel(id: number): Observable<void> {
     return this.api.delete<void>(`/participations/${id}`);
   }
+  // L'utilisateur annule sa propre participation
+cancelMyParticipation(id: number): Observable<void> {
+  return this.api.put<void>(`/participations/${id}/cancel`, {});
+}
+
+
+
+  
 }
