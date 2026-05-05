@@ -34,15 +34,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/leaflet/dist/images",
+                "output": "assets/"
               }
             ],
             "styles": [
-
               "node_modules/leaflet/dist/leaflet.css",
               "src/styles.css"
-
-              
-
             ],
             "scripts": [
               "node_modules/leaflet/dist/leaflet.js",
@@ -104,6 +105,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/leaflet/dist/images",
+                "output": "assets/"
               }
             ],
             "styles": [

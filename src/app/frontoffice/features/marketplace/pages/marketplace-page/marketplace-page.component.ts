@@ -474,11 +474,9 @@ placeOrder(): void {
   this.orderError = '';
   this.orderSuccess = '';
 
-  const request = {
+  const request: any = {
     userId: userId,
     deliveryAddress: this.deliveryAddress,
-    deliveryLat: this.deliveryLat,   // ← NOUVEAU
-  deliveryLng: this.deliveryLng,
     paymentMethod: this.paymentMethod,
     items: this.cartItems.map(i => ({
       productId: i.product.idProduct,
@@ -486,6 +484,9 @@ placeOrder(): void {
     })),
     couponCode: this.appliedCoupon?.code || undefined
   };
+
+  if (this.deliveryLat !== null) request.deliveryLat = this.deliveryLat;
+  if (this.deliveryLng !== null) request.deliveryLng = this.deliveryLng;
 
   this.orderService.createOrder(request).subscribe({
     next: () => {
@@ -639,7 +640,12 @@ initMap(): void {
     this.map.remove();
     this.map = null;
   }
-
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'assets/marker-icon-2x.png',
+    iconUrl: 'assets/marker-icon.png',
+    shadowUrl: 'assets/marker-shadow.png',
+  });
   // Default center: Tunisia
   this.map = L.map('product-location-map').setView([36.8065, 10.1815], 7);
 
@@ -745,7 +751,12 @@ initDeliveryMap(): void {
     this.deliveryMap.remove();
     this.deliveryMap = null;
   }
-
+ delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'assets/marker-icon-2x.png',
+    iconUrl: 'assets/marker-icon.png',
+    shadowUrl: 'assets/marker-shadow.png',
+  });
   this.deliveryMap = L.map('delivery-location-map').setView([36.8065, 10.1815], 7);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

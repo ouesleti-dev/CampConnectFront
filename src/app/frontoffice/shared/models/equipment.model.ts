@@ -40,5 +40,6 @@ export enum EquipmentType {
 
 export enum EquipmentState {
   Reserve = 'Reserve',
-  Not_Reserve = 'Not_Reserve'
+  Not_Reserve = 'Not_Reserve',
+  Maintenance = 'Maintenance'
 }
