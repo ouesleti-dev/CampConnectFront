@@ -5,6 +5,8 @@ export interface ProductRequest {
   quantityProduct: number;
   photoProduct: string;
   locationProduct: string;
+  latitude?: number;
+  longitude?: number;
   category: string;
   productState: string;
 }
@@ -17,12 +19,16 @@ export interface ProductResponse {
   quantityProduct: number;
   photoProduct: string;
   locationProduct: string;
+  latitude?: number;
+  longitude?: number;
   category: string;
   productState: string;
   productStatus: string;
   addedDate: string;
   userId: number;
   sellerName: string;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 export enum ProductCategory {

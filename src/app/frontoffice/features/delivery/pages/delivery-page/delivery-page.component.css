@@ -429,3 +429,91 @@
   .delivery-wrapper     { padding: 0 16px 40px 16px; }
   .delivery-grid        { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════
+   FEE PREVIEW
+═══════════════════════════════════════════════ */
+.fee-preview-box {
+  background: linear-gradient(135deg, #f8faf6, #f0ece4);
+  border: 1px solid #d9d3c7;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.fee-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+}
+
+.fee-label {
+  color: #777;
+  font-weight: 600;
+}
+
+.fee-label-total {
+  color: #333;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.fee-value-text {
+  color: #333;
+  font-weight: 700;
+}
+
+.fee-total-value {
+  color: #2e7d32;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.fee-preview-divider {
+  height: 1px;
+  background: #d9d3c7;
+  margin: 8px 0;
+}
+
+.fee-breakdown {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  color: #999;
+  text-align: center;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+.fee-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #e0ddd7;
+  border-top-color: #3d6b44;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.fee-loading-text {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  color: #888;
+  font-weight: 600;
+}
+
+.fee-error {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  color: #b91c1c;
+  font-weight: 600;
+}

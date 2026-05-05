@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { OrdersRoutingModule } from './orders-routing.module';
 import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
@@ -11,6 +12,7 @@ import { OrdersPageComponent } from './pages/orders-page/orders-page.component';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     OrdersRoutingModule
   ]
 })

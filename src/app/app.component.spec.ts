@@ -6,11 +6,15 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing'; // ✅ Plus simple que RouterModule.forRoot
 
 import { AppComponent } from './app.component';
-import { NO_ERRORS_SCHEMA } from '@angular/core'; // ✅ Ajout indispensable
+// ✅ Ajout indispensable
+
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+
       imports: [
         RouterTestingModule // ✅ Utilise celui-ci pour les tests
       ],
@@ -21,6 +25,11 @@ describe('AppComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
 
       schemas: [NO_ERRORS_SCHEMA] // ✅ Correction de l'erreur app-navbar
+
+
+      imports: [RouterModule.forRoot([])],
+      declarations: [AppComponent],
+      schemas: [NO_ERRORS_SCHEMA]
 
     }).compileComponents();
   });
@@ -40,11 +49,23 @@ describe('AppComponent', () => {
   });
 
 
+
   it('should render app component', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled).toBeTruthy();
+  });
+
+
+  it('should render title in an h1', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    // ⚠️ Assure-toi que ton HTML contient :
+    // <h1>Hello, {{ title }}</h1>
+    expect(compiled.querySelector('h1')?.textContent).toContain('camp-connect');
   });
 
 });

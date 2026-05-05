@@ -36,7 +36,7 @@
     <!-- Search & Filter -->
     <div class="filter-bar">
       <div class="search-wrap">
-        <span class="search-icon-inner">🔍</span>
+        <span class="search-icon-inner"></span>
         <input
           type="text"
           class="search-input"
@@ -51,12 +51,22 @@
           {{ cat.replace('_', ' ') | titlecase }}
         </option>
       </select>
+
+      <!-- Geo Filter -->
+      <button class="btn-geo" [class.active]="geoFilterActive" (click)="toggleGeoFilter()">
+        📍 {{ geoFilterActive ? 'Near Me ✓' : 'Near Me' }}
+      </button>
+      <div class="geo-radius-wrap" *ngIf="geoFilterActive">
+        <input type="range" min="5" max="500" step="5" [(ngModel)]="geoRadius" (input)="filterProducts()" class="radius-slider">
+        <span class="radius-label">{{ geoRadius }} km</span>
+      </div>
+
       <span class="results-label">{{ filteredProducts.length }} items</span>
     </div>
 
-    <!-- Products Grid -->
-    <div class="products-grid" *ngIf="filteredProducts.length > 0">
-      <div class="product-card" *ngFor="let product of filteredProducts">
+    <!-- In-stock Products Grid -->
+    <div class="products-grid" *ngIf="inStockProducts.length > 0">
+      <div class="product-card" *ngFor="let product of paginatedInStock" (click)="openProductModal(product)">
         <div class="card-img-wrap">
           <img
             [src]="product.photoProduct || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400'"
@@ -65,10 +75,9 @@
             (error)="onImageError($event)"
           >
           <span class="badge-category">{{ product.category | titlecase }}</span>
-         <span class="badge-state"
-      [ngClass]="getStateBadgeClass(getEffectiveState(product))">
-  {{ getEffectiveState(product) }}
-</span>
+          <span class="badge-state" [ngClass]="getStateBadgeClass(getEffectiveState(product))">
+            {{ getEffectiveState(product) }}
+          </span>
         </div>
         <div class="card-body">
           <h3 class="card-title">{{ product.nameProduct }}</h3>
@@ -78,25 +87,90 @@
               : product.descriptionProduct }}
           </p>
           <div class="card-meta">
-            <span class="card-location">📍 {{ product.locationProduct }}</span>
+            <span class="card-location">{{ product.locationProduct }}</span>
             <span class="card-seller">by {{ product.sellerName }}</span>
+          </div>
+          <div class="card-rating">
+            <span *ngFor="let s of getStars()" class="star" [class.filled]="s <= (product.averageRating || 0)">★</span>
+            <span class="rating-count">
+              {{ product.averageRating ? (product.averageRating | number:'1.1-1') : 'No rating' }}
+              <span *ngIf="product.reviewCount">({{ product.reviewCount }})</span>
+            </span>
           </div>
           <div class="card-footer-row">
             <span class="card-price">{{ product.priceProduct | number:'1.0-2' }} TND</span>
-            <span class="card-qty">Quantity: {{ product.quantityProduct }}</span>
+            <span class="card-qty">Qty: {{ product.quantityProduct }}</span>
           </div>
-          <button class="btn btn-success w-100 mt-2"
-        [disabled]="product.quantityProduct === 0"
-        (click)="addToCart(product)">
-  🛒 Add to Cart
-</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-bar" *ngIf="totalPages > 1">
+      <button class="pg-btn pg-arrow" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+        &#8592;
+      </button>
+      <ng-container *ngFor="let p of pageNumbers">
+        <button class="pg-btn" [class.pg-active]="p === currentPage" (click)="goToPage(p)">
+          {{ p }}
+        </button>
+      </ng-container>
+      <button class="pg-btn pg-arrow" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+        &#8594;
+      </button>
+      <span class="pg-info">{{ currentPage }} / {{ totalPages }} &nbsp;·&nbsp; {{ inStockProducts.length }} items</span>
+    </div>
+
+    <!-- Out of Stock Divider -->
+    <div class="oos-divider" *ngIf="outOfStockProducts.length > 0">
+      <span class="oos-divider-line"></span>
+      <span class="oos-divider-label">Out of Stock ({{ outOfStockProducts.length }})</span>
+      <span class="oos-divider-line"></span>
+    </div>
+
+    <!-- Out of Stock Products Grid -->
+    <div class="products-grid oos-grid" *ngIf="outOfStockProducts.length > 0">
+      <div class="product-card oos-card" *ngFor="let product of outOfStockProducts" (click)="openProductModal(product)">
+        <div class="card-img-wrap">
+          <img
+            [src]="product.photoProduct || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400'"
+            [alt]="product.nameProduct"
+            class="card-img"
+            (error)="onImageError($event)"
+          >
+          <span class="badge-category">{{ product.category | titlecase }}</span>
+          <span class="badge-state badge-outofstock">Out of Stock</span>
+          <div class="oos-overlay">Out of Stock</div>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{ product.nameProduct }}</h3>
+          <p class="card-desc">
+            {{ product.descriptionProduct && product.descriptionProduct.length > 80
+              ? (product.descriptionProduct | slice:0:80) + '...'
+              : product.descriptionProduct }}
+          </p>
+          <div class="card-meta">
+            <span class="card-location">{{ product.locationProduct }}</span>
+            <span class="card-seller">by {{ product.sellerName }}</span>
+          </div>
+          <div class="card-rating" (click)="openReviewModal(product)">
+            <span *ngFor="let s of getStars()" class="star" [class.filled]="s <= (product.averageRating || 0)">★</span>
+            <span class="rating-count">
+              {{ product.averageRating ? (product.averageRating | number:'1.1-1') : 'No rating' }}
+              <span *ngIf="product.reviewCount">({{ product.reviewCount }})</span>
+            </span>
+          </div>
+          <div class="card-footer-row">
+            <span class="card-price">{{ product.priceProduct | number:'1.0-2' }} TND</span>
+            <span class="card-qty oos-qty">Out of Stock</span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="filteredProducts.length === 0">
-      <div class="empty-icon">🔍</div>
+      <div class="empty-icon"></div>
       <h3>No products found</h3>
       <p>Try adjusting your search or filters</p>
     </div>
@@ -111,23 +185,23 @@
 
     <!-- Status Filter Pills -->
     <div class="status-pills">
-      <button class="pill" [class.active]="myFilter === 'all'" (click)="myFilter = 'all'">
+      <button class="pill" [class.active]="myFilter === 'all'" (click)="setMyFilter('all')">
         All <span class="pill-count">{{ myProducts.length }}</span>
       </button>
-      <button class="pill approved" [class.active]="myFilter === 'APPROVED'" (click)="myFilter = 'APPROVED'">
-        ✅ Approved <span class="pill-count">{{ getMyProductsByStatus('APPROVED').length }}</span>
+      <button class="pill approved" [class.active]="myFilter === 'APPROVED'" (click)="setMyFilter('APPROVED')">
+        Approved <span class="pill-count">{{ getMyProductsByStatus('APPROVED').length }}</span>
       </button>
-      <button class="pill pending" [class.active]="myFilter === 'PENDING'" (click)="myFilter = 'PENDING'">
-        ⏳ Pending <span class="pill-count">{{ getMyProductsByStatus('PENDING').length }}</span>
+      <button class="pill pending" [class.active]="myFilter === 'PENDING'" (click)="setMyFilter('PENDING')">
+        Pending <span class="pill-count">{{ getMyProductsByStatus('PENDING').length }}</span>
       </button>
-      <button class="pill rejected" [class.active]="myFilter === 'REJECTED'" (click)="myFilter = 'REJECTED'">
-        ❌ Rejected <span class="pill-count">{{ getMyProductsByStatus('REJECTED').length }}</span>
+      <button class="pill rejected" [class.active]="myFilter === 'REJECTED'" (click)="setMyFilter('REJECTED')">
+        Rejected <span class="pill-count">{{ getMyProductsByStatus('REJECTED').length }}</span>
       </button>
     </div>
 
     <!-- My Products List -->
     <div class="my-products-list" *ngIf="getFilteredMyProducts().length > 0">
-      <div class="my-product-row" *ngFor="let product of getFilteredMyProducts()">
+      <div class="my-product-row" *ngFor="let product of paginatedMyProducts">
         <img
           [src]="product.photoProduct || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=100'"
           [alt]="product.nameProduct"
@@ -148,6 +222,16 @@
           <button class="btn-delete" (click)="deleteProduct(product.idProduct!)"> Delete</button>
         </div>
       </div>
+    </div>
+
+    <!-- My Products Pagination -->
+    <div class="pagination-bar" *ngIf="myProductsTotalPages > 1">
+      <button class="pg-btn pg-arrow" (click)="goToMyProductsPage(myProductsPage - 1)" [disabled]="myProductsPage === 1">&#8592;</button>
+      <ng-container *ngFor="let p of myProductsPageNumbers">
+        <button class="pg-btn" [class.pg-active]="p === myProductsPage" (click)="goToMyProductsPage(p)">{{ p }}</button>
+      </ng-container>
+      <button class="pg-btn pg-arrow" (click)="goToMyProductsPage(myProductsPage + 1)" [disabled]="myProductsPage === myProductsTotalPages">&#8594;</button>
+      <span class="pg-info">{{ myProductsPage }} / {{ myProductsTotalPages }} &nbsp;·&nbsp; {{ getFilteredMyProducts().length }} products</span>
     </div>
 
     <!-- Empty State -->
@@ -266,14 +350,82 @@
 </div>
 
           <div class="form-group full">
-            <label class="form-label">Location *</label>
-            <input type="text" class="form-control" formControlName="locationProduct"
-              placeholder="e.g. Tunis, Tunisia">
-            <span class="form-error"
-              *ngIf="productForm.get('locationProduct')?.invalid && productForm.get('locationProduct')?.touched">
-              Location is required
-            </span>
-          </div>
+  <label class="form-label"> Location *</label>
+
+  <!-- Bouton pick + selected preview -->
+  <div class="location-input-row">
+    <button type="button" class="btn-open-map" (click)="toggleMap()">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
+       viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 
+             0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+  </svg>
+  {{ showMap ? 'Hide Map' : 'Pick Location on Map' }}
+</button>
+    <span class="map-selected-inline" *ngIf="productForm.get('locationProduct')?.value">
+      {{ productForm.get('locationProduct')?.value }}
+    </span>
+  </div>
+
+  <!-- Hidden input pour garder la validation -->
+  <input type="hidden" formControlName="locationProduct">
+
+  <span class="form-error"
+    *ngIf="productForm.get('locationProduct')?.invalid && productForm.get('locationProduct')?.touched">
+    Location is required — please pick a location on the map
+  </span>
+
+  <!-- MAP PANEL -->
+  <div *ngIf="showMap" class="map-panel">
+    <div class="map-search-bar">
+  <input type="text" class="map-search-input"
+         [(ngModel)]="mapSearchQuery"
+         [ngModelOptions]="{standalone: true}"
+         placeholder=" Search an address..."
+         (keyup.enter)="searchAddress()">
+  <button type="button" class="map-search-btn"
+          (click)="searchAddress()"
+          [disabled]="mapSearchLoading">
+    {{ mapSearchLoading ? '...' : 'Search' }}
+  </button>
+
+  <!-- ✅ NOUVEAU BOUTON GPS -->
+  <button type="button" class="map-gps-btn"
+        (click)="useMyLocation()"
+        [disabled]="gpsLoading">
+  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" 
+       viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 
+             3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 
+             11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 
+             0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 
+             7-7 7 3.13 7 7-3.13 7-7 7z"/>
+  </svg>
+  {{ gpsLoading ? 'Loading...' : 'My Location' }}
+</button>
+</div>
+
+    <div class="map-results" *ngIf="mapSearchResults.length > 0">
+      <div class="map-result-item"
+           *ngFor="let r of mapSearchResults"
+           (click)="selectSearchResult(r)">
+         {{ r.display_name }}
+      </div>
+    </div>
+
+    <!-- Avertissement GPS imprécis -->
+    <div class="gps-warning" *ngIf="gpsWarning">
+      ⚠️ Position approximative (WiFi/IP sur PC). Si elle est incorrecte, cliquez sur la carte pour corriger manuellement.
+    </div>
+
+    <p class="map-hint"> Click anywhere on the map to set the location</p>
+    <div id="product-location-map" class="map-container"></div>
+
+    <div class="map-selected" *ngIf="productForm.get('locationProduct')?.value">
+      Selected: <strong>{{ productForm.get('locationProduct')?.value }}</strong>
+    </div>
+  </div>
+</div>
         </div>
 
         <div class="form-actions">
@@ -348,16 +500,102 @@
         </div>
 
         <div class="mb-3">
-          <div class="cart-field-label">Delivery Address</div>
-          <textarea class="cart-textarea" rows="2" [(ngModel)]="deliveryAddress"
-                    placeholder="Enter your delivery address..."></textarea>
-        </div>
+  <div class="cart-field-label">Delivery Address</div>
+  
+  <!-- Bouton + adresse sélectionnée -->
+  <div class="location-input-row">
+    <button type="button" class="btn-open-map" (click)="toggleDeliveryMap()">
+      {{ showDeliveryMap ? ' Hide Map' : ' Pick Delivery Location' }}
+    </button>
+    <span class="map-selected-inline" *ngIf="deliveryAddress">
+      {{ deliveryAddress }}
+    </span>
+  </div>
+
+  <!-- MAP PANEL -->
+  <div *ngIf="showDeliveryMap" class="map-panel mt-2">
+    <div class="map-search-bar">
+      <input type="text" class="map-search-input"
+             [(ngModel)]="deliveryMapSearchQuery"
+             [ngModelOptions]="{standalone: true}"
+             placeholder="Search an address..."
+             (keyup.enter)="searchDeliveryAddress()">
+      <button type="button" class="map-search-btn"
+              (click)="searchDeliveryAddress()"
+              [disabled]="deliveryMapSearchLoading">
+        {{ deliveryMapSearchLoading ? '...' : 'Search' }}
+      </button>
+      <button type="button" class="map-gps-btn"
+        (click)="useMyLocationForDelivery()"
+        [disabled]="deliveryGpsLoading">
+   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" 
+       viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 
+             0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+  </svg>
+  {{ deliveryGpsLoading ? '...' : '' }}
+</button>
+    </div>
+
+    <div class="map-results" *ngIf="deliveryMapSearchResults.length > 0">
+      <div class="map-result-item"
+           *ngFor="let r of deliveryMapSearchResults"
+           (click)="selectDeliverySearchResult(r)">
+         {{ r.display_name }}
+      </div>
+    </div>
+
+    <p class="map-hint"> Click anywhere on the map to set delivery location</p>
+    <div id="delivery-location-map" class="map-container"></div>
+
+    <div class="map-selected" *ngIf="deliveryAddress">
+      ✅ Selected: <strong>{{ deliveryAddress }}</strong>
+    </div>
+  </div>
+</div>
 
         <div class="mb-3">
           <div class="cart-field-label">Payment Method</div>
           <select class="cart-select" [(ngModel)]="paymentMethod">
             <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
           </select>
+        </div>
+
+        <!-- ── Coupon Section ── -->
+        <div class="coupon-section">
+          <div class="cart-field-label">Promo Code</div>
+
+          <div *ngIf="!appliedCoupon" class="coupon-input-row">
+            <input type="text" class="coupon-input"
+              [(ngModel)]="couponCode"
+              placeholder="Enter your code..."
+              (keyup.enter)="applyCoupon()"
+              [disabled]="couponLoading">
+            <button class="btn-apply-coupon" (click)="applyCoupon()" [disabled]="couponLoading || !couponCode.trim()">
+              {{ couponLoading ? '...' : 'Apply' }}
+            </button>
+          </div>
+
+          <div *ngIf="couponError" class="coupon-error">{{ couponError }}</div>
+
+          <div *ngIf="appliedCoupon" class="coupon-applied">
+            <span><strong>{{ appliedCoupon.code }}</strong> — -{{ appliedCoupon.discountPercentage }}% applied</span>
+            <button class="btn-remove-coupon" (click)="removeCoupon()">Remove</button>
+          </div>
+        </div>
+
+        <!-- ── Price Summary ── -->
+        <div class="cart-total-row">
+          <span class="cart-total-label">Subtotal</span>
+          <span>{{ getCartTotal() | number:'1.0-2' }} TND</span>
+        </div>
+        <div class="cart-total-row discount-row" *ngIf="appliedCoupon">
+          <span class="cart-total-label">Discount ({{ appliedCoupon.discountPercentage }}%)</span>
+          <span class="discount-value">-{{ getDiscountAmount() | number:'1.0-2' }} TND</span>
+        </div>
+        <div class="cart-total-row total-final">
+          <span class="cart-total-label"><strong>Order Total</strong></span>
+          <span class="cart-total-value">{{ getCartTotalAfterDiscount() | number:'1.0-2' }} TND</span>
         </div>
 
         <div *ngIf="orderSuccess" class="alert alert-success py-2">{{ orderSuccess }}</div>
@@ -376,6 +614,68 @@
 <div *ngIf="activeTab === 'my-orders'">
   <div class="form-container">
     <h2 class="mb-4">📦 My Orders</h2>
+    <div *ngIf="activeDeliveries.length > 0" class="active-deliveries-section mb-4">
+  <h5 class="active-del-title"> Your Active Deliveries</h5>
+  <div class="active-del-list">
+    <div class="active-del-card" *ngFor="let d of activeDeliveries">
+  <div class="active-del-header">
+    <span class="active-del-id">Delivery #{{ d.idDelivery }}</span>
+    <span class="order-status-badge status-confirmed">🚚 ON THE WAY</span>
+  </div>
+  <div class="active-del-body">
+    <div class="active-del-row">
+      <span>📍 From:</span>
+      <strong>{{ d.departureAddress }}</strong>
+    </div>
+    <div class="active-del-row">
+      <span>📍 To:</span>
+      <strong>{{ d.arrivalAddress }}</strong>
+    </div>
+    <div class="active-del-row">
+      <span>🛵 Delivery Person:</span>
+      <strong>{{ d.deliveryPersonFirstName }} {{ d.deliveryPersonLastName }}</strong>
+    </div>
+    <div class="active-del-row">
+      <span>📞 Phone:</span>
+      <strong>{{ d.deliveryPersonPhone || 'N/A' }}</strong>
+    </div>
+    <div class="active-del-row">
+      <span>📅 Est. Arrival:</span>
+      <strong style="color:#2e7d32">
+        {{ d.estimatedDeliveryDate | date:'mediumDate' }}
+      </strong>
+    </div>
+  </div>
+
+  <!-- ✅ TRACKER -->
+  <div class="delivery-tracker">
+    <div class="tracker-progress-line"
+         [style.width]="
+           d.deliveryState === 'PENDING'    ? '0%' :
+           d.deliveryState === 'ON_THE_WAY' ? 'calc(50% - 18px)' :
+           d.deliveryState === 'DELIVERED'  ? 'calc(70% - 18px)' : '0%'
+         ">
+    </div>
+    <div class="tracker-steps">
+      <div class="active">
+        <span class="step-icon">📦</span>
+        <small>Order Placed</small>
+      </div>
+      <div [class.active]="d.deliveryState === 'ON_THE_WAY' || 
+                           d.deliveryState === 'DELIVERED'">
+        <span class="step-icon">🚚</span>
+        <small>On The Way</small>
+      </div>
+      <div [class.active]="d.deliveryState === 'DELIVERED'">
+        <span class="step-icon">✅</span>
+        <small>Delivered</small>
+      </div>
+    </div>
+  </div>
+
+</div>
+  </div>
+</div>
 
     <div *ngIf="ordersLoading" class="text-center py-5">
       <div class="spinner-border text-primary"></div>
@@ -388,7 +688,7 @@
     </div>
 
    <!-- Card -->
-<div *ngFor="let order of orders" class="order-card card mb-3">
+<div *ngFor="let order of paginatedOrders; trackBy: trackByOrderId" class="order-card card mb-3">
 
   <!-- Header -->
   <div class="card-header d-flex justify-content-between align-items-center"
@@ -441,13 +741,13 @@
       </span>
 
       <span class="text-muted ms-1">
-        {{ expandedOrderId === order.idOrder ? '▲' : '▼' }}
+        {{ expandedOrderId === +order.idOrder ? '▲' : '▼' }}
       </span>
     </div>
   </div>
 
   <!-- Body -->
-  <div class="card-body" *ngIf="expandedOrderId === order.idOrder">
+  <div class="card-body" *ngIf="expandedOrderId === +order.idOrder">
     <p class="mb-2">
       <strong>📍 Delivery Address:</strong> {{ order.deliveryAddress }}
     </p>
@@ -553,14 +853,180 @@
           </div>
         </div>
 
-      
+      </div><!-- closes *ngIf orderDeliveries -->
+
+    </div><!-- closes delivery-info-section -->
+  </div><!-- closes card-body -->
+</div><!-- closes *ngFor order card -->
+
+<!-- Orders Pagination -->
+<div class="pagination-bar" *ngIf="ordersTotalPages > 1">
+  <button class="pg-btn pg-arrow" (click)="goToOrdersPage(ordersPage - 1)" [disabled]="ordersPage === 1">&#8592;</button>
+  <ng-container *ngFor="let p of ordersPageNumbers">
+    <button class="pg-btn" [class.pg-active]="p === ordersPage" (click)="goToOrdersPage(p)">{{ p }}</button>
+  </ng-container>
+  <button class="pg-btn pg-arrow" (click)="goToOrdersPage(ordersPage + 1)" [disabled]="ordersPage === ordersTotalPages">&#8594;</button>
+  <span class="pg-info">{{ ordersPage }} / {{ ordersTotalPages }} &nbsp;·&nbsp; {{ orders.length }} orders</span>
+</div><!-- closes pagination-bar -->
+</div><!-- closes form-container -->
+</div><!-- closes my-orders tab -->
+
+<!-- ===== PRODUCT DETAIL MODAL ===== -->
+<div class="pd-overlay" *ngIf="selectedProduct" (click)="closeProductModal()">
+  <div class="pd-modal" (click)="$event.stopPropagation()">      <!-- Close -->
+      <button class="pd-close" (click)="closeProductModal()">✕</button>
+
+      <!-- Top: Image + Details -->
+      <div class="pd-top">
+
+        <!-- Left: Image -->
+        <div class="pd-img-wrap">
+          <img
+            [src]="selectedProduct.photoProduct || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600'"
+            [alt]="selectedProduct.nameProduct"
+            class="pd-img"
+            (error)="onImageError($event)"
+          >
+          <span class="pd-badge-state" [ngClass]="getStateBadgeClass(getEffectiveState(selectedProduct))">
+            {{ getEffectiveState(selectedProduct) }}
+          </span>
+        </div>
+
+        <!-- Right: Info -->
+        <div class="pd-info">
+          <span class="pd-category-tag">{{ selectedProduct.category.replace('_', ' ') | titlecase }}</span>
+          <h2 class="pd-title">{{ selectedProduct.nameProduct }}</h2>
+          <p class="pd-seller">by {{ selectedProduct.sellerName }}</p>
+          <p class="pd-desc">{{ selectedProduct.descriptionProduct }}</p>
+
+          <div class="pd-details-grid">
+            <div class="pd-detail-box">
+              <span class="pd-detail-label">PRICE</span>
+              <span class="pd-detail-value pd-price">{{ selectedProduct.priceProduct | number:'1.0-2' }} TND</span>
+            </div>
+            <div class="pd-detail-box">
+              <span class="pd-detail-label">QUANTITY</span>
+              <span class="pd-detail-value">{{ selectedProduct.quantityProduct }}</span>
+            </div>
+            <div class="pd-detail-box">
+              <span class="pd-detail-label">LOCATION</span>
+              <span class="pd-detail-value">{{ selectedProduct.locationProduct }}</span>
+            </div>
+            <div class="pd-detail-box">
+              <span class="pd-detail-label">ADDED</span>
+              <span class="pd-detail-value">{{ selectedProduct.addedDate | date:'MMM d, y' }}</span>
+            </div>
+          </div>
+
+          <div class="pd-rating">
+            <span *ngFor="let s of getStars()" class="star" [class.filled]="s <= (selectedProduct.averageRating || 0)">★</span>
+            <span class="rating-count">
+              {{ selectedProduct.averageRating ? (selectedProduct.averageRating | number:'1.1-1') : 'No rating' }}
+              <span *ngIf="selectedProduct.reviewCount">({{ selectedProduct.reviewCount }})</span>
+            </span>
+          </div>
+
+          <div class="pd-actions">
+            <button class="pd-btn-cart"
+                    [disabled]="selectedProduct.quantityProduct === 0"
+                    (click)="addToCart(selectedProduct); showToast(selectedProduct.nameProduct + ' added to cart!')">
+              {{ selectedProduct.quantityProduct === 0 ? 'Out of Stock' : 'Add to Cart' }}
+            </button>
+            <button class="pd-btn-review" (click)="openReviewFromModal(selectedProduct)">
+              ★ Reviews
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: Similar Products -->
+      <div class="pd-similar">
+        <h4 class="pd-similar-title">SIMILAR PRODUCTS</h4>
+
+        <div class="pd-similar-loading" *ngIf="recommendationsLoading">
+          <span class="rec-spinner"></span> Finding similar products...
+        </div>
+
+        <div class="pd-similar-empty" *ngIf="!recommendationsLoading && recommendations.length === 0">
+          No similar products found yet.
+        </div>
+
+        <div class="pd-similar-list" *ngIf="!recommendationsLoading && recommendations.length > 0">
+          <div class="pd-sim-card" *ngFor="let rec of recommendations" (click)="openProductModal(rec)">
+            <img
+              [src]="rec.photoProduct || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=200'"
+              [alt]="rec.nameProduct"
+              class="pd-sim-img"
+              (error)="onImageError($event)"
+            >
+            <div class="pd-sim-info">
+              <span class="pd-sim-name">{{ rec.nameProduct }}</span>
+              <span class="pd-sim-seller">{{ rec.sellerName }}</span>
+              <span class="pd-sim-price">{{ rec.priceProduct | number:'1.0-2' }} TND</span>
+              <span class="pd-sim-avail" [class.unavail]="rec.quantityProduct === 0">
+                {{ rec.quantityProduct > 0 ? 'Available' : 'Unavailable' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
-</div>
+
+  <!-- ===== REVIEW MODAL ===== -->
+  <div class="review-modal-overlay" *ngIf="reviewModalProduct" (click)="closeReviewModal()">
+    <div class="review-modal" (click)="$event.stopPropagation()">
+      <div class="review-modal-header">
+        <h3>★ Reviews — {{ reviewModalProduct.nameProduct }}</h3>
+        <button class="modal-close-btn" (click)="closeReviewModal()">✕</button>
+      </div>
+
+      <!-- Submit Review Form -->
+      <div class="review-form-section" *ngIf="!hasReviewed">
+        <h5>Leave a Review</h5>
+        <div class="star-picker">
+          <span *ngFor="let s of getStars()"
+            class="star-pick"
+            [class.selected]="s <= reviewRating"
+            [class.hover]="s <= reviewHoverRating"
+            (mouseenter)="reviewHoverRating = s"
+            (mouseleave)="reviewHoverRating = 0"
+            (click)="setReviewRating(s)">★</span>
+        </div>
+        <textarea class="review-textarea" [(ngModel)]="reviewComment"
+          placeholder="Share your experience (optional)..." rows="3"></textarea>
+        <div class="review-error" *ngIf="reviewError">{{ reviewError }}</div>
+        <button class="btn-submit-review" (click)="submitReview()" [disabled]="reviewSubmitting">
+          {{ reviewSubmitting ? 'Submitting...' : 'Submit Review' }}
+        </button>
+      </div>
+
+      <div class="review-already" *ngIf="hasReviewed">
+        ✅ You have already reviewed this product.
+      </div>
+
+      <!-- Reviews List -->
+      <div class="reviews-list">
+        <div *ngIf="reviewsLoading" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm"></div>
+        </div>
+        <div *ngIf="!reviewsLoading && productReviews.length === 0" class="no-reviews">
+          No reviews yet. Be the first!
+        </div>
+        <div class="review-item" *ngFor="let r of productReviews">
+          <div class="review-item-header">
+            <span class="reviewer-name">{{ r.reviewerName }}</span>
+            <span class="review-stars">
+              <span *ngFor="let s of getStars()" class="star" [class.filled]="s <= r.rating">★</span>
+            </span>
+            <span class="review-date">{{ r.reviewDate | date:'mediumDate' }}</span>
+          </div>
+          <p class="review-comment" *ngIf="r.comment">{{ r.comment }}</p>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- ===== TOAST ===== -->
   <div class="toast" *ngIf="toastMessage">

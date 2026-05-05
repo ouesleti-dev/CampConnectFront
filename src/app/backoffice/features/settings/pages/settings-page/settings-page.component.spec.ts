@@ -11,6 +11,7 @@ describe('SettingsPageComponent', () => {
   let fixture: ComponentFixture<SettingsPageComponent>;
 
 
+
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SettingsPageComponent]
@@ -26,6 +27,12 @@ describe('SettingsPageComponent', () => {
     })
     .compileComponents();
   });
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [SettingsPageComponent]
+    }).compileComponents();
+
 
 
   beforeEach(() => {

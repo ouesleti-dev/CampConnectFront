@@ -80,11 +80,7 @@
 
           <!-- Info -->
           <div class="dcard-info">
-            <div class="dcard-info-row">
-              <span class="info-icon">💰</span>
-              <span class="info-label">Delivery Fee</span>
-              <span class="info-value fee-value">{{ d.deliveryFee }} TND</span>
-            </div>
+           
             <div class="dcard-info-row">
               
               <span class="info-label">Order Amount</span>
@@ -112,12 +108,44 @@
           <div class="dcard-footer">
             <div *ngIf="showDatePicker !== d.idDelivery">
               <button class="btn-take-delivery"
-                      (click)="openDatePicker(d.idDelivery)">
-                🛵 Take This Delivery
+                      (click)="openDatePicker(d)">
+                Take This Delivery
               </button>
             </div>
 
             <div *ngIf="showDatePicker === d.idDelivery" class="date-picker-section">
+
+              <!-- Fee Preview -->
+              <div *ngIf="feeLoading" class="fee-preview-box">
+                <div class="fee-spinner"></div>
+                <span class="fee-loading-text">Calculating delivery fee...</span>
+              </div>
+
+              <div *ngIf="feePreview && !feeLoading" class="fee-preview-box">
+                <div class="fee-preview-row">
+                  <span class="fee-label">Distance</span>
+                  <span class="fee-value-text">{{ feePreview.distanceKm }} km</span>
+                </div>
+                <div class="fee-preview-row">
+                  <span class="fee-label">Base Fee</span>
+                  <span class="fee-value-text">{{ feePreview.baseFee }} TND</span>
+                </div>
+                <div class="fee-preview-row">
+                  <span class="fee-label">Per Km Rate</span>
+                  <span class="fee-value-text">{{ feePreview.feePerKm }} TND/km</span>
+                </div>
+                <div class="fee-preview-divider"></div>
+                <div class="fee-preview-row">
+                  <span class="fee-label fee-label-total">Total Fee</span>
+                  <span class="fee-total-value">{{ feePreview.calculatedFee }} TND</span>
+                </div>
+                <div class="fee-breakdown">{{ feePreview.breakdown }}</div>
+              </div>
+
+              <div *ngIf="feeError && !feeLoading" class="fee-error">
+                {{ feeError }}
+              </div>
+
               <label class="date-picker-label">Estimated Delivery Date</label>
               <input type="date" class="date-input"
                      [(ngModel)]="selectedDate"
@@ -126,10 +154,10 @@
                 <button class="btn-confirm-take"
                         (click)="confirmTakeDelivery(d.idDelivery)"
                         [disabled]="!selectedDate">
-                  Confirm
+                  Confirm{{ feePreview ? ' (' + feePreview.calculatedFee + ' TND)' : '' }}
                 </button>
                 <button class="btn-cancel-take"
-                        (click)="showDatePicker = null">
+                        (click)="showDatePicker = null; feePreview = null; feeError = ''">
                   Cancel
                 </button>
               </div>

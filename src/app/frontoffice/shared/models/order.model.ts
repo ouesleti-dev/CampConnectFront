@@ -8,6 +8,7 @@ export interface OrderRequest {
   deliveryAddress: string;
   paymentMethod: string;
   items: OrderLineRequest[];
+  couponCode?: string;
 }
 
 export interface OrderLineDTO {
@@ -29,6 +30,8 @@ export interface OrderDTO {
   userLastName: string;
   userEmail: string;
   orderLines: OrderLineDTO[];
+  couponCode?: string;
+  discountAmount?: number;
 }
 
 export interface CartItem {

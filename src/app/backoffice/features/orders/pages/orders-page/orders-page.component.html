@@ -1,74 +1,251 @@
-<div class="container mt-4">
-  <h2 class="mb-4">🛠️ Orders Management — Pending Approval</h2>
+<div class="page-wrapper">
 
-  <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
-  <div *ngIf="errorMsg" class="alert alert-danger">{{ errorMsg }}</div>
-
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary"></div>
-  </div>
-
-  <div *ngIf="!loading && orders.length === 0" class="alert alert-info">
-    ✅ No orders waiting for approval.
-  </div>
-
-  <div *ngFor="let order of orders" class="card mb-3 shadow-sm">
-    <div class="card-header d-flex justify-content-between align-items-center"
-         style="cursor:pointer" (click)="toggle(order.idOrder)">
-      <div>
-        <strong>Order #{{ order.idOrder }}</strong>
-        <span class="ms-3 text-muted">
-          {{ order.userFirstName }} {{ order.userLastName }}
-        </span>
-        <span class="ms-3 text-muted">{{ order.orderDate | date:'mediumDate' }}</span>
-        <span class="badge bg-primary ms-2">{{ order.orderStatus }}</span>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <strong class="text-primary">{{ order.totalAmount | number:'1.0-2' }} TND</strong>
-
-        <!-- Approve -->
-        <button class="btn btn-success btn-sm"
-                (click)="approve(order.idOrder); $event.stopPropagation()">
-           Approve
-        </button>
-
-        <!-- ✅ Reject -->
-        <button class="btn btn-danger btn-sm"
-                (click)="reject(order.idOrder); $event.stopPropagation()">
-          Reject
-        </button>
-
-        <span>{{ expandedId === order.idOrder ? '▲' : '▼' }}</span>
-      </div>
+  <!-- ══════════════════════════════════════════
+       ORDERS SECTION
+  ══════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="icon-box orders-icon"></span>
+        Orders Management
+      </h2>
     </div>
 
-    <div class="card-body" *ngIf="expandedId === order.idOrder">
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <p><strong>Customer:</strong> {{ order.userEmail }}</p>
-          <p><strong>Address:</strong> {{ order.deliveryAddress }}</p>
-          <p><strong>Phone:</strong> {{ order.customerPhone || 'N/A' }}</p>
+    <div class="section-body">
+      <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
+      <div *ngIf="errorMsg"   class="alert alert-danger">{{ errorMsg }}</div>
+
+      <div *ngIf="loading" class="spinner-wrap">
+        <div class="spinner-border text-green"></div>
+      </div>
+
+      <div *ngIf="!loading && orders.length === 0" class="alert alert-info">
+        No orders waiting for approval.
+      </div>
+
+      <!-- Order cards -->
+      <div *ngFor="let order of orders" class="order-card">
+
+        <div class="order-header" (click)="toggle(order.idOrder)">
+          <div class="order-meta">
+            <span class="order-id">Order #{{ order.idOrder }}</span>
+            <span class="order-customer">{{ order.userFirstName }} {{ order.userLastName }}</span>
+            <span class="order-date">{{ order.orderDate | date:'dd/MM/yyyy' }}</span>
+            <span class="badge badge-confirmed">{{ order.orderStatus }}</span>
+          </div>
+          <div class="order-actions">
+            <span class="order-amount">{{ order.totalAmount | number:'1.0-2' }} TND</span>
+            <button class="btn btn-approve"
+                    (click)="approve(order.idOrder); $event.stopPropagation()">
+              Approve
+            </button>
+            <button class="btn btn-reject"
+                    (click)="reject(order.idOrder); $event.stopPropagation()">
+              Reject
+            </button>
+            <span class="chevron" [class.open]="expandedId === order.idOrder">&#9660;</span>
+          </div>
         </div>
-        <div class="col-md-6">
-          <p><strong>Payment:</strong> {{ order.paymentMethod }}</p>
-          <p><strong>Total:</strong> {{ order.totalAmount | number:'1.0-2' }} TND</p>
+
+        <div class="order-body" *ngIf="expandedId === order.idOrder">
+          <div class="order-details-grid">
+            <div class="detail-group">
+              <div class="detail-row"><strong>Email</strong>{{ order.userEmail }}</div>
+              <div class="detail-row"><strong>Address</strong>{{ order.deliveryAddress }}</div>
+              <div class="detail-row"><strong>Phone</strong>{{ order.customerPhone || 'N/A' }}</div>
+            </div>
+            <div class="detail-group">
+              <div class="detail-row"><strong>Payment</strong>{{ order.paymentMethod }}</div>
+              <div class="detail-row"><strong>Total</strong>{{ order.totalAmount | number:'1.0-2' }} TND</div>
+              <div class="detail-row" *ngIf="order.couponCode">
+                <strong>Coupon</strong>{{ order.couponCode }} (−{{ order.discountAmount | number:'1.0-2' }} TND)
+              </div>
+            </div>
+          </div>
+
+          <div class="items-title">Items</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let line of order.orderLines">
+                <td>{{ line.productName }}</td>
+                <td class="td-qty">{{ line.requestedQuantity }}</td>
+                <td class="td-price">{{ line.unitPrice | number:'1.0-2' }} TND</td>
+                <td class="td-price">{{ line.totalPrice | number:'1.0-2' }} TND</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       COUPON MANAGEMENT
+  ══════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="icon-box coupons-icon"></span>
+        Coupon Management
+      </h2>
+      <button class="btn" [ngClass]="showCouponForm ? 'btn-cancel' : 'btn-new'"
+              (click)="showCouponForm = !showCouponForm">
+        {{ showCouponForm ? 'Cancel' : '+ New Coupon' }}
+      </button>
+    </div>
+
+    <div class="section-body">
+      <div *ngIf="couponSuccessMsg" class="alert alert-success">{{ couponSuccessMsg }}</div>
+      <div *ngIf="couponErrorMsg"   class="alert alert-danger">{{ couponErrorMsg }}</div>
+
+      <!-- Create form -->
+      <div *ngIf="showCouponForm" class="coupon-form-panel">
+        <div class="form-grid-4">
+          <div class="form-group">
+            <label>Promo Code</label>
+            <input class="form-input code" type="text" [(ngModel)]="couponForm.code"
+                   placeholder="e.g. CAMP20">
+          </div>
+          <div class="form-group">
+            <label>Discount (%)</label>
+            <input class="form-input" type="number" [(ngModel)]="couponForm.discountPercentage"
+                   min="1" max="100">
+          </div>
+          <div class="form-group">
+            <label>Expiration Date</label>
+            <input class="form-input" type="date" [(ngModel)]="couponForm.expirationDate">
+          </div>
+          <div class="form-group">
+            <label>Max Uses</label>
+            <input class="form-input" type="number" [(ngModel)]="couponForm.maxUses" min="1">
+          </div>
+        </div>
+        <div style="text-align:right">
+          <button class="btn btn-create"
+                  (click)="createCoupon()"
+                  [disabled]="!couponForm.code.trim() || !couponForm.expirationDate">
+            Create Coupon
+          </button>
         </div>
       </div>
 
-      <h6>Items:</h6>
-      <table class="table table-sm table-bordered">
-        <thead class="table-light">
-          <tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let line of order.orderLines">
-            <td>{{ line.productName }}</td>
-            <td>{{ line.requestedQuantity }}</td>
-            <td>{{ line.unitPrice | number:'1.0-2' }} TND</td>
-            <td>{{ line.totalPrice | number:'1.0-2' }} TND</td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Spinner -->
+      <div *ngIf="couponsLoading" class="spinner-wrap">
+        <div class="spinner-border text-green"></div>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!couponsLoading && coupons.length === 0" class="alert alert-info">
+        No coupons created yet.
+      </div>
+
+      <!-- Coupons table -->
+      <div *ngIf="!couponsLoading && coupons.length > 0" style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Discount</th>
+              <th>Expiration</th>
+              <th>Uses</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let coupon of coupons">
+              <td class="td-code">{{ coupon.code }}</td>
+              <td><span class="badge badge-discount">{{ coupon.discountPercentage }}%</span></td>
+              <td>{{ coupon.expirationDate | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <div class="usage-bar-wrap">
+                  <div class="usage-bar">
+                    <div class="usage-fill"
+                         [style.width.%]="(coupon.currentUses / coupon.maxUses) * 100"></div>
+                  </div>
+                  <span class="usage-text">{{ coupon.currentUses }}/{{ coupon.maxUses }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge"
+                      [ngClass]="coupon.active ? 'badge-active' : 'badge-inactive'">
+                  {{ coupon.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td style="display:flex;gap:8px;align-items:center">
+                <button class="btn"
+                        [ngClass]="coupon.active ? 'btn-toggle-on' : 'btn-toggle-off'"
+                        (click)="toggleCoupon(coupon.idCoupon)">
+                  {{ coupon.active ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button class="btn btn-delete" (click)="deleteCoupon(coupon.idCoupon)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
+  <!-- ══════════════════════════════════════════
+       TOP DELIVERY PERFORMERS
+  ══════════════════════════════════════════ -->
+  <div class="section-block">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="icon-box delivery-icon"></span>
+        Top Delivery Performers
+      </h2>
+    </div>
+
+    <div class="section-body">
+      <div *ngIf="!deliveryStats || deliveryStats.length === 0" class="alert alert-info">
+        No delivery data available.
+      </div>
+
+      <div class="performers-grid">
+        <div *ngFor="let d of deliveryStats" class="performer-card">
+          <div class="performer-header">
+            <div class="performer-avatar">
+              {{ d.deliveryPersonName?.charAt(0)?.toUpperCase() }}
+            </div>
+            <div>
+              <p class="performer-name">{{ d.deliveryPersonName }}</p>
+              <p class="performer-phone">{{ d.deliveryPersonPhone }}</p>
+            </div>
+          </div>
+          <div class="performer-stats">
+            <div class="stat-pill">
+              <span class="dot dot-green"></span>
+              {{ d.completedDeliveries }} delivered
+            </div>
+            <div class="stat-pill">
+              <span class="dot dot-blue"></span>
+              {{ d.onTheWayDeliveries }} on the way
+            </div>
+            <div class="stat-pill">
+              <span class="dot dot-amber"></span>
+              {{ d.pendingDeliveries }} pending
+            </div>
+            <div class="stat-pill">
+              <span class="dot dot-red"></span>
+              {{ d.cancelledDeliveries }} cancelled
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

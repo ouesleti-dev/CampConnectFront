@@ -1,18 +1,20 @@
 import { Component,OnInit } from '@angular/core';
 import { ProductResponse } from '../../../../../frontoffice/shared/models/product.model';
 import { ProductService } from '../../../../../frontoffice/shared/services/product.service';
-
+import { ChartData, ChartOptions, registerables, Chart } from 'chart.js';
+Chart.register(...registerables);
 @Component({
   selector: 'app-product-m',
   templateUrl: './product-m.component.html',
   styleUrl: './product-m.component.css'
 })
 export class ProductMComponent implements OnInit {
- activeTab: 'pending' | 'approved' | 'rejected' = 'pending';
+ activeTab: 'pending' | 'approved' | 'rejected' | 'analytics' = 'pending';
 
   pendingProducts: ProductResponse[] = [];
   approvedProducts: ProductResponse[] = [];
   rejectedProducts: ProductResponse[] = [];
+  salesStats: any[] = [];
 
   successMessage = '';
   errorMessage = '';
@@ -21,6 +23,7 @@ export class ProductMComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadSalesStats();
   }
 
   loadProducts(): void {
@@ -73,4 +76,60 @@ export class ProductMComponent implements OnInit {
   getCategoryName(category: any): string {
     return category?.name || category || '—';
   }
+ loadSalesStats(): void {
+  this.productService.getSalesStats().subscribe({
+    next: (res) => {
+      this.salesStats = res;
+
+      this.totalRevenue   = res.reduce((sum, s) => sum + s.totalRevenue, 0);
+      this.totalUnitsSold = res.reduce((sum, s) => sum + s.totalQuantitySold, 0);
+      this.totalBuyers    = res.reduce((sum, s) => sum + s.distinctBuyers, 0);
+
+      this.barChartData = {
+        labels: res.map(s => s.nameProduct),
+        datasets: [
+          { label: 'Revenue (TND)',   data: res.map(s => s.totalRevenue),      backgroundColor: '#3266ad' },
+          { label: 'Units Sold',      data: res.map(s => s.totalQuantitySold), backgroundColor: '#1d9e75' },
+          { label: 'Distinct Buyers', data: res.map(s => s.distinctBuyers),    backgroundColor: '#d85a30' },
+        ]
+      };
+
+      this.donutChartData = {
+        labels: res.map(s => s.nameProduct),
+        datasets: [{
+          data: res.map(s => s.totalRevenue),
+          backgroundColor: ['#3266ad','#1d9e75','#d85a30','#ba7517','#993556','#888780','#7f77dd']
+        }]
+      };
+    },
+    error: (err) => console.error(err)
+  });
+}
+barChartOptions: ChartOptions = {
+  responsive: true,
+  plugins: { legend: { position: 'top' } },
+  scales: { y: { beginAtZero: true } }
+};
+
+barChartData: ChartData<'bar'> = {
+  labels: [],
+  datasets: [
+    { label: 'Revenue (TND)', data: [], backgroundColor: '#3266ad' },
+    { label: 'Units Sold',    data: [], backgroundColor: '#1d9e75' },
+    { label: 'Distinct Buyers', data: [], backgroundColor: '#d85a30' },
+  ]
+};
+totalRevenue = 0;
+totalUnitsSold = 0;
+totalBuyers = 0;
+
+donutChartOptions: ChartOptions = {
+  responsive: true,
+  plugins: { legend: { position: 'bottom' } }
+};
+
+donutChartData: ChartData<'doughnut'> = {
+  labels: [],
+  datasets: [{ data: [], backgroundColor: ['#3266ad','#1d9e75','#d85a30','#ba7517','#993556','#888780'] }]
+};
 }
