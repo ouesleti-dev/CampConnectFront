@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 export class ApiService {
 
   // ⭐ Même base URL que auth.service.ts de ton amie, sans /auth
-  private baseUrl = 'http://localhost:8088/campConnect';
+  private baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect';
 
   constructor(private http: HttpClient) {}
 

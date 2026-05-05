@@ -6,7 +6,7 @@ import { ProductRequest, ProductResponse } from '../models/product.model';
 @Injectable({ providedIn: 'root' })
 export class ProductService {
 
- private api = 'http://localhost:8088/campConnect/api/products';
+ private api = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/api/products';
 
   constructor(private http: HttpClient) {}
 

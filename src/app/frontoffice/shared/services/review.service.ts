@@ -10,7 +10,7 @@ import { ReviewRequest, ReviewResponse } from '../models/review.model';
 })
 export class ReviewService {
 
-  private baseUrl = 'http://localhost:8088/campConnect/review';
+  private baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/review';
 
   constructor(private http: HttpClient) {}
 

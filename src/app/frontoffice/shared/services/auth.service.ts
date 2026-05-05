@@ -9,7 +9,7 @@ import { RegisterRequest, LoginRequest, AuthResponse } from '../models/auth.mode
 })
 export class AuthService {
 
-  private baseUrl = 'http://localhost:8088/campConnect/auth';
+  private baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/auth';
 
   constructor(private http: HttpClient) {}
 

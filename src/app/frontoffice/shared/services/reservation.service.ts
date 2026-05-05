@@ -10,7 +10,7 @@ import {
   providedIn: 'root'
 })
 export class ReservationService {
-  private readonly baseUrl = 'http://localhost:8088/campConnect/reservations';
+  private readonly baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/reservations';
 
   constructor(private http: HttpClient) {}
 

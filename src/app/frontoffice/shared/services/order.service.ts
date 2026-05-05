@@ -6,7 +6,7 @@ import { CartItem, OrderDTO, OrderRequest } from '../models/order.model';
 @Injectable({ providedIn: 'root' })
 export class OrderService {
 
-  private apiUrl = 'http://localhost:8088/campConnect/api/orders';
+  private apiUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/api/orders';
 
   private cartSubject = new BehaviorSubject<CartItem[]>(
     JSON.parse(localStorage.getItem('cart') || '[]')

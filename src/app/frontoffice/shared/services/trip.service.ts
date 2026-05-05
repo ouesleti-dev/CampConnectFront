@@ -7,7 +7,7 @@ import { TripRequest, TripResponse } from '../models/trip.model';
   providedIn: 'root'
 })
 export class TripService {
-  private readonly baseUrl = 'http://localhost:8088/campConnect/trips';
+  private readonly baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/trips';
 
   constructor(private http: HttpClient) {}
 

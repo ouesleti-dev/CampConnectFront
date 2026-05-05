@@ -10,7 +10,7 @@ import { EquipmentRequest, EquipmentResponse } from '../models/equipment.model';
 })
 export class EquipmentService {
 
-  private baseUrl = 'http://localhost:8088/campConnect/equipment';
+  private baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/equipment';
 
   constructor(private http: HttpClient) {}
 

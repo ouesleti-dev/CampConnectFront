@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class DeliveryService {
-  private apiUrl = 'http://localhost:8088/campConnect/api/deliveries';
+  private apiUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/api/deliveries';
 
   constructor(private http: HttpClient) {}
 

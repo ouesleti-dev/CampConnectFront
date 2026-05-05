@@ -5,7 +5,7 @@ import { RentalRequest, RentalResponse } from '../models/rental.model';
 
 @Injectable({ providedIn: 'root' })
 export class RentalService {
-  private baseUrl = 'http://localhost:8088/campConnect/rental';
+  private baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/rental';
 
   constructor(private http: HttpClient) {}
 

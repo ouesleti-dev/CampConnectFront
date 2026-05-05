@@ -10,7 +10,7 @@ import {
   providedIn: 'root'
 })
 export class TransportAdService {
-  private readonly baseUrl = 'http://localhost:8088/campConnect/transport-ads';
+  private readonly baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/transport-ads';
 
   constructor(private http: HttpClient) {}
 

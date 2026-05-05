@@ -7,7 +7,7 @@ import { VehicleRequest, VehicleResponse } from '../models/vehicle.model';
   providedIn: 'root'
 })
 export class VehicleService {
-  private readonly baseUrl = 'http://localhost:8088/campConnect/vehicles';
+  private readonly baseUrl = 'https://campconnect-backend-gtcgcgcpefbqh4gb.austriaeast-01.azurewebsites.net/campConnect/vehicles';
 
   constructor(private http: HttpClient) {}
 
