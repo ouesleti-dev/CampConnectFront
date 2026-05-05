@@ -1,0 +1,67 @@
+<div class="maintenance-wrapper">
+
+  <div class="maintenance-header">
+    <h2>🔧 Predictive Maintenance</h2>
+    <p class="subtitle">Health analysis for all your equipment</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Analyzing equipment data...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-state">
+    <span>⚠️ {{ error }}</span>
+    <button (click)="loadPredictions()">Retry</button>
+  </div>
+
+  <div *ngIf="!loading && !error && predictions.length === 0" class="empty-state">
+    <p>🏕️ No equipment found for your account.</p>
+  </div>
+
+  <div *ngIf="!loading && predictions.length > 0" class="cards-grid">
+    <div
+      *ngFor="let p of predictions"
+      class="prediction-card"
+      [ngClass]="p.riskLevel.toLowerCase()">
+
+      <div class="card-header">
+        <h3>{{ p.equipmentName }}</h3>
+      </div>
+
+      <div class="score-section">
+        <div class="score-header">
+          <span class="score-label">Risk Score</span>
+          <span class="score-value">{{ p.totalScore | number:'1.0-1' }} / 100</span>
+        </div>
+        <div class="score-bar">
+          <div
+            class="score-fill"
+            [style.width.%]="p.totalScore"
+            [ngClass]="p.riskLevel.toLowerCase()">
+          </div>
+        </div>
+        <div class="score-thresholds">
+          <span>0</span>
+          <span>40</span>
+          <span>70</span>
+          <span>100</span>
+        </div>
+      </div>
+
+      <div class="risk-section">
+        <div class="risk-badge" [ngClass]="p.riskLevel.toLowerCase()">
+          {{ getRiskIcon(p.riskLevel) }} {{ p.riskLevel }} RISK
+        </div>
+        <span class="risk-description">{{ getRiskDescription(p.riskLevel) }}</span>
+      </div>
+
+      <div class="recommendation-box" [ngClass]="p.riskLevel.toLowerCase()">
+        <span class="rec-icon">💡</span>
+        <p>{{ p.recommendation }}</p>
+      </div>
+
+    </div>
+  </div>
+
+</div>

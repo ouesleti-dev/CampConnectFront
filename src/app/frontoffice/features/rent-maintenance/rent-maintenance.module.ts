@@ -12,6 +12,14 @@ import { MyRentalsComponent } from './pages/my-rentals/my-rentals.component';
 import { ReceivedRentalsComponent } from './pages/received-rentals/received-rentals.component';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { EquipmentSearchComponent } from './pages/equipment-search/equipment-search.component';
+import { AnalyticsDashboardComponent } from './pages/analyticsdashboard/analyticsdashboard.component';
+import { StoryBarComponent } from './pages/story-bar/story-bar.component';
+import { MaintenancePredictionComponent } from './pages/maintenance-prediction/maintenance-prediction.component';
+import { EquipmentRecommendationComponent } from './pages/equipment-recommendation/equipment-recommendation.component';
+import { MaintenanceSchedulerComponent } from './pages/maintenance-scheduler/maintenance-scheduler.component';
+import { NotificationBellComponent } from './pages/notification-bell/notification-bell.component';
+
 
 
 
@@ -23,6 +31,13 @@ import { FormsModule } from '@angular/forms';
     RentEquipmentComponent,
     MyRentalsComponent,
     ReceivedRentalsComponent,
+    EquipmentSearchComponent,
+    AnalyticsDashboardComponent,
+    StoryBarComponent,
+    MaintenancePredictionComponent,
+    EquipmentRecommendationComponent,
+    MaintenanceSchedulerComponent,
+    NotificationBellComponent,
   ],
   imports: [
     CommonModule,

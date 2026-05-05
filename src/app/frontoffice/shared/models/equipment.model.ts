@@ -21,6 +21,7 @@ export interface EquipmentResponse {
   state: string;
   price: number;
   picture: string;
+  averageRating?: number;
 }
 
 export enum EquipmentType {

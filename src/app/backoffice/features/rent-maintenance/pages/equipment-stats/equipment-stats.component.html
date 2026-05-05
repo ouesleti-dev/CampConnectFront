@@ -1,0 +1,54 @@
+<div class="stats-page">
+  <div class="stats-card">
+    <a routerLink=".." class="btn-back">← Back</a>
+    <h2 class="title">📊 Equipment Statistics</h2>
+
+    <!-- Loading -->
+    <p class="loading" *ngIf="loading">Loading...</p>
+
+    <!-- Table -->
+    <table class="stats-table" *ngIf="stats.length > 0 && !loading">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Price/day</th>
+          <th>Rating</th>
+          <th>Reviews</th>
+          <th>Rentals</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let s of stats">
+          <td class="name">{{ s.name }}</td>
+
+          <td>
+            <span class="badge type">
+              {{ s.type }}
+            </span>
+          </td>
+
+          <td class="price">
+            {{ s.price | currency:'TND' }}
+          </td>
+
+          <td>
+            <span class="badge" [ngClass]="getRatingClass(s.averageRating)">
+              ⭐ {{ s.averageRating | number:'1.1-1' }}
+            </span>
+          </td>
+
+          <td>{{ s.reviewCount }}</td>
+          <td>{{ s.totalRentals }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty -->
+    <p class="empty" *ngIf="stats.length === 0 && !loading">
+      No data available.
+    </p>
+
+  </div>
+</div>

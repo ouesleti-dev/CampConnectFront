@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SettingsPageComponent } from './settings-page.component';
-
 import { waitForAsync } from '@angular/core/testing';
+
+
 
 import { HttpClientTestingModule } from '@angular/common/http/testing'; // Ajouté par sécurité
 
@@ -9,6 +10,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing'; // Ajout
 describe('SettingsPageComponent', () => {
   let component: SettingsPageComponent;
   let fixture: ComponentFixture<SettingsPageComponent>;
+
 
 
 
@@ -33,6 +35,15 @@ describe('SettingsPageComponent', () => {
       declarations: [SettingsPageComponent]
     }).compileComponents();
 
+
+
+
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      declarations: [SettingsPageComponent]
+    })
+    .compileComponents();
+  }));
 
 
   beforeEach(() => {

@@ -1,4 +1,7 @@
-/* ===== HERO ===== */
+
+/* =========================
+   HERO (UNCHANGED - EXACT SAME)
+   ========================= */
 .rent-maintenance-page .page-hero {
   background: linear-gradient(135deg, #4F7942 0%, #344e41 100%);
   color: #ffffff;
@@ -24,55 +27,78 @@
   opacity: 0.9;
 }
 
-/* ===== CONTENT ===== */
+/* =========================
+   CONTENT AREA (MORE MODERN)
+   ========================= */
 .rent-maintenance-page .page-content {
   min-height: 400px;
-  padding: 2rem 0;
+  padding: 2.5rem 0;
+  background: #f6f7fb;
 }
 
-/* ===== SUB NAVBAR ===== */
+/* =========================
+   SUB NAVBAR (PRO SaaS STYLE)
+   ========================= */
 .sub-navbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 28px;
-  background: #fff;
-  padding: 10px 14px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  gap: 0.6rem;
+
+  margin-bottom: 2rem;
+  padding: 0.9rem;
+
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 16px;
+
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
 }
 
+/* LINKS */
 .sub-navbar a {
-  padding: 9px 18px;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  background: #f9fafb;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9rem;
+  padding: 0.65rem 1.1rem;
+
+  border-radius: 999px;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
   color: #344e41;
   text-decoration: none;
+
+  background: #f3f4f6;
+  border: 1px solid transparent;
+
   transition: all 0.25s ease;
+  position: relative;
 }
 
+/* HOVER */
 .sub-navbar a:hover {
-  background-color: rgba(79, 121, 66, 0.08);
-  border-color: #4F7942;
-  color: #4F7942;
+  transform: translateY(-2px);
+  background: #eaf5ef;
+  color: #2f5d50;
+  border-color: rgba(79, 121, 66, 0.25);
+  box-shadow: 0 10px 20px rgba(79, 121, 66, 0.12);
 }
 
+/* ACTIVE TAB */
 .sub-navbar a.active {
-  background-color: #4F7942;
-  color: #fff;
-  border-color: #4F7942;
-  box-shadow: 0 4px 12px rgba(79, 121, 66, 0.3);
+  background: linear-gradient(135deg, #4F7942, #2f5d50);
+  color: white;
+  box-shadow: 0 10px 25px rgba(79, 121, 66, 0.25);
 }
 
-/* ===== RESPONSIVE ===== */
+/* =========================
+   RESPONSIVE
+   ========================= */
 @media (max-width: 768px) {
   .sub-navbar {
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
+    border-radius: 12px;
   }
 
   .sub-navbar a {
@@ -80,8 +106,8 @@
     text-align: center;
   }
 
-  .rent-maintenance-page .page-hero {
-    padding: 2.5rem 1rem;
+  .rent-maintenance-page .page-content {
+    padding: 1.5rem 0;
   }
 
   .rent-maintenance-page .page-hero .page-title {

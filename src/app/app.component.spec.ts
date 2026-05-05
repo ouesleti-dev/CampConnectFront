@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
+
 import { RouterModule } from '@angular/router';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
@@ -11,25 +12,37 @@ import { AppComponent } from './app.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 
+
+
+
+
+
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
 
       imports: [
+
         RouterTestingModule // ✅ Utilise celui-ci pour les tests
+
+
       ],
       declarations: [
         AppComponent
       ],
 
+
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
 
-      schemas: [NO_ERRORS_SCHEMA] // ✅ Correction de l'erreur app-navbar
+       
 
 
       imports: [RouterModule.forRoot([])],
       declarations: [AppComponent],
       schemas: [NO_ERRORS_SCHEMA]
+
+
+     // ← ignore les composants inconnus
 
     }).compileComponents();
   });
@@ -58,6 +71,7 @@ describe('AppComponent', () => {
   });
 
 
+
   it('should render title in an h1', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
@@ -67,5 +81,6 @@ describe('AppComponent', () => {
     // <h1>Hello, {{ title }}</h1>
     expect(compiled.querySelector('h1')?.textContent).toContain('camp-connect');
   });
+
 
 });

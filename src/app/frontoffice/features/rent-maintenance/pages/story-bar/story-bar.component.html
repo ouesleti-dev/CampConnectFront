@@ -1,0 +1,252 @@
+<!-- ══════════════════════════════════════════════════════════
+     STORIES BAR (Instagram style)
+     ══════════════════════════════════════════════════════════ -->
+<section class="sb-wrap">
+
+  <!-- Header -->
+  <div class="sb-head">
+    <span class="sb-title">🔥 Flash Deals</span>
+    <span class="sb-sub">Available for 24h only</span>
+  </div>
+
+  <!-- Horizontal rail -->
+  <div class="sb-rail">
+
+    <!-- Skeletons while loading -->
+    <ng-container *ngIf="loading">
+      <div class="sb-skeleton" *ngFor="let n of [1,2,3,4,5]"></div>
+    </ng-container>
+
+    <!-- "Publish my story" button -->
+    <button
+      *ngIf="!loading && canPublish"
+      class="sb-bubble sb-bubble--add"
+      (click)="openPublishModal()"
+    >
+      <div class="sb-ring sb-ring--add">
+        <div class="sb-avatar"><span class="sb-plus">＋</span></div>
+      </div>
+      <span class="sb-label">My story</span>
+    </button>
+
+    <!-- Existing stories -->
+    <button
+      *ngFor="let story of stories; trackBy: trackByStory; let i = index"
+      class="sb-bubble"
+      [class.sb-bubble--viewed]="viewedStories.has(story.idStory)"
+      (click)="openStory(i)"
+    >
+      <div
+        class="sb-ring"
+        [class.sb-ring--urgent]="story.minutesRemaining < 60"
+        [class.sb-ring--viewed]="viewedStories.has(story.idStory)"
+      >
+        <div class="sb-avatar"><span class="sb-icon">🏕️</span></div>
+
+        <!-- Timer badge if < 60min -->
+        <span class="sb-timer" *ngIf="story.minutesRemaining < 60">
+          {{ story.minutesRemaining }}m
+        </span>
+
+        <!-- Discount badge -->
+        <span class="sb-disc">-{{ story.discount }}%</span>
+      </div>
+
+      <span class="sb-label">{{ story.equipmentName | slice:0:10 }}</span>
+    </button>
+
+    <!-- Empty state -->
+    <div class="sb-empty" *ngIf="!loading && stories.length === 0">
+      <span>🌿</span><span>No active deals</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FULLSCREEN VIEWER
+     ══════════════════════════════════════════════════════════ -->
+<div class="sv-overlay" *ngIf="isViewerOpen" (click)="closeViewer()">
+  <div class="sv-card" (click)="$event.stopPropagation()">
+
+    <!-- Progress bar -->
+    <div class="sv-prog-track">
+      <div class="sv-prog-fill" [style.width.%]="progressWidth"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="sv-header">
+      <div class="sv-user">
+        <div class="sv-uavatar">🏕️</div>
+        <div>
+          <div class="sv-uname">{{ currentStory?.equipmentName }}</div>
+          <div class="sv-utime">{{ getTimeAgo(currentStory?.createdAt) }}</div>
+        </div>
+      </div>
+      <button class="sv-close" (click)="closeViewer()">✕</button>
+    </header>
+
+    <!-- Body -->
+    <div class="sv-body" *ngIf="currentStory">
+
+      <div class="sv-bg"></div>
+
+      <!-- Discount badge -->
+      <div class="sv-badge">
+        <span class="sv-badge-pct">-{{ currentStory.discount }}%</span>
+        <span class="sv-badge-lbl">DISCOUNT</span>
+      </div>
+
+      <div class="sv-content">
+
+        <h2 class="sv-eq-name">{{ currentStory.equipmentName }}</h2>
+
+        <p class="sv-msg">"{{ currentStory.message }}"</p>
+
+        <!-- Prices -->
+        <div class="sv-prices">
+          <span class="sv-p-old">{{ currentStory.originalPrice | number:'1.2-2' }} TND</span>
+          <span class="sv-p-arrow">→</span>
+          <span class="sv-p-new">{{ currentStory.discountedPrice | number:'1.2-2' }} TND</span>
+        </div>
+
+        <!-- Promo code -->
+        <button class="sv-promo" (click)="copyPromoCode(currentStory.promoCode)">
+          <span class="sv-promo-lbl">PROMO CODE</span>
+          <span class="sv-promo-code">{{ currentStory.promoCode }}</span>
+          <span class="sv-promo-hint">
+            {{ copied ? '✓ Copied!' : '👆 Tap to copy' }}
+          </span>
+        </button>
+
+        <!-- Timer -->
+        <div class="sv-timer-row">
+          <span>⏱</span>
+          <span>Expires in <strong>{{ formatMinutes(currentStory.minutesRemaining) }}</strong></span>
+        </div>
+
+      </div>
+
+      <!-- Owner actions -->
+      <div class="sv-owner-acts" *ngIf="isMyStory(currentStory)">
+        <button class="sv-act sv-act--edit" (click)="openEditModal(currentStory)">✏️ Edit</button>
+        <button class="sv-act sv-act--delete" (click)="confirmDelete(currentStory.idStory)">🗑 Delete</button>
+      </div>
+
+    </div>
+
+    <!-- Navigation -->
+    <button class="sv-nav sv-nav--prev" *ngIf="currentIndex > 0"
+            (click)="prevStory()">‹</button>
+
+    <button class="sv-nav sv-nav--next" *ngIf="currentIndex < stories.length - 1"
+            (click)="nextStory()">›</button>
+
+    <!-- Dots -->
+    <div class="sv-dots">
+      <span
+        *ngFor="let s of stories; let i = index"
+        class="sv-dot"
+        [class.sv-dot--active]="i === currentIndex"
+      ></span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CREATE / EDIT MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div class="sf-overlay" *ngIf="isFormOpen" (click)="closeForm()">
+  <div class="sf-sheet" (click)="$event.stopPropagation()">
+
+    <div class="sf-header">
+      <h3>{{ editingStory ? '✏️ Edit story' : '✨ New flash deal' }}</h3>
+      <button class="sf-close" (click)="closeForm()">✕</button>
+    </div>
+
+    <form (ngSubmit)="submitStory()" class="sf-form">
+
+      <!-- Equipment -->
+      <div class="sf-group" *ngIf="!editingStory">
+        <label class="sf-label">Equipment *</label>
+        <select [(ngModel)]="formData.equipmentId" name="equipmentId" class="sf-input" required>
+          <option [ngValue]="0" disabled>— Select —</option>
+          <option *ngFor="let eq of myEquipments" [ngValue]="eq.idEquipement">
+            {{ eq.name }} — {{ eq.price }} TND/day
+          </option>
+        </select>
+      </div>
+
+      <!-- Message -->
+      <div class="sf-group">
+        <label class="sf-label">Message *</label>
+        <textarea
+          [(ngModel)]="formData.message"
+          name="message"
+          class="sf-input"
+          rows="3"
+          placeholder="Ex: Premium tent available this weekend!"
+          required
+        ></textarea>
+      </div>
+
+      <!-- Promo code -->
+      <div class="sf-group">
+        <label class="sf-label">Promo code *</label>
+        <input
+          type="text"
+          [(ngModel)]="formData.promoCode"
+          name="promoCode"
+          class="sf-input sf-input--upper"
+          placeholder="EX: SUMMER20"
+          required
+        />
+      </div>
+
+      <!-- Discount -->
+      <div class="sf-group">
+        <label class="sf-label">
+          Discount: <strong class="sf-disc-val">{{ formData.discount }}%</strong>
+        </label>
+        <input
+          type="range"
+          [(ngModel)]="formData.discount"
+          name="discount"
+          class="sf-slider"
+          min="1" max="80" step="1"
+        />
+        <div class="sf-slider-labels">
+          <span>1%</span><span>80%</span>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="sf-preview" *ngIf="selectedEquipmentPrice">
+        <span class="sf-prev-lbl">Preview:</span>
+        <span class="sf-prev-old">{{ selectedEquipmentPrice | number:'1.2-2' }} TND</span>
+        <span>→</span>
+        <span class="sf-prev-new">{{ previewDiscountedPrice | number:'1.2-2' }} TND</span>
+      </div>
+
+      <!-- Error -->
+      <div class="sf-error" *ngIf="formError">{{ formError }}</div>
+
+      <!-- Actions -->
+      <div class="sf-actions">
+        <button type="button" class="sf-btn sf-btn--cancel" (click)="closeForm()">Cancel</button>
+        <button type="submit" class="sf-btn sf-btn--submit" [disabled]="submitting">
+          {{ submitting ? 'Sending...' : (editingStory ? 'Update' : 'Publish 24h 🔥') }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     TOAST
+     ══════════════════════════════════════════════════════════ -->
+<div class="sb-toast" [class.sb-toast--show]="toastVisible" [class.sb-toast--error]="toastType === 'error'">
+  {{ toastMessage }}
+</div>

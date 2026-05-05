@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EquipmentRequest, EquipmentResponse } from '../models/equipment.model';
+import { HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -39,5 +40,22 @@ export class EquipmentService {
   }
   updateEquipment(id: number, dto: EquipmentRequest): Observable<EquipmentResponse> {
   return this.http.put<EquipmentResponse>(`${this.baseUrl}/${id}`, dto);
+}
+// Dans ton equipment.service.ts existant
+
+getEquipmentStats(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/stats`);
+}
+
+searchEquipments(type?: string, state?: string, maxPrice?: number): Observable<any[]> {
+  let params = new HttpParams();
+  if (type)     params = params.set('type', type);
+  if (state)    params = params.set('state', state);
+  if (maxPrice) params = params.set('maxPrice', maxPrice.toString());
+  return this.http.get<any[]>(`${this.baseUrl}/search`, { params });
+}
+
+getRecommendations(body: { place: string; season: string; people: number; duration_days: number; budget: number }): Observable<any> {
+  return this.http.post<any>('http://localhost:8000/recommend-with-equipment', body);
 }
 }

@@ -1,0 +1,217 @@
+<!-- analytics-dashboard.component.html -->
+<div class="dashboard">
+
+  <!-- ── Header ── -->
+  <div class="dash-header">
+    <div class="dash-header-left">
+      <span class="dash-logo">⛺</span>
+      <div>
+        <h1 class="dash-title">Equipment Analytics Dashboard</h1>
+        <p class="dash-subtitle">Demand, Prediction &amp; Pricing Decision Engine</p>
+      </div>
+    </div>
+    <div class="dash-header-right">
+      <span class="dash-date">{{ today | date:'MMMM d, yyyy' }}</span>
+      <button class="refresh-btn" (click)="loadData()" [disabled]="isLoading">
+        <span [class.spinning]="isLoading">⟳</span> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Computing demand decisions...</p>
+  </div>
+
+  <!-- ── Content ── -->
+  <ng-container *ngIf="!isLoading && decisions.length > 0">
+
+    <!-- Equipment Selector -->
+    <div class="selector-bar">
+      <label class="selector-label">Equipment</label>
+      <div class="selector-pills">
+        <button
+          *ngFor="let d of decisions"
+          class="pill"
+          [class.active]="selected?.equipmentId === d.equipmentId"
+          (click)="selectDecision(d)">
+          {{ d.equipmentName }}
+          <span class="pill-badge" [ngClass]="getPredictionClass(d.prediction)">
+            {{ d.prediction }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Selected Equipment — cast with "as s" to remove null errors -->
+    <ng-container *ngIf="selected as s">
+
+      <!-- ── KPI Cards ── -->
+      <div class="kpi-grid">
+
+        <div class="kpi-card">
+          <div class="kpi-icon blue">📦</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Current Rentals</div>
+            <div class="kpi-value">{{ s.currentRentals }}</div>
+            <div class="kpi-sub">Last 7 days</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon gray">📅</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Previous Rentals</div>
+            <div class="kpi-value">{{ s.previousRentals }}</div>
+            <div class="kpi-sub">Days 8–14</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon yellow">⭐</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Avg Rating</div>
+            <div class="kpi-value">{{ s.averageRating | number:'1.1-1' }} / 5</div>
+            <div class="kpi-sub">Score: {{ s.ratingScore | number:'1.2-2' }}</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon purple">📊</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Demand Score</div>
+            <div class="kpi-value">{{ s.demandScore | number:'1.3-3' }}</div>
+            <div class="kpi-sub">0 → 1 scale</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" [ngClass]="getPredictionIconClass(s.prediction)">
+            {{ getPredictionIcon(s.prediction) }}
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-label">Prediction</div>
+            <div class="kpi-value" [ngClass]="getPredictionClass(s.prediction)">
+              {{ s.prediction }}
+            </div>
+            <div class="kpi-sub">Trend: {{ (s.trend * 100) | number:'1.1-1' }}%</div>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon" [ngClass]="getActionIconClass(s.action)">
+            {{ getActionIcon(s.action) }}
+          </div>
+          <div class="kpi-body">
+            <div class="kpi-label">Pricing Action</div>
+            <div class="kpi-value" [ngClass]="getActionClass(s.action)">
+              {{ getActionLabel(s.action) }}
+            </div>
+            <div class="kpi-sub">
+              {{ s.basePrice | currency:'TND':'symbol':'1.2-2' }}
+              →
+              {{ s.suggestedPrice | currency:'TND':'symbol':'1.2-2' }}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Chart + Decision ── -->
+      <div class="main-grid">
+
+        <!-- Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Rental Trend — Last 14 Days</h3>
+            <div class="chart-legend">
+              <span class="legend-dot blue"></span> Current
+              <span class="legend-dot gray"></span> Previous
+              <span class="legend-dot green"></span> Predicted
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="demandChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Decision Panel -->
+        <div class="decision-panel">
+
+          <div class="decision-header">
+            <h3>Smart Decision Engine</h3>
+            <span class="decision-badge" [ngClass]="getPredictionClass(s.prediction)">
+              {{ s.prediction }}
+            </span>
+          </div>
+
+          <!-- Trend Block -->
+          <div class="decision-block">
+            <div class="block-icon">📈</div>
+            <div class="block-body">
+              <div class="block-label">Trend Analysis</div>
+              <div class="block-text">{{ s.trendExplanation }}</div>
+            </div>
+          </div>
+
+          <!-- Price Block -->
+          <div class="decision-block highlight">
+            <div class="block-icon">💰</div>
+            <div class="block-body">
+              <div class="block-label">Price Recommendation</div>
+              <div class="block-text">{{ s.priceRecommendation }}</div>
+            </div>
+          </div>
+
+          <!-- Score Breakdown -->
+          <div class="score-breakdown">
+            <div class="score-title">Score Breakdown</div>
+
+            <div class="score-row">
+              <span>Rentals (50%)</span>
+              <div class="score-bar-wrap">
+                <div class="score-bar blue" [style.width]="getRentalBarWidth()"></div>
+              </div>
+              <span>{{ s.currentRentals }}</span>
+            </div>
+
+            <div class="score-row">
+              <span>Rating (30%)</span>
+              <div class="score-bar-wrap">
+                <div class="score-bar yellow" [style.width]="(s.ratingScore * 100) + '%'"></div>
+              </div>
+              <span>{{ s.ratingScore | number:'1.2-2' }}</span>
+            </div>
+
+            <div class="score-row">
+              <span>Trend (20%)</span>
+              <div class="score-bar-wrap">
+                <div class="score-bar"
+                     [ngClass]="getTrendBarClass()"
+                     [style.width]="getTrendBarWidth()">
+                </div>
+              </div>
+              <span>{{ (s.trend * 100) | number:'1.1-1' }}%</span>
+            </div>
+          </div>
+
+          <!-- Suggested Price -->
+          <div class="price-result">
+            <div class="price-label">Suggested Price</div>
+            <div class="price-amount">{{ s.suggestedPrice | currency:'TND':'symbol':'1.2-2' }}</div>
+            <div class="price-base">Base: {{ s.basePrice | currency:'TND':'symbol':'1.2-2' }}</div>
+          </div>
+
+        </div>
+      </div>
+
+    </ng-container>
+  </ng-container>
+
+  <!-- ── Empty State ── -->
+  <div class="empty-state" *ngIf="!isLoading && decisions.length === 0">
+    <p>No verified equipment found.</p>
+  </div>
+
+</div>

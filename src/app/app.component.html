@@ -1,5 +1,7 @@
 <app-navbar *ngIf="!isBackoffice"></app-navbar>
+
 <main class="main-content" [class.backoffice-mode]="isBackoffice">
   <router-outlet></router-outlet>
 </main>
+
 <app-footer *ngIf="!isBackoffice"></app-footer>
