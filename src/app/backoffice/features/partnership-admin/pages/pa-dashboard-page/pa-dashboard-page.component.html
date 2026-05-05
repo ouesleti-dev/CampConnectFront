@@ -1,0 +1,119 @@
+<div class="pa-dashboard">
+
+  <!-- ── Welcome Banner ─────────────────────────────────── -->
+  <div class="welcome-banner">
+    <div class="banner-content">
+      <h1>Hello, Manager! 👋</h1>
+      <p>Here is the status of your partnership network today.</p>
+    </div>
+    <div class="quick-actions">
+      <button class="action-btn" routerLink="/admin/partnership-admin/partenaires">
+        <span class="icon">👥</span> New Partner
+      </button>
+      <button class="action-btn" routerLink="/admin/partnership-admin/entretiens">
+        <span class="icon">📅</span> Schedule Interview
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Global KPIs ────────────────────────────────────── -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: #eff6ff; color: #3b82f6">💼</div>
+      <div class="kpi-info">
+        <span class="kpi-val">{{ stats.offres }}</span>
+        <span class="kpi-lbl">Published offers</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: #f0fdf4; color: #10b981">📜</div>
+      <div class="kpi-info">
+        <span class="kpi-val">{{ stats.contratsActifs }}</span>
+        <span class="kpi-lbl">Active contracts</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: #fefce8; color: #ca8a04">⭐</div>
+      <div class="kpi-info">
+        <span class="kpi-val">{{ stats.scoreMoyen }}/100</span>
+        <span class="kpi-lbl">Global average score</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: #faf5ff; color: #a855f7">📝</div>
+      <div class="kpi-info">
+        <span class="kpi-val">{{ stats.pendingQuiz }}</span>
+        <span class="kpi-lbl">Completed evaluations</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Grid ──────────────────────────────────────── -->
+  <div class="dashboard-grid">
+    
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-card large">
+        <h3 class="card-title">Interview Performance</h3>
+        <div class="chart-container">
+          <app-chart-widget [config]="lineScores!"></app-chart-widget>
+        </div>
+      </div>
+      
+      <div class="chart-row">
+        <div class="chart-card">
+          <h3 class="card-title">Offer Status</h3>
+          <div class="chart-container mini">
+            <app-chart-widget [config]="doughnutOffres!"></app-chart-widget>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3 class="card-title">New Contracts</h3>
+          <div class="chart-container mini">
+            <app-chart-widget [config]="barContrats!"></app-chart-widget>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Section -->
+    <div class="sidebar-section">
+      
+      <!-- Upcoming Events -->
+      <div class="side-card">
+        <h3 class="side-title">Upcoming Appointments</h3>
+        <div class="event-list">
+          <div class="event-item" *ngFor="let ev of upcomingEvents">
+            <div class="event-date">
+              <span class="day">{{ ev.time | date:'dd' }}</span>
+              <span class="month">{{ ev.time | date:'MMM' }}</span>
+            </div>
+            <div class="event-info">
+              <span class="event-title">{{ ev.title }}</span>
+              <span class="event-meta">{{ ev.time | date:'HH:mm' }} • {{ ev.mode }}</span>
+            </div>
+          </div>
+          <div *ngIf="!upcomingEvents.length" class="empty-state">No interviews scheduled</div>
+        </div>
+        <button class="view-all" routerLink="/admin/partnership-admin/entretiens">View all calendar</button>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="side-card">
+        <h3 class="side-title">Recent Activity</h3>
+        <div class="activity-feed">
+          <div class="activity-item" *ngFor="let act of recentActivity">
+            <span class="act-icon">{{ act.icon }}</span>
+            <div class="act-body">
+              <p class="act-text"><strong>{{ act.label }}</strong></p>
+              <span class="act-time">Just moments ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

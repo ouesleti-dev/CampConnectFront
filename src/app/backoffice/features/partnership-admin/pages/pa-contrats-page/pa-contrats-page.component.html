@@ -1,0 +1,93 @@
+<div class="contrats-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Contract Management</h1>
+      <p class="page-subtitle">Track commercial engagements and commissions</p>
+    </div>
+    <button class="btn-create" (click)="openCreate()">+ New Contract</button>
+  </div>
+
+  <div class="filters-row">
+    <div class="filter-group">
+      <label>Partner</label>
+      <select class="form-select mini" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">All partners</option>
+        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Status</label>
+      <select class="form-select mini" [(ngModel)]="filterStatut" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">All statuses</option>
+        <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <app-paginated-data-table
+      [columns]="columns"
+      [rows]="rows"
+      [searchKeys]="searchKeys"
+      (editRow)="openEdit($event)"
+      (deleteRow)="remove($event)"
+    ></app-paginated-data-table>
+  </div>
+
+  <!-- Modal customisé -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+    <div class="modal-panel" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ editingId ? 'Edit' : 'New' }} Contract</h3>
+        <button class="btn-close" (click)="showModal = false">✕</button>
+      </div>
+      <div class="modal-body" [formGroup]="form">
+        <div class="row g-3">
+          <div class="col-12" *ngIf="invalidDates()">
+            <div class="alert alert-danger py-2">{{ validationMessage({ dateOrder: true }) }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Partner</label>
+            <select class="form-select" [class.is-invalid]="invalidField('partenaireId')" formControlName="partenaireId">
+              <option [ngValue]="null">— Choose a partner —</option>
+              <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Linked Offer</label>
+            <select class="form-select" [class.is-invalid]="invalidField('offreId')" formControlName="offreId">
+              <option [ngValue]="null">— Choose an offer —</option>
+              <option *ngFor="let o of offres" [ngValue]="o.id">{{ o.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Amount (€)</label>
+            <input type="number" class="form-control" [class.is-invalid]="invalidField('montant')" formControlName="montant" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Commission Rate %</label>
+            <input type="number" class="form-control" [class.is-invalid]="invalidField('tauxCommission')" formControlName="tauxCommission" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Status</label>
+            <select class="form-select" formControlName="statut">
+              <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Start Date</label>
+            <input type="date" class="form-control" [class.is-invalid]="invalidField('dateDebut') || invalidDates()" formControlName="dateDebut" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">End Date</label>
+            <input type="date" class="form-control" [class.is-invalid]="invalidField('dateFin') || invalidDates()" formControlName="dateFin" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-light px-4" (click)="showModal = false">Cancel</button>
+        <button type="button" class="btn btn-primary px-4" (click)="save()">{{ editingId ? 'Update' : 'Create' }}</button>
+      </div>
+    </div>
+  </div>
+</div>

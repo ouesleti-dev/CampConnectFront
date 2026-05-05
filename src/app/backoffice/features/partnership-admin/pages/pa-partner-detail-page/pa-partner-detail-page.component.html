@@ -1,0 +1,54 @@
+<div class="mb-3">
+  <a routerLink="/admin/partnership-admin/partenaires" class="btn btn-sm btn-outline-secondary rounded-pill">← List</a>
+</div>
+<div class="card border-0 shadow-sm rounded-4 mb-3">
+  <div class="card-body">
+    <h4>{{ firstName }} {{ lastName }}</h4>
+    <p class="mb-1"><strong>Email:</strong> {{ email }}</p>
+    <p class="mb-1"><strong>Phone:</strong> {{ phone }}</p>
+    <p class="mb-1"><strong>Score:</strong> {{ score }}</p>
+    <p class="mb-0"><strong>Active:</strong> {{ actif ? 'Yes' : 'No' }}</p>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-body">
+        <h6>Associated Campgrounds</h6>
+        <ul class="mb-0">
+          <li *ngFor="let c of campings">{{ c.nom }} — {{ c.localisation }} (cap. {{ c.capacite }})</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-body">
+        <h6>Offers</h6>
+        <ul class="mb-0">
+          <li *ngFor="let o of offres">{{ o.titre }} — {{ o.statut }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-body">
+        <h6>Contracts</h6>
+        <ul class="mb-0">
+          <li *ngFor="let c of contrats">#{{ c.id }} — {{ c.statut }} — {{ c.montant }} TND</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      <div class="card-body">
+        <h6>Completed Quizzes</h6>
+        <ul class="mb-0">
+          <li *ngFor="let q of quizzes">{{ q.titre }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

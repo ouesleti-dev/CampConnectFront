@@ -1,0 +1,108 @@
+<div class="campings-page">
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Campground Management</h1>
+      <p class="page-subtitle">Manage campgrounds and their hosting capacities</p>
+    </div>
+    <button class="btn-create" (click)="openCreate()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Campground
+    </button>
+  </div>
+
+  <!-- ── Filters Row ────────────────────────────────────── -->
+  <div class="filter-card">
+    <div class="filter-group">
+      <label class="form-lbl">Partner</label>
+      <select class="form-ctrl mini" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">All partners</option>
+        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label class="form-lbl">Location</label>
+      <input
+        class="form-ctrl mini"
+        placeholder="Search city..."
+        [(ngModel)]="filterLoc"
+        (ngModelChange)="applyFilters()"
+      />
+    </div>
+  </div>
+
+  <!-- ── Table Card ─────────────────────────────────────── -->
+  <div class="table-card">
+    <app-paginated-data-table
+      [columns]="columns"
+      [rows]="rows"
+      [searchKeys]="searchKeys"
+      (editRow)="openEdit($event)"
+      (deleteRow)="remove($event)"
+    ></app-paginated-data-table>
+  </div>
+
+</div>
+
+<!-- ── Modal ───────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ editingId ? 'Edit' : 'Add' }} Campground</h3>
+      <button class="modal-close" (click)="showModal = false">✕</button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label class="form-lbl">Campground Name</label>
+          <input class="form-ctrl" [class.is-err]="invalidField('nom')" formControlName="nom" placeholder="e.g. Lake Campground" />
+          <span class="err-msg" *ngIf="invalidField('nom')">{{ msgField('nom') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Location</label>
+          <input
+            class="form-ctrl"
+            [class.is-err]="invalidField('localisation')"
+            formControlName="localisation"
+            placeholder="e.g. Annecy, France"
+          />
+          <span class="err-msg" *ngIf="invalidField('localisation')">{{ msgField('localisation') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Capacity</label>
+          <input
+            type="number"
+            class="form-ctrl"
+            [class.is-err]="invalidField('capacite')"
+            formControlName="capacite"
+            placeholder="Number of spots"
+          />
+          <span class="err-msg" *ngIf="invalidField('capacite')">{{ msgField('capacite') }}</span>
+        </div>
+        
+        <div class="col-12">
+          <label class="form-lbl">Associated Partners</label>
+          <div class="partners-selection-grid" [class.has-err]="partnersBlockError">
+            <button
+              type="button"
+              *ngFor="let u of users"
+              class="partner-tag-btn"
+              [class.active]="isPartnerChecked(u.id)"
+              (click)="togglePartner(u.id)"
+            >
+              {{ u.label }}
+              <span class="check-icon" *ngIf="isPartnerChecked(u.id)">✓</span>
+            </button>
+          </div>
+          <span class="err-msg" *ngIf="partnersBlockError">Select at least one partner.</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn-cancel" (click)="showModal = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="save()">
+        {{ editingId ? 'Save Changes' : 'Create Campground' }}
+      </button>
+    </div>
+  </div>
+</div>

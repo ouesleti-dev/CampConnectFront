@@ -1,25 +1,177 @@
 <div class="dashboard-container">
-  <h1>Dashboard Overview</h1>
-  <div class="stats-grid">
-    <div class="stat-card">
-      <h3>Total Bookings</h3>
-      <p class="stat-value">2,847</p>
-      <p class="stat-change positive">+12.5% from last month</p>
+  <!-- Header Section -->
+  <div class="dashboard-header flex-between mb-2xl">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Full analytics and project performance in one view</p>
     </div>
-    <div class="stat-card">
-      <h3>Active Campgrounds</h3>
-      <p class="stat-value">156</p>
-      <p class="stat-change positive">+8 new this month</p>
+    <div class="header-actions">
+      <button class="btn-primary flex-center gap-sm" (click)="addProject()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Add Project
+      </button>
+      <button class="btn-outline" (click)="importData()">Import Data</button>
     </div>
-    <div class="stat-card">
-      <h3>Orders & Deliveries</h3>
-      <p class="stat-value">1,234</p>
-      <p class="stat-change negative">-5.2% from last month</p>
+  </div>
+
+  <!-- KPIs Section -->
+  <div class="kpi-grid mb-2xl">
+    <!-- Card 1: Total -->
+    <div class="kpi-card card-primary">
+      <div class="flex-between">
+        <h3 class="kpi-title">Total Projects</h3>
+        <span class="icon-circle icon-circle-light">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        </span>
+      </div>
+      <div class="kpi-value">{{ totalProjects }}</div>
+      <div class="kpi-footer text-success">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+        12% Increase from last month
+      </div>
     </div>
-    <div class="stat-card">
-      <h3>Active Users</h3>
-      <p class="stat-value">8,429</p>
-      <p class="stat-change positive">+324 new this week</p>
+    <!-- Card 2: Ended -->
+    <div class="kpi-card">
+      <div class="flex-between">
+        <h3 class="kpi-title">Ended Projects</h3>
+        <span class="icon-circle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </span>
+      </div>
+      <div class="kpi-value">{{ endedProjects }}</div>
+      <div class="kpi-footer text-success">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+        7% Increase from last month
+      </div>
+    </div>
+    <!-- Card 3: Running -->
+    <div class="kpi-card">
+      <div class="flex-between">
+        <h3 class="kpi-title">Running Projects</h3>
+        <span class="icon-circle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </span>
+      </div>
+      <div class="kpi-value">{{ runningProjects }}</div>
+      <div class="kpi-footer text-danger">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg>
+        4% Decrease from last month
+      </div>
+    </div>
+    <!-- Card 4: Pending -->
+    <div class="kpi-card">
+      <div class="flex-between">
+        <h3 class="kpi-title">Pending Project</h3>
+        <span class="icon-circle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </span>
+      </div>
+      <div class="kpi-value">{{ pendingProjects }}</div>
+      <div class="kpi-footer text-success">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+        2% Increase from last month
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle Section -->
+  <div class="middle-grid mb-2xl">
+    <!-- Chart -->
+    <div class="chart-card">
+      <div class="card-header">
+        <h3 class="card-title">Project Analytics</h3>
+      </div>
+      <div class="chart-container">
+        <canvas #analyticsChart></canvas>
+      </div>
+    </div>
+    
+    <!-- Reminders -->
+    <div class="reminders-card">
+      <div class="card-header">
+        <h3 class="card-title">Reminders</h3>
+        <button class="icon-btn-small">...</button>
+      </div>
+      <div class="reminder-content">
+        <h4>Meeting with Any Company</h4>
+        <p>10:00 AM - 11:30 AM</p>
+        <button class="btn-primary mt-lg w-full" (click)="startMeeting()">Start Meeting</button>
+      </div>
+    </div>
+    
+    <!-- Recent Projects -->
+    <div class="recent-card">
+      <div class="card-header flex-between">
+        <h3 class="card-title">Project</h3>
+        <button class="btn-outline btn-small" (click)="addNewProject()">+ New</button>
+      </div>
+      <ul class="project-list">
+        <li *ngFor="let proj of recentProjects">
+          <div class="proj-info">
+            <span class="proj-icon">{{ proj.icon }}</span>
+            <span class="proj-name">{{ proj.name }}</span>
+          </div>
+          <span class="proj-status">{{ proj.status }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom Section -->
+  <div class="bottom-grid">
+    <!-- Team Collaboration -->
+    <div class="team-card">
+      <div class="card-header flex-between">
+        <h3 class="card-title">Team Collaboration</h3>
+        <button class="btn-outline btn-small" (click)="addMember()">+ Add Member</button>
+      </div>
+      <ul class="team-list">
+        <li *ngFor="let member of teamMembers">
+          <div class="member-info">
+            <img [src]="member.avatar" [alt]="member.name" class="member-avatar">
+            <div>
+              <div class="member-name">{{ member.name }}</div>
+              <div class="member-role">{{ member.role }}</div>
+            </div>
+          </div>
+          <div class="member-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="member.progress"></div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Project Progress -->
+    <div class="progress-card">
+      <div class="card-header">
+        <h3 class="card-title">Project Progress</h3>
+      </div>
+      <div class="doughnut-container">
+        <canvas #progressChart></canvas>
+        <div class="doughnut-center">
+          <span class="percent">41%</span>
+        </div>
+      </div>
+      <div class="legend flex-center gap-md mt-md">
+        <div class="legend-item"><span class="dot dot-completed"></span> Completed</div>
+        <div class="legend-item"><span class="dot dot-remaining"></span> Remaining</div>
+      </div>
+    </div>
+    
+    <!-- Time Tracker -->
+    <div class="time-tracker-card card-primary">
+      <h3 class="kpi-title">Time Tracker</h3>
+      <div class="time-display">01:24:06</div>
+      <div class="time-actions">
+        <button class="btn-icon bg-white text-primary" (click)="pauseTracker()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+        </button>
+        <button class="btn-icon bg-danger text-white" (click)="stopTracker()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"></rect></svg>
+        </button>
+      </div>
     </div>
   </div>
 </div>

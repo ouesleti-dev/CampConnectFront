@@ -1,0 +1,158 @@
+<div class="page-container">
+  <div class="page-header">
+    <h2>My Rentals</h2>
+    <p class="subtitle">Track all your rental requests</p>
+  </div>
+
+  <!-- ✅ Modal Edit avec Calendrier -->
+  <div class="modal-overlay" *ngIf="editingRental" (click)="closeEdit()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <h3>✏️ Edit Rental — {{ editingRental.equipmentName }}</h3>
+        <button class="modal-close" (click)="closeEdit()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Calendrier -->
+        <div class="calendar-wrapper">
+          <div class="cal-nav-row">
+            <button type="button" class="nav-btn" (click)="prevMonth()">‹</button>
+
+            <div class="calendars">
+              <!-- LEFT MONTH -->
+              <div class="calendar">
+                <div class="cal-header">
+                  {{ months[leftMonth.getMonth()] }} {{ leftMonth.getFullYear() }}
+                </div>
+                <div class="cal-grid">
+                  <div class="day-label" *ngFor="let d of weekDays">{{ d }}</div>
+                  <ng-container *ngFor="let day of getDaysInMonth(leftMonth)">
+                    <div *ngIf="day === null" class="day-cell empty"></div>
+                    <div *ngIf="day !== null"
+                         class="day-cell"
+                         [class.reserved]="isReserved(day)"
+                         [class.start]="isStart(day)"
+                         [class.end]="isEnd(day)"
+                         [class.in-range]="isInRange(day)"
+                         (mousedown)="onDateClick(day)"
+                         (mouseenter)="onDateHover(day)">
+                      <span class="day-number">{{ day.getDate() }}</span>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+
+              <!-- RIGHT MONTH -->
+              <div class="calendar">
+                <div class="cal-header">
+                  {{ months[rightMonth.getMonth()] }} {{ rightMonth.getFullYear() }}
+                </div>
+                <div class="cal-grid">
+                  <div class="day-label" *ngFor="let d of weekDays">{{ d }}</div>
+                  <ng-container *ngFor="let day of getDaysInMonth(rightMonth)">
+                    <div *ngIf="day === null" class="day-cell empty"></div>
+                    <div *ngIf="day !== null"
+                         class="day-cell"
+                         [class.reserved]="isReserved(day)"
+                         [class.start]="isStart(day)"
+                         [class.end]="isEnd(day)"
+                         [class.in-range]="isInRange(day)"
+                         (mousedown)="onDateClick(day)"
+                         (mouseenter)="onDateHover(day)">
+                      <span class="day-number">{{ day.getDate() }}</span>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="nav-btn" (click)="nextMonth()">›</button>
+          </div>
+
+          <!-- Legend -->
+          <div class="calendar-legend">
+            <div class="legend-item">
+              <span class="legend-box available-box"></span> Available
+            </div>
+            <div class="legend-item">
+              <span class="legend-box reserved-box"></span> Not Available
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="dates-summary" *ngIf="startDate">
+          <div class="summary-item">
+            <span class="summary-label">From</span>
+            <span class="summary-value">{{ formatDisplay(startDate) }}</span>
+          </div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-item">
+            <span class="summary-label">To</span>
+            <span class="summary-value">{{ formatDisplay(endDate) }}</span>
+          </div>
+          <div class="summary-total" *ngIf="endDate">
+            <span class="total-days">{{ getTotalDays() }} nights</span>
+          </div>
+        </div>
+
+        <div class="alert-success" *ngIf="editSuccess">{{ editSuccess }}</div>
+        <div class="alert-error" *ngIf="editError">{{ editError }}</div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="cancel-btn" (click)="closeEdit()">Cancel</button>
+        <button class="submit-btn" (click)="submitEdit()" [disabled]="isUpdating || !startDate || !endDate">
+          {{ isUpdating ? 'Saving...' : 'Update' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ✅ Liste rentals -->
+  <div class="rentals-grid" *ngIf="rentals.length > 0">
+    <div class="rental-card" *ngFor="let r of rentals">
+      <div class="rental-header">
+        <h4>{{ r.equipmentName }}</h4>
+        <span class="status-badge" [class.accepted]="r.verified" [class.pending]="!r.verified">
+          {{ r.verified ? '✓ Accepted' : '⏳ Pending' }}
+        </span>
+      </div>
+      <div class="rental-details">
+        <div class="detail-row">
+          <span class="detail-label">From</span>
+          <span>{{ r.startDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">To</span>
+          <span>{{ r.endDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Total</span>
+          <span class="price">{{ r.totalAmount }} DT</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Owner</span>
+          <span>{{ r.ownerEmail }}</span>
+        </div>
+      </div>
+
+      <!-- Actions seulement si pas accepté -->
+      <div class="card-actions" *ngIf="!r.verified">
+        <button class="edit-btn" (click)="openEdit(r)">✏️ Edit</button>
+        <button class="delete-btn" (click)="deleteRental(r.rentalId)">🗑️ Delete</button>
+      </div>
+      <div class="accepted-label" *ngIf="r.verified">
+        ✅ This rental has been accepted
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="rentals.length === 0">
+    <p>You have no rental requests yet.</p>
+    <a routerLink="../rent" class="link-btn">Rent Equipment</a>
+  </div>
+</div>

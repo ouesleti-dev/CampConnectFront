@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { DeliveryRoutingModule } from './delivery-routing.module';
 import { DeliveryPageComponent } from './pages/delivery-page/delivery-page.component';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -11,6 +12,7 @@ import { DeliveryPageComponent } from './pages/delivery-page/delivery-page.compo
   ],
   imports: [
     CommonModule,
+    FormsModule,
     DeliveryRoutingModule
   ]
 })

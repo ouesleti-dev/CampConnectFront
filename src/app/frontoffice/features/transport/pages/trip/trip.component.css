@@ -8,6 +8,26 @@
   min-height: 100vh;
   color: #14532d;
 }
+.marketplace-page .page-hero {
+  background: linear-gradient(135deg, #2d5234 0%, #4F7942 60%, #6aab5e 100%);
+  color: #ffffff;
+  padding: 5rem 1rem;
+  text-align: center;
+}
+.marketplace-page .page-hero .page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+@media (min-width: 768px) {
+  .marketplace-page .page-hero .page-title { font-size: 3.5rem; }
+}
+.marketplace-page .page-hero .page-description {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  font-family: 'Nunito', sans-serif;
+}
 
 /* HEADER */
 

@@ -2,13 +2,570 @@
   <section class="page-hero">
     <div class="container">
       <h1 class="page-title">Marketplace</h1>
-      <p class="page-description">Welcome to Marketplace</p>
+      <p class="page-description">Everything you need for your camping adventures</p>
     </div>
   </section>
   
-  <section class="page-content section">
-    <div class="container">
-      <p>Content for marketplace goes here.</p>
+  <div class="marketplace-wrapper">
+
+  <!-- ===== TABS NAVIGATION ===== -->
+  <div class="tabs-bar">
+  <button class="tab-btn" [class.active]="activeTab === 'browse'" (click)="activeTab = 'browse'">
+     Browse Gear
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'my-products'" (click)="activeTab = 'my-products'">
+     My Products
+    <span class="tab-badge" *ngIf="myProducts.length > 0">{{myProducts.length}}</span>
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'add'" (click)="openAddForm()">
+    Sell Item
+  </button>
+  <button class="tab-btn" [class.active]="activeTab === 'cart'" (click)="activeTab = 'cart'">
+     Cart
+    <span class="tab-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+  </button>
+ <button class="tab-btn" [class.active]="activeTab === 'my-orders'" 
+        (click)="activeTab = 'my-orders'; loadMyOrders()">
+   My Orders
+</button>
+</div>
+
+  <!-- ===== BROWSE TAB ===== -->
+  <div *ngIf="activeTab === 'browse'">
+
+    <!-- Search & Filter -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <span class="search-icon-inner">🔍</span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search camping gear..."
+          [(ngModel)]="searchTerm"
+          (input)="filterProducts()"
+        >
+      </div>
+      <select class="cat-select" [(ngModel)]="selectedCategory" (change)="filterProducts()">
+        <option value="">All Categories</option>
+        <option *ngFor="let cat of categories" [value]="cat">
+          {{ cat.replace('_', ' ') | titlecase }}
+        </option>
+      </select>
+      <span class="results-label">{{ filteredProducts.length }} items</span>
     </div>
-  </section>
+
+    <!-- Products Grid -->
+    <div class="products-grid" *ngIf="filteredProducts.length > 0">
+      <div class="product-card" *ngFor="let product of filteredProducts">
+        <div class="card-img-wrap">
+          <img
+            [src]="product.photoProduct || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400'"
+            [alt]="product.nameProduct"
+            class="card-img"
+            (error)="onImageError($event)"
+          >
+          <span class="badge-category">{{ product.category | titlecase }}</span>
+         <span class="badge-state"
+      [ngClass]="getStateBadgeClass(getEffectiveState(product))">
+  {{ getEffectiveState(product) }}
+</span>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{ product.nameProduct }}</h3>
+          <p class="card-desc">
+            {{ product.descriptionProduct && product.descriptionProduct.length > 80
+              ? (product.descriptionProduct | slice:0:80) + '...'
+              : product.descriptionProduct }}
+          </p>
+          <div class="card-meta">
+            <span class="card-location">📍 {{ product.locationProduct }}</span>
+            <span class="card-seller">by {{ product.sellerName }}</span>
+          </div>
+          <div class="card-footer-row">
+            <span class="card-price">{{ product.priceProduct | number:'1.0-2' }} TND</span>
+            <span class="card-qty">Quantity: {{ product.quantityProduct }}</span>
+          </div>
+          <button class="btn btn-success w-100 mt-2"
+        [disabled]="product.quantityProduct === 0"
+        (click)="addToCart(product)">
+  🛒 Add to Cart
+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredProducts.length === 0">
+      <div class="empty-icon">🔍</div>
+      <h3>No products found</h3>
+      <p>Try adjusting your search or filters</p>
+    </div>
+  </div>
+
+  <!-- ===== MY PRODUCTS TAB ===== -->
+  <div *ngIf="activeTab === 'my-products'">
+    <div class="my-products-header">
+      <h2 class="section-title">My Listings</h2>
+      <button class="btn-primary" (click)="openAddForm()">Add New Item</button>
+    </div>
+
+    <!-- Status Filter Pills -->
+    <div class="status-pills">
+      <button class="pill" [class.active]="myFilter === 'all'" (click)="myFilter = 'all'">
+        All <span class="pill-count">{{ myProducts.length }}</span>
+      </button>
+      <button class="pill approved" [class.active]="myFilter === 'APPROVED'" (click)="myFilter = 'APPROVED'">
+        ✅ Approved <span class="pill-count">{{ getMyProductsByStatus('APPROVED').length }}</span>
+      </button>
+      <button class="pill pending" [class.active]="myFilter === 'PENDING'" (click)="myFilter = 'PENDING'">
+        ⏳ Pending <span class="pill-count">{{ getMyProductsByStatus('PENDING').length }}</span>
+      </button>
+      <button class="pill rejected" [class.active]="myFilter === 'REJECTED'" (click)="myFilter = 'REJECTED'">
+        ❌ Rejected <span class="pill-count">{{ getMyProductsByStatus('REJECTED').length }}</span>
+      </button>
+    </div>
+
+    <!-- My Products List -->
+    <div class="my-products-list" *ngIf="getFilteredMyProducts().length > 0">
+      <div class="my-product-row" *ngFor="let product of getFilteredMyProducts()">
+        <img
+          [src]="product.photoProduct || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=100'"
+          [alt]="product.nameProduct"
+          class="my-product-img"
+          (error)="onImageError($event)"
+        >
+        <div class="my-product-info">
+          <h4>{{ product.nameProduct }}</h4>
+         <p>{{ product.category | titlecase }} · {{ product.priceProduct }} TND · Quantity: {{ product.quantityProduct }}</p>
+
+          <p class="my-product-date">Added: {{ product.addedDate | date:'MMM d, y' }}</p>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusBadgeClass(product.productStatus!)">
+          {{ getStatusIcon(product.productStatus!) }} {{ product.productStatus }}
+        </span>
+        <div class="my-product-actions">
+          <button class="btn-edit" (click)="editProduct(product)"> Edit</button>
+          <button class="btn-delete" (click)="deleteProduct(product.idProduct!)"> Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="getFilteredMyProducts().length === 0">
+      <div class="empty-icon">📦</div>
+      <h3>No products here</h3>
+      <p>Start selling your camping gear!</p>
+      <button class="btn-primary" (click)="openAddForm()"> Add First Item</button>
+    </div>
+  </div>
+
+  <!-- ===== ADD / EDIT TAB ===== -->
+  <div *ngIf="activeTab === 'add'">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>{{ isEditing ? ' Edit Product' : ' List Your Gear' }}</h2>
+        <p class="form-subtitle" *ngIf="!isEditing">
+          ⏳ Your item will be reviewed by an admin before appearing in the marketplace.
+        </p>
+        <p class="form-subtitle warning" *ngIf="isEditing">
+          ⚠️ Editing will re-submit your product for admin approval.
+        </p>
+      </div>
+
+      <form [formGroup]="productForm" (ngSubmit)="submitProduct()">
+        <div class="form-grid">
+
+          <div class="form-group full">
+            <label class="form-label">Product Name *</label>
+            <input type="text" class="form-control" formControlName="nameProduct"
+              placeholder="e.g. 4-Person Camping Tent">
+            <span class="form-error"
+              *ngIf="productForm.get('nameProduct')?.invalid && productForm.get('nameProduct')?.touched">
+              Name is required
+            </span>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Description *</label>
+            <textarea class="form-control" rows="3" formControlName="descriptionProduct"
+              placeholder="Describe your item, condition, features..."></textarea>
+            <span class="form-error"
+              *ngIf="productForm.get('descriptionProduct')?.invalid && productForm.get('descriptionProduct')?.touched">
+              Description is required
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Price (TND) *</label>
+            <input type="number" class="form-control" formControlName="priceProduct"
+              placeholder="0.00" min="0">
+            <span class="form-error"
+              *ngIf="productForm.get('priceProduct')?.invalid && productForm.get('priceProduct')?.touched">
+              Price is required
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Quantity *</label>
+            <input type="number" class="form-control" formControlName="quantityProduct"
+              placeholder="1" min="1">
+            <span class="form-error"
+              *ngIf="productForm.get('quantityProduct')?.invalid && productForm.get('quantityProduct')?.touched">
+              Quantity is required
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select class="form-control" formControlName="category">
+              <option value="">-- Select Category --</option>
+              <option *ngFor="let cat of categories" [value]="cat">
+                {{ cat.replace('_', ' ') | titlecase }}
+              </option>
+            </select>
+            <span class="form-error"
+              *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched">
+              Category is required
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Availability *</label>
+            <select class="form-control" formControlName="productState">
+              <option value="AVAILABLE">Available</option>
+              <option value="OUT_OF_STOCK">Out of Stock</option>
+              <option value="UNAVAILABLE">Unavailable</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+  <label class="form-label">Product Photo</label>
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" (click)="fileInput.click()">
+    <input #fileInput type="file" accept="image/*"
+           style="display:none"
+           (change)="onImageSelected($event)">
+
+    <!-- Preview -->
+    <div *ngIf="imagePreview; else uploadPlaceholder">
+      <img [src]="imagePreview" alt="preview"
+           style="max-height:180px; border-radius:10px; object-fit:cover; width:100%">
+      <p class="upload-filename">📎 {{ selectedImageName }}</p>
+    </div>
+
+    <!-- Placeholder -->
+    <ng-template #uploadPlaceholder>
+      <div class="upload-placeholder">
+        <span class="upload-icon">📷</span>
+        <p>Click to choose a photo</p>
+        <small>PNG, JPG, WEBP — max 10MB</small>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+          <div class="form-group full">
+            <label class="form-label">Location *</label>
+            <input type="text" class="form-control" formControlName="locationProduct"
+              placeholder="e.g. Tunis, Tunisia">
+            <span class="form-error"
+              *ngIf="productForm.get('locationProduct')?.invalid && productForm.get('locationProduct')?.touched">
+              Location is required
+            </span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="activeTab = 'browse'">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="productForm.invalid || submitting">
+            {{ submitting ? 'Submitting...' : (isEditing ? 'Update Product' : 'Submit for Approval') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- ===== CART TAB ===== -->
+<!-- ===== CART TAB ===== -->
+<div *ngIf="activeTab === 'cart'">
+  <div class="cart-wrapper">
+    <h2 class="cart-title">                          🛒 My Cart</h2>
+
+    <div *ngIf="cartItems.length === 0" class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <h3>Your cart is empty</h3>
+      <p>Browse gear and add items to your cart!</p>
+      <button class="btn-primary" (click)="activeTab = 'browse'"> Browse Gear</button>
+    </div>
+
+    <div *ngIf="cartItems.length > 0" class="cart-content">
+      <!-- Table -->
+      <div class="cart-table-wrapper">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Unit Price</th>
+              <th>Quantity</th>
+              <th>Subtotal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of cartItems">
+              <td>
+                <div class="cart-product-name">{{ item.product.nameProduct }}</div>
+                <div class="cart-product-cat">{{ item.product.category }}</div>
+              </td>
+              <td>{{ item.product.priceProduct | number:'1.0-2' }} TND</td>
+              <td>
+                <input type="number" class="cart-qty-input"
+                       [value]="item.quantity" min="1"
+                       [max]="item.product.quantityProduct"
+                       (change)="updateQty(item.product.idProduct, +$any($event.target).value)">
+              </td>
+              <td>
+                <span class="cart-subtotal">
+                  {{ item.product.priceProduct * item.quantity | number:'1.0-2' }} TND
+                </span>
+              </td>
+              <td>
+                <button class="btn-remove"
+                        (click)="removeFromCart(item.product.idProduct)">✕</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summary -->
+      <div class="cart-summary">
+        <h3 class="cart-summary-title">Order Summary</h3>
+
+        <div class="cart-total-row">
+          <span class="cart-total-label">Total</span>
+          <span class="cart-total-value">{{ getCartTotal() | number:'1.0-2' }} TND</span>
+        </div>
+
+        <div class="mb-3">
+          <div class="cart-field-label">Delivery Address</div>
+          <textarea class="cart-textarea" rows="2" [(ngModel)]="deliveryAddress"
+                    placeholder="Enter your delivery address..."></textarea>
+        </div>
+
+        <div class="mb-3">
+          <div class="cart-field-label">Payment Method</div>
+          <select class="cart-select" [(ngModel)]="paymentMethod">
+            <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+
+        <div *ngIf="orderSuccess" class="alert alert-success py-2">{{ orderSuccess }}</div>
+        <div *ngIf="orderError" class="alert alert-danger py-2">{{ orderError }}</div>
+
+        <button class="btn-place-order" (click)="placeOrder()" [disabled]="orderLoading">
+          <span *ngIf="orderLoading" class="spinner-border spinner-border-sm me-2"></span>
+          🛒 Place Order
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MY ORDERS TAB ===== -->
+<div *ngIf="activeTab === 'my-orders'">
+  <div class="form-container">
+    <h2 class="mb-4">📦 My Orders</h2>
+
+    <div *ngIf="ordersLoading" class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+    </div>
+
+    <div *ngIf="!ordersLoading && orders.length === 0" class="empty-state">
+      <div class="empty-icon">📦</div>
+      <h3>No orders yet</h3>
+      <button class="btn-primary" (click)="activeTab = 'browse'">Start Shopping</button>
+    </div>
+
+   <!-- Card -->
+<div *ngFor="let order of orders" class="order-card card mb-3">
+
+  <!-- Header -->
+  <div class="card-header d-flex justify-content-between align-items-center"
+       (click)="toggleOrder(order.idOrder)">
+    <div class="d-flex align-items-center flex-wrap gap-2">
+      <span class="order-number">Order #{{ order.idOrder }}</span>
+      <span class="order-date">{{ order.orderDate | date:'mediumDate' }}</span>
+      <!-- Status badge -->
+      <span class="order-status-badge"
+            [ngClass]="{
+              'status-pending':   order.orderStatus === 'PENDING',
+              'status-confirmed': order.orderStatus === 'CONFIRMED',
+              'status-approved':  order.orderStatus === 'APPROVED',
+              'status-rejected':  order.orderStatus === 'REJECTED',
+              'status-cancelled': order.orderStatus === 'CANCELLED'
+            }">
+        {{ order.orderStatus }}
+      </span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <span class="order-amount">{{ order.totalAmount | number:'1.0-2' }} TND</span>
+
+      <!-- Confirm -->
+      <button *ngIf="order.orderStatus === 'PENDING'"
+              class="btn-confirm"
+              (click)="confirmOrder(order.idOrder); $event.stopPropagation()">
+         Confirm
+      </button>
+
+      <!-- Cancel -->
+      <button *ngIf="order.orderStatus === 'PENDING' || order.orderStatus === 'CONFIRMED'"
+              class="btn-cancel-order"
+              (click)="cancelOrder(order.idOrder); $event.stopPropagation()">
+        ✕ Cancel
+      </button>
+
+      <!-- Status messages -->
+      <span *ngIf="order.orderStatus === 'CONFIRMED'"
+            class="badge" style="background:#e3f2fd; color:#1565c0; font-size:11px;">
+        ⏳ Waiting admin...
+      </span>
+      <span *ngIf="order.orderStatus === 'APPROVED'"
+            class="badge" style="background:#e8f5e9; color:#2e7d32; font-size:11px;">
+        🚚 In Delivery
+      </span>
+      <span *ngIf="order.orderStatus === 'REJECTED'"
+            class="badge" style="background:#fde8e8; color:#c0392b; font-size:11px;">
+        ❌ Rejected
+      </span>
+
+      <span class="text-muted ms-1">
+        {{ expandedOrderId === order.idOrder ? '▲' : '▼' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="card-body" *ngIf="expandedOrderId === order.idOrder">
+    <p class="mb-2">
+      <strong>📍 Delivery Address:</strong> {{ order.deliveryAddress }}
+    </p>
+
+    <!-- Table -->
+    <table class="table order-table mb-0">
+      <thead>
+        <tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let line of order.orderLines">
+          <td>{{ line.productName }}</td>
+          <td>{{ line.requestedQuantity }}</td>
+          <td>{{ line.unitPrice | number:'1.0-2' }} TND</td>
+          <td><strong>{{ line.totalPrice | number:'1.0-2' }} TND</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Delivery Tracking -->
+    <div class="delivery-info-section">
+      <h6>🚚 Delivery Tracking</h6>
+
+      <div *ngIf="!orderDeliveries[order.idOrder]" class="text-muted" style="font-size:13px;">
+        ⏳ No delivery assigned yet. Waiting for admin approval.
+      </div>
+
+      <div *ngIf="orderDeliveries[order.idOrder]">
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <div class="delivery-info-row">
+              <strong>📍 From:</strong>
+              {{ orderDeliveries[order.idOrder].departureAddress }}
+            </div>
+            <div class="delivery-info-row">
+              <strong>📍 To:</strong>
+              {{ orderDeliveries[order.idOrder].arrivalAddress }}
+            </div>
+            <div class="delivery-info-row">
+              <strong>📦 Status:</strong>
+              <span class="order-status-badge ms-1"
+                [ngClass]="{
+                  'status-pending':  orderDeliveries[order.idOrder].deliveryState === 'PENDING',
+                  'status-confirmed': orderDeliveries[order.idOrder].deliveryState === 'ON_THE_WAY',
+                  'status-approved': orderDeliveries[order.idOrder].deliveryState === 'DELIVERED',
+                  'status-cancelled': orderDeliveries[order.idOrder].deliveryState === 'CANCELLED'
+                }">
+                {{ orderDeliveries[order.idOrder].deliveryState }}
+              </span>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div *ngIf="orderDeliveries[order.idOrder].deliveryPersonId">
+              <div class="delivery-info-row">
+                <strong>🛵 Delivery Person:</strong>
+                {{ orderDeliveries[order.idOrder].deliveryPersonFirstName }}
+                {{ orderDeliveries[order.idOrder].deliveryPersonLastName }}
+              </div>
+              <div class="delivery-info-row">
+                <strong>📞 Phone:</strong>
+                {{ orderDeliveries[order.idOrder].deliveryPersonPhone || 'N/A' }}
+              </div>
+              <div class="delivery-info-row">
+                <strong>📅 Est. Arrival:</strong>
+                <span style="color:#2e7d32; font-weight:800;">
+                  {{ orderDeliveries[order.idOrder].estimatedDeliveryDate | date:'mediumDate' }}
+                </span>
+              </div>
+            </div>
+            <div *ngIf="!orderDeliveries[order.idOrder].deliveryPersonId"
+                 class="text-muted" style="font-size:13px;">
+              ⏳ Waiting for a delivery person...
+            </div>
+          </div>
+        </div>
+
+        <!-- Tracker -->
+        <div class="delivery-tracker">
+          <div class="tracker-progress-line"
+               [style.width]="
+                 orderDeliveries[order.idOrder].deliveryState === 'PENDING' ? '0%' :
+                 orderDeliveries[order.idOrder].deliveryState === 'ON_THE_WAY' ? 'calc(50% - 18px)' :
+                 orderDeliveries[order.idOrder].deliveryState === 'DELIVERED' ? 'calc(70% - 18px)' : '0%'
+               ">
+          </div>
+          <div class="tracker-steps">
+            <div class="active">
+              <span class="step-icon">📦</span>
+              <small>Order Placed</small>
+            </div>
+            <div [class.active]="
+              orderDeliveries[order.idOrder].deliveryState === 'ON_THE_WAY' ||
+              orderDeliveries[order.idOrder].deliveryState === 'DELIVERED'">
+              <span class="step-icon">🚚</span>
+              <small>On The Way</small>
+            </div>
+            <div [class.active]="
+              orderDeliveries[order.idOrder].deliveryState === 'DELIVERED'">
+              <span class="step-icon">✅</span>
+              <small>Delivered</small>
+            </div>
+          </div>
+        </div>
+
+      
+
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast" *ngIf="toastMessage">
+    ✅ {{ toastMessage }}
+  </div>
+
+</div>
 </div>

@@ -1,0 +1,131 @@
+<div class="partners-page">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Partner Management</h1>
+      <p class="page-subtitle">Manage your partner network and track their performance</p>
+    </div>
+    <button type="button" class="btn-create" (click)="openCreate()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      New Partner
+    </button>
+  </div>
+
+  <!-- ── Stats Row ──────────────────────────────────────── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #eff6ff; color: #3b82f6">👥</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ totalPartners }}</span>
+        <span class="stat-lbl">Total Partners</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #f0fdf4; color: #10b981">✅</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ activePartners }}</span>
+        <span class="stat-lbl">Active Partners</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #fefce8; color: #ca8a04">⭐</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ avgScore }}/100</span>
+        <span class="stat-lbl">Average Score</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #faf5ff; color: #a855f7">🏆</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ topPerformers }}</span>
+        <span class="stat-lbl">Top performers (80+)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table Card ─────────────────────────────────────── -->
+  <div class="table-card">
+    <app-paginated-data-table
+      [columns]="columns"
+      [rows]="rows"
+      [searchKeys]="searchKeys"
+      (editRow)="openEdit($event)"
+      (deleteRow)="remove($event)"
+      (clickRow)="goDetail($event)">
+    </app-paginated-data-table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  MODAL — Création / Édition                                -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ editingId ? 'Edit' : 'New' }} Partner</h3>
+      <button type="button" class="modal-close" (click)="showModal = false">✕</button>
+    </div>
+
+    <div class="modal-body" [formGroup]="form">
+      <div class="row g-3">
+        <!-- Identity -->
+        <div class="col-md-6">
+          <label class="form-lbl">First Name</label>
+          <input type="text" class="form-ctrl" formControlName="firstName" [class.is-err]="invalidField('firstName')">
+          <span class="err-msg" *ngIf="invalidField('firstName')">{{ msgField('firstName') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Last Name</label>
+          <input type="text" class="form-ctrl" formControlName="lastName" [class.is-err]="invalidField('lastName')">
+          <span class="err-msg" *ngIf="invalidField('lastName')">{{ msgField('lastName') }}</span>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-12">
+          <label class="form-lbl">Professional Email</label>
+          <input type="email" class="form-ctrl" formControlName="email" [class.is-err]="invalidField('email')">
+          <span class="err-msg" *ngIf="invalidField('email')">{{ msgField('email') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Phone</label>
+          <input type="text" class="form-ctrl" formControlName="phone" [class.is-err]="invalidField('phone')" placeholder="0X XX XX XX XX">
+          <span class="err-msg" *ngIf="invalidField('phone')">{{ msgField('phone') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Password {{ editingId ? '(optional)' : '' }}</label>
+          <input type="password" class="form-ctrl" formControlName="password">
+        </div>
+
+        <!-- Profile & Status -->
+        <div class="col-md-6">
+          <label class="form-lbl">Global Score (0-100)</label>
+          <div class="score-input-wrap">
+            <input type="range" class="form-range" formControlName="score" min="0" max="100">
+            <span class="score-badge" [style.background]="form.get('score')?.value >= 70 ? '#10b981' : (form.get('score')?.value >= 40 ? '#f59e0b' : '#ef4444')">
+              {{ form.get('score')?.value }}
+            </span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Account Status</label>
+          <div class="toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" formControlName="actif">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-lbl">{{ form.get('actif')?.value ? 'Active Account' : 'Inactive Account' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-cancel" (click)="showModal = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="save()">
+        {{ editingId ? 'Update' : 'Create Partner' }}
+      </button>
+    </div>
+  </div>
+</div>

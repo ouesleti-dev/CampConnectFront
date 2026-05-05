@@ -1,0 +1,122 @@
+<div class="product-admin-container">
+
+  <!-- Header -->
+  <div class="admin-header">
+    <h2>Marketplace Admin</h2>
+    <p>Manage products submitted by users</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="admin-stats">
+    <div class="stat-card pending">
+      <span class="stat-number">{{ pendingProducts.length }}</span>
+      <span class="stat-label">Pending</span>
+    </div>
+    <div class="stat-card approved">
+      <span class="stat-number">{{ approvedProducts.length }}</span>
+      <span class="stat-label">Approved</span>
+    </div>
+    <div class="stat-card rejected">
+      <span class="stat-number">{{ rejectedProducts.length }}</span>
+      <span class="stat-label">Rejected</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="activeTab='pending'">
+      Pending <span class="badge">{{ pendingProducts.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'approved'" (click)="activeTab='approved'">
+      Approved <span class="badge">{{ approvedProducts.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'rejected'" (click)="activeTab='rejected'">
+      Rejected <span class="badge">{{ rejectedProducts.length }}</span>
+    </button>
+  </div>
+
+  <!-- Pending Products -->
+  <div *ngIf="activeTab === 'pending'" class="table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Seller</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of pendingProducts">
+          <td>{{ p.nameProduct }}</td>
+          <td>{{ p.category }}</td>
+          <td>{{ p.sellerName }}</td>
+         <td>{{ p.priceProduct | number:'1.0-2' }} TND</td>
+          <td><span class="badge badge-pending">{{ p.productStatus }}</span></td>
+          <td>
+            <button class="btn-approve" (click)="approveProduct(p.idProduct)">Approve</button>
+            <button class="btn-reject" (click)="rejectProduct(p.idProduct)">Reject</button>
+          </td>
+        </tr>
+        <tr *ngIf="pendingProducts.length === 0">
+          <td colspan="6" class="empty-row">No pending products</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Approved Products (small table) -->
+  <div *ngIf="activeTab === 'approved'" class="table-wrapper small-table">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Seller</th>
+          <th>Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of approvedProducts">
+          <td>{{ p.nameProduct }}</td>
+          <td>{{ p.sellerName }}</td>
+          <td>{{ p.priceProduct | number:'1.0-2' }} TND</td>
+          <td><span class="badge badge-approved">{{ p.productStatus }}</span></td>
+        </tr>
+        <tr *ngIf="approvedProducts.length === 0">
+          <td colspan="4" class="empty-row">No approved products</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Rejected Products -->
+  <div *ngIf="activeTab === 'rejected'" class="table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Seller</th>
+          <th>Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of rejectedProducts">
+          <td>{{ p.nameProduct }}</td>
+          <td>{{ p.category }}</td>
+          <td>{{ p.sellerName }}</td>
+          <td>{{ p.priceProduct | number:'1.0-2' }} TND</td>
+          <td><span class="badge badge-rejected">{{ p.productStatus }}</span></td>
+        </tr>
+        <tr *ngIf="rejectedProducts.length === 0">
+          <td colspan="5" class="empty-row">No rejected products</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

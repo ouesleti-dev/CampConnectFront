@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { TopbarComponent } from './components/topbar/topbar.component';
+import { NotificationBellComponent } from '../features/partnership-admin/components/notification-bell/notification-bell.component';
 
 @NgModule({
   declarations: [
@@ -11,7 +12,8 @@ import { TopbarComponent } from './components/topbar/topbar.component';
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    NotificationBellComponent
   ],
   exports: [
     SidebarComponent,

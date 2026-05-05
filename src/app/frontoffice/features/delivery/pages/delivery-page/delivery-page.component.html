@@ -1,15 +1,242 @@
 <div class="delivery-page">
-  <section class="page-hero">
-    <div class="container">
-      <h1 class="page-title">Delivery</h1>
-      <p class="page-description">Welcome to Delivery</p>
-    </div>
-  </section>
-  
-  <section class="page-content section">
-    <div class="container">
-      <p>Content for delivery goes here.</p>
-    </div>
-  </section>
-</div>
 
+  <!-- HERO -->
+  <section class="delivery-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Delivery</h1>
+      <p class="hero-subtitle">Pick up deliveries and earn money on the go</p>
+    </div>
+  </section>
+
+  <!-- TABS BAR -->
+  <div class="delivery-tabs-bar">
+    <button class="delivery-tab-btn"
+            [class.active]="activeTab === 'available'"
+            (click)="onTabChange('available')">
+       Available Deliveries
+      <span class="delivery-tab-badge" *ngIf="pendingDeliveries.length > 0">
+        {{ pendingDeliveries.length }}
+      </span>
+    </button>
+    <button class="delivery-tab-btn"
+            [class.active]="activeTab === 'my-deliveries'"
+            (click)="onTabChange('my-deliveries')">
+       My Deliveries
+      <span class="delivery-tab-badge" *ngIf="myDeliveries.length > 0">
+        {{ myDeliveries.length }}
+      </span>
+    </button>
+  </div>
+
+  <!-- WRAPPER -->
+  <div class="delivery-wrapper">
+
+    <!-- Toast -->
+    <div *ngIf="toastMsg" class="delivery-toast" [ngClass]="'toast-' + toastType">
+      {{ toastMsg }}
+    </div>
+
+    <!-- ===== AVAILABLE DELIVERIES ===== -->
+    <div *ngIf="activeTab === 'available'">
+
+      <div *ngIf="loadingPending" class="delivery-loading">
+        <div class="spinner"></div>
+      </div>
+
+      <div *ngIf="!loadingPending && pendingDeliveries.length === 0"
+           class="delivery-empty">
+        <div class="empty-icon">📦</div>
+        <h3>No deliveries available</h3>
+        <p>Check back later for new delivery requests</p>
+      </div>
+
+      <div class="delivery-grid">
+        <div class="delivery-card" *ngFor="let d of pendingDeliveries">
+
+          <!-- Card Header -->
+          <div class="dcard-header">
+            <span class="dcard-id">Delivery #{{ d.idDelivery }}</span>
+            <span class="dcard-state-badge state-pending">{{ d.deliveryState }}</span>
+          </div>
+
+          <!-- Route -->
+          <div class="dcard-route">
+            <div class="route-point">
+              <span class="route-dot dot-from"></span>
+              <div>
+                <small>From</small>
+                <p>{{ d.departureAddress }}</p>
+              </div>
+            </div>
+            <div class="route-arrow">↓</div>
+            <div class="route-point">
+              <span class="route-dot dot-to"></span>
+              <div>
+                <small>To</small>
+                <p>{{ d.arrivalAddress }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="dcard-info">
+            <div class="dcard-info-row">
+              <span class="info-icon">💰</span>
+              <span class="info-label">Delivery Fee</span>
+              <span class="info-value fee-value">{{ d.deliveryFee }} TND</span>
+            </div>
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Order Amount</span>
+              <span class="info-value">{{ d.orderTotalAmount | number:'1.0-2' }} TND</span>
+            </div>
+            <div class="dcard-divider"></div>
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Customer</span>
+              <span class="info-value">{{ d.customerFirstName }} {{ d.customerLastName }}</span>
+            </div>
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Phone</span>
+              <span class="info-value">{{ d.customerPhone || 'N/A' }}</span>
+            </div>
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Order Date</span>
+              <span class="info-value">{{ d.orderDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+
+          <!-- Footer / Date Picker -->
+          <div class="dcard-footer">
+            <div *ngIf="showDatePicker !== d.idDelivery">
+              <button class="btn-take-delivery"
+                      (click)="openDatePicker(d.idDelivery)">
+                🛵 Take This Delivery
+              </button>
+            </div>
+
+            <div *ngIf="showDatePicker === d.idDelivery" class="date-picker-section">
+              <label class="date-picker-label">Estimated Delivery Date</label>
+              <input type="date" class="date-input"
+                     [(ngModel)]="selectedDate"
+                     [min]="getTomorrow()">
+              <div class="date-picker-actions">
+                <button class="btn-confirm-take"
+                        (click)="confirmTakeDelivery(d.idDelivery)"
+                        [disabled]="!selectedDate">
+                  Confirm
+                </button>
+                <button class="btn-cancel-take"
+                        (click)="showDatePicker = null">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MY DELIVERIES ===== -->
+    <div *ngIf="activeTab === 'my-deliveries'">
+
+      <div *ngIf="loadingMine" class="delivery-loading">
+        <div class="spinner"></div>
+      </div>
+
+      <div *ngIf="!loadingMine && myDeliveries.length === 0"
+           class="delivery-empty">
+        <div class="empty-icon">🛵</div>
+        <h3>No deliveries taken yet</h3>
+        <p>Go to Available Deliveries to start earning!</p>
+        <button class="btn-take-delivery" (click)="onTabChange('available')">
+          📦 Browse Deliveries
+        </button>
+      </div>
+
+      <div class="delivery-grid">
+        <div class="delivery-card" *ngFor="let d of myDeliveries">
+
+          <!-- Card Header -->
+          <div class="dcard-header">
+            <span class="dcard-id">Delivery #{{ d.idDelivery }}</span>
+            <span class="dcard-state-badge"
+                  [ngClass]="{
+                    'state-pending':   d.deliveryState === 'PENDING',
+                    'state-on-way':    d.deliveryState === 'ON_THE_WAY',
+                    'state-delivered': d.deliveryState === 'DELIVERED',
+                    'state-cancelled': d.deliveryState === 'CANCELLED'
+                  }">
+              {{ d.deliveryState === 'ON_THE_WAY' ? ' On The Way' :
+                 d.deliveryState === 'DELIVERED'  ? ' Delivered'  :
+                 d.deliveryState }}
+            </span>
+          </div>
+
+          <!-- Route -->
+          <div class="dcard-route">
+            <div class="route-point">
+              <span class="route-dot dot-from"></span>
+              <div>
+                <small>From</small>
+                <p>{{ d.departureAddress }}</p>
+              </div>
+            </div>
+            <div class="route-arrow">↓</div>
+            <div class="route-point">
+              <span class="route-dot dot-to"></span>
+              <div>
+                <small>To</small>
+                <p>{{ d.arrivalAddress }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info -->
+          <div class="dcard-info">
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Fee</span>
+              <span class="info-value fee-value">{{ d.deliveryFee }} TND</span>
+            </div>
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Customer</span>
+              <span class="info-value">{{ d.customerFirstName }} {{ d.customerLastName }}</span>
+            </div>
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Phone</span>
+              <span class="info-value">{{ d.customerPhone || 'N/A' }}</span>
+            </div>
+            <div class="dcard-divider"></div>
+            <div class="dcard-info-row">
+              
+              <span class="info-label">Est. Delivery</span>
+              <span class="info-value est-date">
+                {{ d.estimatedDeliveryDate | date:'mediumDate' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="dcard-footer" *ngIf="d.deliveryState === 'ON_THE_WAY'">
+            <button class="btn-mark-delivered"
+                    (click)="markDelivered(d.idDelivery)">
+               Mark as Delivered
+            </button>
+          </div>
+
+          <div class="dcard-footer dcard-footer-success"
+               *ngIf="d.deliveryState === 'DELIVERED'">
+            Delivered Successfully
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

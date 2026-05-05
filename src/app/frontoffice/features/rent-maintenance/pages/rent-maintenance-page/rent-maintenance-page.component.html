@@ -1,15 +1,46 @@
 <div class="rent-maintenance-page">
+
+  <!-- Hero -->
   <section class="page-hero">
     <div class="container">
-      <h1 class="page-title">RentMaintenance</h1>
-      <p class="page-description">Welcome to RentMaintenance</p>
+      <h1 class="page-title">Rent & Maintenance</h1>
+      <p class="page-description">Rent equipment or manage your own listings</p>
     </div>
   </section>
-  
+
+  <!-- Main content -->
   <section class="page-content section">
     <div class="container">
-      <p>Content for rent-maintenance goes here.</p>
+
+      <!-- MINI NAVBAR -->
+      <div class="sub-navbar">
+        <a routerLink="/rent-maintenance"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }">
+          🏕️ Available Equipment
+        </a>
+        <a routerLink="/rent-maintenance/rent"
+           routerLinkActive="active">
+          🛒 Rent Equipment
+        </a>
+        <a routerLink="/rent-maintenance/my-equipment"
+           routerLinkActive="active">
+          ⚙️ My Equipment
+        </a>
+        <a routerLink="/rent-maintenance/my-rentals"
+           routerLinkActive="active">
+          📋 My Rentals
+        </a>
+        <a routerLink="/rent-maintenance/received"
+           routerLinkActive="active">
+          📩 Received Requests
+        </a>
+      </div>
+
+      <!-- Child content -->
+      <router-outlet></router-outlet>
+
     </div>
   </section>
-</div>
 
+</div>
