@@ -1,4 +1,267 @@
-<div class="container">
-  <h1>Forum Management</h1>
-  <p>Manage community forums and discussions.</p>
+<div class="forum-admin-container">
+ 
+  <div class="page-header">
+    <h1>💬 Forum Management</h1>
+    <p class="subtitle">Manage posts, comments and tickets</p>
+  </div>
+ 
+  <div class="alert alert-success" *ngIf="successMessage">{{ successMessage }}</div>
+  <div class="alert alert-error"   *ngIf="errorMessage">{{ errorMessage }}</div>
+ 
+  <!-- ⭐ Tabs -->
+  <div class="admin-tabs">
+    <button class="admin-tab" [class.active]="activeTab === 'posts'"
+            (click)="setTab('posts')">
+      💬 Posts & Comments
+    </button>
+    <button class="admin-tab" [class.active]="activeTab === 'tickets'"
+            (click)="setTab('tickets')">
+      🎟️ Tickets
+    </button>
+  </div>
+ 
+  <!-- ══ POSTS TAB ══ -->
+  <div *ngIf="activeTab === 'posts'">
+ 
+    <div class="filter-bar">
+      <label for="eventSelect">Filter by event:</label>
+      <select id="eventSelect" [(ngModel)]="selectedEventId"
+              (change)="onEventChange()">
+        <option [ngValue]="null" disabled>-- Choose an event --</option>
+        <option *ngFor="let event of events" [ngValue]="event.id">
+          {{ event.title }} ({{ event.campingName }})
+        </option>
+      </select>
+    </div>
+ 
+    <div class="forum-admin-layout" *ngIf="selectedEventId">
+ 
+      <div class="posts-panel">
+        <h2>Posts <span class="count-badge">{{ posts.length }}</span></h2>
+        <div class="loading" *ngIf="loadingPosts">Loading...</div>
+        <div class="empty" *ngIf="!loadingPosts && posts.length === 0">
+          No posts in this event.
+        </div>
+        <table class="admin-table" *ngIf="posts.length > 0">
+          <thead>
+            <tr>
+              <th>Author</th><th>Content</th>
+              <th>Date</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let post of posts"
+                [class.selected-row]="selectedPost?.id === post.id">
+              <td>{{ post.authorFullName }}</td>
+              <td class="content-cell">{{ post.content }}</td>
+              <td>{{ post.createDate }}</td>
+              <td class="actions-cell">
+                <button class="btn-view" (click)="viewComments(post)">
+                  💬 View
+                </button>
+                <button class="btn-delete" (click)="deletePost(post.id)">
+                  🗑 Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+ 
+      <div class="comments-panel" *ngIf="selectedPost">
+        <h2>Comments for:
+          <span class="post-ref">{{ selectedPost.authorFullName }}</span>
+        </h2>
+        <div class="empty" *ngIf="comments.length === 0">
+          No comments.
+        </div>
+        <div class="comment-row" *ngFor="let comment of comments">
+          <div class="comment-info">
+            <span class="comment-author">{{ comment.authorFullName }}</span>
+            <span class="comment-date">{{ comment.createDate }}</span>
+            <p class="comment-text">{{ comment.content }}</p>
+          </div>
+          <button class="btn-delete-sm" (click)="deleteComment(comment.id)">
+            🗑
+          </button>
+        </div>
+      </div>
+ 
+    </div>
+ 
+    <div class="empty-state" *ngIf="!selectedEventId">
+      <p>👆 Select an event to manage its posts and comments</p>
+    </div>
+ 
+  </div>
+ 
+  <!-- ══ TICKETS TAB ══ -->
+  <div *ngIf="activeTab === 'tickets'">
+    <div class="tickets-layout">
+ 
+      <!-- Left column: Scanner + manual validation -->
+      <div class="validate-panel">
+        <h3>🔍 Ticket Validation</h3>
+ 
+        <!-- Scanner button -->
+        <button class="btn-toggle-scanner"
+                [class.scanner-active]="showScanner"
+                (click)="toggleScanner()">
+          {{ showScanner ? '⏹ Close scanner' : '📷 Scan QR Code' }}
+        </button>
+ 
+        <!-- ⭐ html5-qrcode Scanner -->
+        <div class="scanner-container" *ngIf="showScanner">
+ 
+          <!-- SUCCESS result -->
+          <div class="scan-result scan-success"
+               *ngIf="scanSuccess && validatedTicket">
+            <div class="scan-result-icon">✅</div>
+            <div class="scan-result-title">ACCESS GRANTED</div>
+            <div class="scan-result-code">{{ validatedTicket.ticketCode }}</div>
+            <div class="scan-result-name">
+              {{ validatedTicket.participantFullName }}
+            </div>
+            <div class="scan-result-event">{{ validatedTicket.eventTitle }}</div>
+            <div class="scan-result-hint">
+              Next scan in 3 seconds...
+            </div>
+          </div>
+ 
+          <!-- ERROR result -->
+          <div class="scan-result scan-error" *ngIf="scanError">
+            <div class="scan-result-icon">❌</div>
+            <div class="scan-result-title">ACCESS DENIED</div>
+            <div class="scan-result-subtitle">
+              Invalid, already used or cancelled ticket
+            </div>
+            <div class="scan-result-hint">Retrying in 3 seconds...</div>
+          </div>
+ 
+          <!-- API Loading -->
+          <div class="scan-loading" *ngIf="validatingTicket">
+            <div class="loading-spinner">⏳</div>
+            <p>Validating...</p>
+          </div>
+ 
+          <!-- ⭐ html5-qrcode target div -->
+          <div id="qr-reader"
+               [style.display]="(scanSuccess || scanError || validatingTicket)
+                                 ? 'none' : 'block'">
+          </div>
+        </div>
+ 
+        <!-- Divider -->
+        <div class="divider">
+          <span>or enter manually</span>
+        </div>
+ 
+        <!-- Manual validation -->
+        <p class="validate-hint">Ticket code (e.g.: TC-XXXXXXXX)</p>
+        <div class="validate-input-row">
+          <input [(ngModel)]="validateCode"
+                 placeholder="TC-XXXXXXXX"
+                 (keyup.enter)="validateTicket()"
+                 class="validate-input"/>
+          <button class="btn-validate"
+                  (click)="validateTicket()"
+                  [disabled]="!validateCode.trim() || validatingTicket">
+            {{ validatingTicket ? '...' : '✅ Validate' }}
+          </button>
+        </div>
+ 
+        <!-- Manual validation result -->
+        <div class="validation-result valid-result"
+             *ngIf="validatedTicket && validatedTicket.status === 'USED'
+                    && !showScanner">
+          <div class="result-icon">✅</div>
+          <div class="result-info">
+            <div class="result-code">{{ validatedTicket.ticketCode }}</div>
+            <div class="result-name">
+              {{ validatedTicket.participantFullName }}
+            </div>
+            <div class="result-event">{{ validatedTicket.eventTitle }}</div>
+            <span class="result-badge used-badge">USED — Entry granted</span>
+          </div>
+        </div>
+ 
+        <div class="validation-result invalid-result"
+             *ngIf="validatedTicket && validatedTicket.status !== 'USED'
+                    && !showScanner">
+          <div class="result-icon">❌</div>
+          <div class="result-info">
+            <div class="result-code">{{ validatedTicket.ticketCode }}</div>
+            <span class="result-badge cancelled-badge">
+              {{ validatedTicket.status }} — Access denied
+            </span>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Right column: ticket list by event -->
+      <div class="tickets-list-panel">
+        <h3>📋 Tickets by Event</h3>
+ 
+        <div class="filter-bar">
+          <label>Event:</label>
+          <select [(ngModel)]="selectedEventIdForTickets"
+                  (change)="onEventChangeForTickets()">
+            <option [ngValue]="null" disabled>-- Choose --</option>
+            <option *ngFor="let event of events" [ngValue]="event.id">
+              {{ event.title }}
+            </option>
+          </select>
+        </div>
+ 
+        <div class="loading" *ngIf="loadingTickets">Loading...</div>
+        <div class="empty"
+             *ngIf="!loadingTickets && ticketsByEvent.length === 0
+                    && selectedEventIdForTickets">
+          No tickets for this event.
+        </div>
+ 
+        <table class="admin-table" *ngIf="ticketsByEvent.length > 0">
+          <thead>
+            <tr>
+              <th>Code</th><th>Participant</th>
+              <th>Issued on</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ticket of ticketsByEvent">
+              <td class="bold-cell ticket-code-cell">
+                {{ ticket.ticketCode }}
+              </td>
+              <td>{{ ticket.participantFullName }}</td>
+              <td>{{ ticket.issueDate }}</td>
+              <td>
+                <span [class]="'status-badge '
+                      + getTicketStatusClass(ticket.status)">
+                  {{ ticket.status }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-validate-row"
+                        *ngIf="ticket.status === 'VALID'"
+                        (click)="validateCode = ticket.ticketCode;
+                                 validateTicket()">
+                  ✅ Validate
+                </button>
+                <span class="already-used"
+                      *ngIf="ticket.status === 'USED'">
+                  Already used
+                </span>
+                <span class="cancelled-text"
+                      *ngIf="ticket.status === 'CANCELLED'">
+                  Cancelled
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+ 
+    </div>
+  </div>
+ 
 </div>

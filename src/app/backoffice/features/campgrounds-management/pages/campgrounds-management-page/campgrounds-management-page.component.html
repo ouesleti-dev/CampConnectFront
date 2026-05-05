@@ -1,4 +1,361 @@
-<div class="campgrounds-container">
-  <h1>Campgrounds Management</h1>
-  <p>Manage all campgrounds in the system</p>
+<div class="campgrounds-admin-container">
+ 
+  <div class="page-header">
+    <h1>🏕️ Campgrounds Management</h1>
+    <p class="subtitle">Manage campgrounds, events, activities and statistics</p>
+  </div>
+ 
+  <div class="alert alert-success" *ngIf="successMessage">✅ {{ successMessage }}</div>
+  <div class="alert alert-error"   *ngIf="errorMessage">❌ {{ errorMessage }}</div>
+ 
+  <!-- Tabs -->
+  <div class="tabs-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'campings'"
+            (click)="switchTab('campings')">
+      ⛺ Campgrounds <span class="count-badge">{{ campings.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'events'"
+            (click)="switchTab('events')">
+      📅 Events <span class="count-badge">{{ events.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'activities'"
+            (click)="switchTab('activities')">
+      🎯 Activities <span class="count-badge">{{ activities.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'stats'"
+            (click)="switchTab('stats')">
+      📊 Statistics
+    </button>
+  </div>
+ 
+  <!-- ══ CAMPGROUNDS ══ -->
+  <div class="tab-content" *ngIf="activeTab === 'campings'">
+    <div class="loading" *ngIf="loadingCampings">Loading campgrounds...</div>
+    <div class="empty" *ngIf="!loadingCampings && campings.length === 0">
+      No campgrounds found.
+    </div>
+    <table class="admin-table" *ngIf="campings.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Address</th>
+          <th>Postal Code</th><th>Status</th>
+          <th class="text-center">Events</th>
+          <th class="text-center">Activities</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let camping of campings">
+          <td>{{ camping.campingId }}</td>
+          <td class="camping-name">{{ camping.name }}</td>
+          <td class="address-cell">{{ camping.address }}</td>
+          <td>{{ camping.postalCode }}</td>
+          <td>
+            <span [class]="'status-badge ' + getStatusBadgeClass(camping.status)">
+              {{ camping.status }}
+            </span>
+          </td>
+          <td class="text-center">{{ camping.totalEvents }}</td>
+          <td class="text-center">{{ camping.totalActivities }}</td>
+          <td>
+            <button class="btn-delete" (click)="deleteCamping(camping.campingId)">
+              🗑 Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+ 
+  <!-- ══ EVENTS ══ -->
+  <div class="tab-content" *ngIf="activeTab === 'events'">
+    <div class="filter-bar">
+      <label>Filter by campground:</label>
+      <select [(ngModel)]="selectedCampingIdForEvents"
+              (change)="onCampingFilterChangeForEvents()">
+        <option [ngValue]="null">-- All campgrounds --</option>
+        <option *ngFor="let c of campings" [ngValue]="c.campingId">{{ c.name }}</option>
+      </select>
+      <span class="filter-count">{{ filteredEvents.length }} event(s)</span>
+    </div>
+    <div class="loading" *ngIf="loadingEvents">Loading events...</div>
+    <div class="empty" *ngIf="!loadingEvents && filteredEvents.length === 0">
+      No events found.
+    </div>
+    <table class="admin-table" *ngIf="filteredEvents.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th><th>Title</th><th>Date</th>
+          <th>Campground</th><th>Status</th>
+          <th class="text-center">Max participants</th>
+          <th class="text-center">Waste (kg)</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let event of filteredEvents">
+          <td>{{ event.id }}</td>
+          <td class="camping-name">{{ event.title }}</td>
+          <td>{{ event.eventDate }}</td>
+          <td class="camping-ref">{{ event.campingName }}</td>
+          <td>
+            <span [class]="'status-badge ' + getStatusBadgeClass(event.status)">
+              {{ event.status }}
+            </span>
+          </td>
+          <td class="text-center">{{ event.maxParticipants }}</td>
+          <td class="text-center">{{ event.wasteCollected }}</td>
+          <td>
+            <button class="btn-delete" (click)="deleteEvent(event.id)">
+              🗑 Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+ 
+  <!-- ══ ACTIVITIES ══ -->
+  <div class="tab-content" *ngIf="activeTab === 'activities'">
+    <div class="filter-bar">
+      <label>Filter by campground:</label>
+      <select [(ngModel)]="selectedCampingId" (change)="onCampingFilterChange()">
+        <option [ngValue]="null">-- All campgrounds --</option>
+        <option *ngFor="let c of campings" [ngValue]="c.campingId">{{ c.name }}</option>
+      </select>
+      <span class="filter-count">{{ filteredActivities.length }} activity(s)</span>
+    </div>
+    <div class="loading" *ngIf="loadingActivities">Loading activities...</div>
+    <div class="empty" *ngIf="!loadingActivities && filteredActivities.length === 0">
+      No activities found.
+    </div>
+    <table class="admin-table" *ngIf="filteredActivities.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Description</th>
+          <th class="text-center">Duration (min)</th><th>Difficulty</th>
+          <th>Campground</th><th>Event</th>
+          <th class="text-center">Participants</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let activity of filteredActivities">
+          <td>{{ activity.id }}</td>
+          <td class="activity-name">{{ activity.name }}</td>
+          <td class="description-cell">{{ activity.description }}</td>
+          <td class="text-center">{{ activity.duration }}</td>
+          <td>
+            <span [class]="'difficulty-badge '
+                  + getDifficultyBadgeClass(activity.difficulty)">
+              {{ activity.difficulty }}
+            </span>
+          </td>
+          <td class="camping-ref">{{ activity.campingName }}</td>
+          <td class="event-ref">{{ activity.eventTitle || '—' }}</td>
+          <td class="text-center">{{ activity.totalParticipations }}</td>
+ 
+          <!-- ⭐ Actions with Participants button -->
+          <td class="actions-cell">
+            <button class="btn-participants"
+                    (click)="loadParticipantsByActivity(activity.id)">
+              👥 Participants
+            </button>
+            <button class="btn-delete" (click)="deleteActivity(activity.id)">
+              🗑 Delete
+            </button>
+          </td>
+ 
+        </tr>
+      </tbody>
+    </table>
+ 
+    <!-- ⭐ Participants Panel with ML dropout scores — Status column removed -->
+    <div class="participants-panel" *ngIf="selectedActivityId">
+      <h3>
+        👥 Participants — Dropout Risk (ML)
+        <span class="ml-badge">🤖 Powered by ML</span>
+      </h3>
+ 
+      <div class="loading" *ngIf="loadingParticipants">Loading...</div>
+ 
+      <table class="admin-table" *ngIf="participantsByActivity.length > 0">
+        <thead>
+          <tr>
+            <th>Participant</th>
+            <th>Registration Date</th>
+            <th>🤖 Dropout Risk</th>
+            <th>Probability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of participantsByActivity">
+            <td class="bold-cell">{{ p.participantFullName }}</td>
+            <td>{{ p.participationDate }}</td>
+            <td>
+              <ng-container *ngIf="getDropoutScore(p.id) as score">
+                <span [class]="'risk-badge ' + getRiskClass(score.risk_level)">
+                  {{ score.risk_level === 'LOW'    ? '🟢 LOW'    :
+                     score.risk_level === 'MEDIUM' ? '🟡 MEDIUM' : '🔴 HIGH' }}
+                </span>
+              </ng-container>
+              <span class="loading-dot" *ngIf="!getDropoutScore(p.id)">...</span>
+            </td>
+            <td>
+              <ng-container *ngIf="getDropoutScore(p.id) as score">
+                {{ (score.dropout_probability * 100).toFixed(0) }}%
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+ 
+      <div class="empty"
+           *ngIf="!loadingParticipants && participantsByActivity.length === 0">
+        No participants found for this activity.
+      </div>
+    </div>
+ 
+  </div>
+  <!-- end activities -->
+ 
+  <!-- ══ STATISTICS ══ -->
+  <div class="tab-content" *ngIf="activeTab === 'stats'">
+ 
+    <!-- Stats by Event -->
+    <div class="stats-section">
+      <h2 class="stats-title">📅 Event Statistics</h2>
+      <div class="filter-bar">
+        <label>Choose an event:</label>
+        <select [(ngModel)]="selectedEventIdForStats"
+                (change)="onEventStatsChange()">
+          <option [ngValue]="null" disabled>-- Choose --</option>
+          <option *ngFor="let e of events" [ngValue]="e.id">
+            {{ e.title }} — {{ e.campingName }}
+          </option>
+        </select>
+      </div>
+ 
+      <!-- Event stats cards -->
+      <div class="event-stats-grid" *ngIf="selectedEventStats">
+ 
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-value">{{ selectedEventStats.totalActivities }}</div>
+          <div class="stat-label">Activities</div>
+          <div class="stat-detail">
+            🟢 {{ selectedEventStats.easyActivities }} EASY &nbsp;|&nbsp;
+            🟡 {{ selectedEventStats.mediumActivities }} MEDIUM &nbsp;|&nbsp;
+            🔴 {{ selectedEventStats.hardActivities }} HARD
+          </div>
+        </div>
+ 
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value">{{ selectedEventStats.totalParticipations }}</div>
+          <div class="stat-label">Participations</div>
+          <div class="stat-detail">
+            out of {{ selectedEventStats.maxParticipants }} max spots
+          </div>
+          <div class="fill-bar-container">
+            <div class="fill-bar"
+                 [style.width.%]="selectedEventStats.fillRate"
+                 [class.fill-high]="selectedEventStats.fillRate >= 75"
+                 [class.fill-mid]="selectedEventStats.fillRate >= 40
+                                   && selectedEventStats.fillRate < 75"
+                 [class.fill-low]="selectedEventStats.fillRate < 40">
+            </div>
+          </div>
+          <div class="stat-detail">{{ selectedEventStats.fillRate }}% filled</div>
+        </div>
+ 
+        <div class="stat-card">
+          <div class="stat-icon">💬</div>
+          <div class="stat-value">{{ selectedEventStats.totalPosts }}</div>
+          <div class="stat-label">Forum Posts</div>
+          <div class="stat-detail">
+            {{ selectedEventStats.totalComments }} comments
+          </div>
+        </div>
+ 
+        <div class="stat-card">
+          <div class="stat-icon">🎟️</div>
+          <div class="stat-value">{{ selectedEventStats.totalTickets }}</div>
+          <div class="stat-label">Tickets</div>
+          <div class="stat-detail">
+            ✅ {{ selectedEventStats.validTickets }} VALID &nbsp;|&nbsp;
+            ✔️ {{ selectedEventStats.usedTickets }} USED &nbsp;|&nbsp;
+            ❌ {{ selectedEventStats.cancelledTickets }} CANCELLED
+          </div>
+        </div>
+ 
+      </div>
+ 
+      <div class="empty"
+           *ngIf="!selectedEventStats && selectedEventIdForStats">
+        Loading...
+      </div>
+      <div class="empty" *ngIf="!selectedEventIdForStats">
+        👆 Select an event to view its statistics
+      </div>
+    </div>
+ 
+    <!-- Campgrounds Ranking -->
+    <div class="stats-section" style="margin-top: 1.5rem;">
+      <h2 class="stats-title">🏆 Most Active Campgrounds Ranking</h2>
+      <div class="loading" *ngIf="loadingStats">Loading ranking...</div>
+      <div class="empty" *ngIf="!loadingStats && campingRanking.length === 0">
+        No data available.
+      </div>
+ 
+      <table class="admin-table" *ngIf="campingRanking.length > 0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Campground</th>
+            <th>Status</th>
+            <th class="text-center">Events</th>
+            <th class="text-center">Activities</th>
+            <th class="text-center">Participations</th>
+            <th class="text-center">Posts</th>
+            <th class="text-center">Tickets</th>
+            <th class="text-center">Waste (kg)</th>
+            <th class="text-center">Fill Rate</th>
+            <th class="text-center">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of campingRanking; let i = index"
+              [class.gold]="i === 0"
+              [class.silver]="i === 1"
+              [class.bronze]="i === 2">
+            <td class="rank-cell">
+              {{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1 }}
+            </td>
+            <td class="bold-cell">{{ c.campingName }}</td>
+            <td>
+              <span [class]="'status-badge ' + getStatusBadgeClass(c.campingStatus)">
+                {{ c.campingStatus }}
+              </span>
+            </td>
+            <td class="text-center">{{ c.totalEvents }}</td>
+            <td class="text-center">{{ c.totalActivities }}</td>
+            <td class="text-center">{{ c.totalParticipations }}</td>
+            <td class="text-center">{{ c.totalPosts }}</td>
+            <td class="text-center">{{ c.totalTickets }}</td>
+            <td class="text-center">
+              {{ c.totalWasteCollected | number:'1.1-1' }} kg
+            </td>
+            <td class="text-center">{{ c.avgFillRate }}%</td>
+            <td class="text-center">
+              <span class="score-badge">{{ c.engagementScore }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+ 
+  </div>
+  <!-- end stats -->
+ 
 </div>
