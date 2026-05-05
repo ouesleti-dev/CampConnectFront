@@ -4,11 +4,7 @@ import { TopbarComponent } from './topbar.component';
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { HttpClientTestingModule } from '@angular/common/http/testing'; // ✅ Import indispensable
 
-
-
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
 describe('TopbarComponent', ()=> {
@@ -21,11 +17,11 @@ describe('TopbarComponent', ()=> {
 
       imports: [HttpClientTestingModule], 
 
-      imports: [ HttpClientTestingModule ], // ✅ Ajouté ici
+     
 
   
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],  
+      
 
       declarations: [ TopbarComponent ]
     })
