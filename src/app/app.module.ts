@@ -9,11 +9,13 @@ import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common
 import { AuthInterceptor } from './frontoffice/shared/interceptors/auth.interceptor';
 import { ReservationsComponent } from './frontoffice/features/reservations/reservations.component';
 import { ToastrModule } from 'ngx-toastr';
+import { ChartWidgetComponent } from './shared/components/chart-widget/chart-widget.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ReservationsComponent
+    ReservationsComponent,
+    ChartWidgetComponent
   ],
   imports: [
     HttpClientModule,

@@ -6,7 +6,6 @@ import { PartnershipAdminRoutingModule } from './partnership-admin-routing.modul
 import { PartnershipAdminLayoutComponent } from './layout/partnership-admin-layout.component';
 import { ChartWidgetComponent } from './components/chart-widget/chart-widget.component';
 import { PaginatedDataTableComponent } from './components/paginated-data-table/paginated-data-table.component';
-import { PaDashboardPageComponent } from './pages/pa-dashboard-page/pa-dashboard-page.component';
 import { PaPartnersPageComponent } from './pages/pa-partners-page/pa-partners-page.component';
 import { PaPartnerDetailPageComponent } from './pages/pa-partner-detail-page/pa-partner-detail-page.component';
 import { PaCampingsPageComponent } from './pages/pa-campings-page/pa-campings-page.component';
@@ -16,14 +15,15 @@ import { PaEntretiensPageComponent } from './pages/pa-entretiens-page/pa-entreti
 import { PaRencontresPageComponent } from './pages/pa-rencontres-page/pa-rencontres-page.component';
 import { PaQuizPageComponent } from './pages/pa-quiz-page/pa-quiz-page.component';
 import { PaStatsPageComponent } from './pages/pa-stats-page/pa-stats-page.component';
+import { PaDashboardPageComponent } from './pages/pa-dashboard-page/pa-dashboard-page.component';
 import { ToastrModule } from 'ngx-toastr';
+import { PredictFormComponent } from '../../../shared/components/predict-form/predict-form.component';
 
 @NgModule({
   declarations: [
     PartnershipAdminLayoutComponent,
     ChartWidgetComponent,
     PaginatedDataTableComponent,
-    PaDashboardPageComponent,
     PaPartnersPageComponent,
     PaPartnerDetailPageComponent,
     PaCampingsPageComponent,
@@ -33,7 +33,8 @@ import { ToastrModule } from 'ngx-toastr';
     PaRencontresPageComponent,
     PaQuizPageComponent,
     PaStatsPageComponent,
+    PaDashboardPageComponent,
   ],
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, PartnershipAdminRoutingModule,ToastrModule.forRoot()],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, PartnershipAdminRoutingModule, PredictFormComponent],
 })
 export class PartnershipAdminModule {}

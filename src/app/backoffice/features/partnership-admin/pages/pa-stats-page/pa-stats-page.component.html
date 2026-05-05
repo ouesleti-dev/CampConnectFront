@@ -1,21 +1,229 @@
-<h4 class="mb-4">Statistiques avancées</h4>
-<div class="row g-3">
-  <div class="col-lg-6">
-    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
-      <h6 class="mb-2">Score global par partenaire</h6>
-      <app-chart-widget *ngIf="barScores" [config]="barScores"></app-chart-widget>
+<div class="stats-page">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Statistics & Scoring</h1>
+      <p class="page-subtitle">Configurable partner candidate evaluation engine</p>
     </div>
   </div>
-  <div class="col-lg-6">
-    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
-      <h6 class="mb-2">Moyenne des scores de réponses (par quiz)</h6>
-      <app-chart-widget *ngIf="lineQuiz" [config]="lineQuiz"></app-chart-widget>
+
+  <!-- ── Tabs ───────────────────────────────────────────── -->
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'stats'" (click)="activeTab = 'stats'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+      Statistics
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'scoring'" (click)="activeTab = 'scoring'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      Simulator
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'config'" (click)="activeTab = 'config'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9"></path></svg>
+      Configuration
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- TAB: STATS                                             -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'stats'" class="tab-content">
+
+    <!-- KPI cards -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <span class="kpi-label">Avg partner score</span>
+        <span class="kpi-value" style="color: #10b981">74</span>
+        <span class="kpi-sub">Out of 100</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Validation rate</span>
+        <span class="kpi-value" style="color: #3b82f6">68%</span>
+        <span class="kpi-sub">Validated interviews</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Completed quizzes</span>
+        <span class="kpi-value" style="color: #8b5cf6">142</span>
+        <span class="kpi-sub">This month</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Elimination rate</span>
+        <span class="kpi-value" style="color: #ef4444">12%</span>
+        <span class="kpi-sub">Score &lt; min threshold</span>
+      </div>
+    </div>
+
+    <!-- Charts grid -->
+    <div class="charts-grid">
+      <div class="chart-card wide">
+        <h3 class="chart-title">Partner Scores</h3>
+        <app-chart-widget *ngIf="barScores" [config]="barScores"></app-chart-widget>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Quiz Score Evolution</h3>
+        <app-chart-widget *ngIf="lineQuiz" [config]="lineQuiz"></app-chart-widget>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-title">Interview Decisions</h3>
+        <app-chart-widget *ngIf="pieDecisions" [config]="pieDecisions"></app-chart-widget>
+      </div>
     </div>
   </div>
-  <div class="col-lg-6 mx-auto">
-    <div class="card border-0 shadow-sm rounded-4 p-3">
-      <h6 class="mb-2">Répartition des décisions d entretien</h6>
-      <app-chart-widget *ngIf="pieDecisions" [config]="pieDecisions"></app-chart-widget>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- TAB: SIMULATEUR                                        -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'scoring'" class="tab-content">
+    <div class="simulator-grid">
+
+      <!-- Inputs -->
+      <div class="sim-card">
+        <h3 class="sim-title">Candidate Raw Scores</h3>
+        <p class="sim-desc">Enter raw scores (0–100) for each active criterion.</p>
+
+        <div class="input-group" *ngFor="let c of scoringConfig.criteria">
+          <ng-container *ngIf="c.enabled">
+            <label class="input-label">
+              <span class="criterion-dot" [style.background]="getScoreColor(demoInputs[c.id] || 0)"></span>
+              {{ c.label }}
+              <span class="weight-badge">weight {{ (c.weight * 100) | number:'1.0-0' }}%</span>
+            </label>
+            <div class="slider-row">
+              <input type="range" min="0" max="100" step="1"
+                [(ngModel)]="demoInputs[c.id]"
+                (ngModelChange)="runDemo()"
+                class="score-slider">
+              <span class="slider-value" [style.color]="getScoreColor(demoInputs[c.id] || 0)">
+                {{ demoInputs[c.id] || 0 }}
+              </span>
+            </div>
+          </ng-container>
+        </div>
+
+        <button class="btn-run" (click)="runDemo()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Calculate Score
+        </button>
+      </div>
+
+      <!-- Result -->
+      <div class="sim-card" *ngIf="demoResult">
+
+        <!-- Elimination banner -->
+        <div class="elim-banner" *ngIf="demoResult.eliminated">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+          Candidate Eliminated — {{ demoResult.eliminationReason }}
+        </div>
+
+        <!-- Global score ring -->
+        <div class="score-ring-wrap" *ngIf="!demoResult.eliminated">
+          <div class="score-ring" [style.background]="demoResult.level ? 'conic-gradient(' + getLevelColor(demoResult.level.level) + ' ' + demoResult.globalScore + '%, #f1f5f9 0%)' : '#f1f5f9'">
+            <div class="score-ring-inner">
+              <span class="score-number">{{ demoResult.globalScore }}</span>
+              <span class="score-label">/ 100</span>
+            </div>
+          </div>
+          <div class="level-badge" [style.background]="getLevelColor(demoResult.level.level)" *ngIf="demoResult.level">
+            {{ demoResult.level.level | titlecase }}
+          </div>
+        </div>
+
+        <!-- Sub-scores -->
+        <div class="sub-scores" *ngIf="!demoResult.eliminated">
+          <div class="sub-score-row" *ngFor="let c of scoringConfig.criteria">
+            <ng-container *ngIf="c.enabled">
+              <div class="sub-score-label">{{ c.label }}</div>
+              <div class="sub-score-bar-wrap">
+                <div class="sub-score-bar"
+                  [style.width.%]="demoResult.subScores[c.id] || 0"
+                  [style.background]="getScoreColor(demoResult.subScores[c.id] || 0)">
+                </div>
+              </div>
+              <div class="sub-score-val">{{ demoResult.subScores[c.id] || 0 }}/100</div>
+              <div class="sub-score-contrib">+{{ getCriterionContribution(c.id) }}pts</div>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Radar chart -->
+        <div class="radar-wrap" *ngIf="radarChart && !demoResult.eliminated">
+          <app-chart-widget [config]="radarChart"></app-chart-widget>
+        </div>
+
+        <!-- Insights -->
+        <div class="insights-list">
+          <h4 class="insights-title">Insights</h4>
+          <div class="insight-item" *ngFor="let insight of demoResult.insights">
+            {{ insight }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- TAB: CONFIGURATION                                     -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'config'" class="tab-content">
+    <div class="config-grid">
+
+      <!-- Critères & poids -->
+      <div class="config-card">
+        <h3 class="config-title">Criteria & Weightings</h3>
+        <p class="config-desc">Modify weights on the fly. The sum is automatically normalized.</p>
+
+        <div class="criterion-row" *ngFor="let c of scoringConfig.criteria">
+          <div class="criterion-meta">
+            <label class="toggle-switch">
+              <input type="checkbox" [checked]="c.enabled" (change)="toggleCriterion(c)">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="criterion-name" [class.disabled]="!c.enabled">{{ c.label }}</span>
+          </div>
+          <div class="weight-control">
+            <input type="range" min="0" max="100" step="5"
+              [value]="c.weight * 100"
+              [disabled]="!c.enabled"
+              (input)="updateWeight(c, $event)"
+              class="weight-slider">
+            <span class="weight-pct">{{ (c.weight * 100) | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Règles métier -->
+      <div class="config-card">
+        <h3 class="config-title">Business Rules</h3>
+        <p class="config-desc">Currently active elimination rules, bonuses, and penalties.</p>
+
+        <div class="rule-item" *ngFor="let rule of scoringConfig.rules" [class]="'rule-' + rule.type">
+          <div class="rule-icon">
+            <span *ngIf="rule.type === 'elimination'">🚫</span>
+            <span *ngIf="rule.type === 'bonus'">✅</span>
+            <span *ngIf="rule.type === 'penalty'">⚠️</span>
+          </div>
+          <div class="rule-body">
+            <div class="rule-label">{{ rule.label }}</div>
+            <div class="rule-type-badge" [class]="'badge-' + rule.type">{{ rule.type }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seuils de niveaux -->
+      <div class="config-card">
+        <h3 class="config-title">Level Thresholds</h3>
+        <p class="config-desc">Automatic candidate profile classification based on global score.</p>
+
+        <div class="threshold-row" *ngFor="let t of scoringConfig.thresholds">
+          <div class="threshold-level" [style.color]="t.color">{{ t.level | titlecase }}</div>
+          <div class="threshold-bar-wrap">
+            <div class="threshold-bar" [style.background]="t.color" [style.width.%]="t.maxScore - t.minScore"></div>
+          </div>
+          <div class="threshold-values">{{ t.minScore }} – {{ t.maxScore }} pts</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>

@@ -1,0 +1,280 @@
+.pa-dashboard {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Welcome Banner ── */
+.welcome-banner {
+  background: linear-gradient(135deg, #0d6efd 0%, #2f8bff 100%);
+  padding: 2.5rem;
+  border-radius: 24px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  box-shadow: 0 12px 30px rgba(13, 110, 253, 0.2);
+}
+
+.welcome-banner h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.welcome-banner p {
+  opacity: 0.9;
+  margin-top: 0.5rem;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: white;
+  color: #0d6efd;
+  transform: translateY(-2px);
+}
+
+/* ── KPIs ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  border: 1px solid #eef4ff;
+  transition: all 0.2s;
+}
+
+.kpi-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(18, 61, 120, 0.08);
+}
+
+.kpi-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a2b3c;
+  line-height: 1.1;
+}
+
+.kpi-lbl {
+  font-size: 0.85rem;
+  color: #6c8aad;
+  margin-top: 0.25rem;
+}
+
+/* ── Main Grid ── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+}
+
+.charts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.chart-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid #eef4ff;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a2b3c;
+  margin-bottom: 1.5rem;
+}
+
+.chart-container {
+  height: 300px;
+}
+
+.chart-container.mini {
+  height: 240px;
+}
+
+.chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* ── Sidebar ── */
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.side-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid #eef4ff;
+}
+
+.side-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.event-list, .activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.event-date {
+  width: 48px;
+  height: 48px;
+  background: #f0f6ff;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #0d6efd;
+}
+
+.event-date .day {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.event-date .month {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.event-title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.event-meta {
+  font-size: 0.75rem;
+  color: #6c8aad;
+}
+
+.activity-item {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.act-icon {
+  width: 32px;
+  height: 32px;
+  background: #f8fafc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.act-text {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.act-time {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.view-all {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed #d9e8ff;
+  padding: 0.65rem;
+  margin-top: 1.25rem;
+  border-radius: 10px;
+  color: #0d6efd;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-row {
+    grid-template-columns: 1fr;
+  }
+  .welcome-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+}

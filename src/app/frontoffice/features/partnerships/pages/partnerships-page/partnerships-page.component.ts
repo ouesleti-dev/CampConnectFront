@@ -16,11 +16,11 @@ import {
 } from '../../../../../backoffice/features/partnership-admin/shared/form-validation';
 
 const BIOS = [
-  "Partenaire engagé dans le réseau CampConnect, passionné par l'accueil durable et les séjours en pleine nature.",
-  "Professionnel du secteur outdoor et du camping, il contribue à enrichir l'offre et la qualité des expériences proposées.",
-  "Impliqué dans le développement de la communauté CampConnect grâce à son expertise terrain et sa vision client.",
-  "Ambassadeur de pratiques responsables : accompagnement des campeurs, partage de bonnes pratiques et innovation sur les sites partenaires.",
-  "Entrepreneur à l'écoute des voyageurs, il renforce les liens entre campings, services et mobilité douce sur la plateforme.",
+  "Partner committed to the CampConnect network, passionate about sustainable hospitality and nature stays.",
+  "Outdoor sector and camping professional, contributing to enriching the offer and quality of experiences.",
+  "Involved in developing the CampConnect community through field expertise and customer vision.",
+  "Ambassador of responsible practices: camper support, sharing best practices, and site innovation.",
+  "Entrepreneur listening to travelers, strengthening links between campsites, services, and green mobility.",
 ];
 
 @Component({
@@ -74,7 +74,7 @@ export class PartnershipsPageComponent implements OnInit {
 
   loadPartners(): void {
     if (!environment.useBackendPartnership) {
-      this.toast.warning('Les données partenaires ne sont pas disponibles (API désactivée).');
+      this.toast.warning('Partner data is not available (API disabled).');
       return;
     }
     this.loading = true;
@@ -85,7 +85,7 @@ export class PartnershipsPageComponent implements OnInit {
         next: (rows) => (this.partners = [...rows].sort((a, b) => a.lastName.localeCompare(b.lastName))),
         error: () =>
           this.toast.error(
-            'Impossible de charger les partenaires. Vérifiez que le backend tourne et que vous êtes connecté.',
+            'Unable to load partners. Check that the backend is running and you are logged in.',
           ),
       });
   }
@@ -101,7 +101,7 @@ export class PartnershipsPageComponent implements OnInit {
   }
 
   fullName(p: PartnerUserSummaryApi): string {
-    return `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || 'Partenaire';
+    return `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim() || 'Partner';
   }
 
   avatarStyle(p: PartnerUserSummaryApi): { [key: string]: string } {
@@ -113,7 +113,7 @@ export class PartnershipsPageComponent implements OnInit {
   }
 
   roleLabel(p: PartnerUserSummaryApi): string {
-    return p.actif ? 'Partenaire CampConnect' : 'Partenaire (compte inactif)';
+    return p.actif ? 'CampConnect Partner' : 'Partner (inactive account)';
   }
 
   bio(p: PartnerUserSummaryApi): string {
@@ -178,7 +178,7 @@ export class PartnershipsPageComponent implements OnInit {
       .pipe(finalize(() => (this.addSubmitting = false)))
       .subscribe({
         next: () => {
-          this.toast.success('Partenaire créé avec succès.');
+          this.toast.success('Partner created successfully.');
           this.closeAddModal();
           this.loadPartners();
         },
@@ -193,10 +193,10 @@ export class PartnershipsPageComponent implements OnInit {
         const msg = (body as { error?: unknown }).error;
         if (typeof msg === 'string' && msg.trim()) return msg;
       }
-      if (err.status === 403) return 'Création réservée aux rôles administrateur ou partenaire.';
-      if (err.status === 401) return 'Session expirée. Reconnectez-vous.';
+      if (err.status === 403) return 'Creation reserved for administrator or partner roles.';
+      if (err.status === 401) return 'Session expired. Please log in again.';
     }
-    return 'Impossible de créer le partenaire.';
+    return 'Unable to create partner.';
   }
 
   linkedinSearchUrl(p: PartnerUserSummaryApi): string {

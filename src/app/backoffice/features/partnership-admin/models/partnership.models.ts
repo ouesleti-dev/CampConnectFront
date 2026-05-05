@@ -51,6 +51,10 @@ export interface Entretien {
   mode: EntretienMode;
   decision: EntretienDecision;
   scoreGlobal: number;
+  workflowStep?: string;
+  intervenantId?: number;
+  duree?: number;
+  notes?: string;
 }
 
 export interface Rencontre {

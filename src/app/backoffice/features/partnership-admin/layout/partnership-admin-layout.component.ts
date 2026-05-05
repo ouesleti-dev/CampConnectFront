@@ -12,15 +12,14 @@ export class PartnershipAdminLayoutComponent implements OnInit {
   readonly useBackendPartnership = environment.useBackendPartnership;
 
   readonly menu = [
-    { label: 'Dashboard', path: '/admin/partnership-admin/dashboard', icon: '📊' },
-    { label: 'Partenaires', path: '/admin/partnership-admin/partenaires', icon: '👤' },
-    { label: 'Campings', path: '/admin/partnership-admin/campings', icon: '🏕️' },
-    { label: 'Offres', path: '/admin/partnership-admin/offres', icon: '📄' },
-    { label: 'Contrats', path: '/admin/partnership-admin/contrats', icon: '📑' },
-    { label: 'Entretiens', path: '/admin/partnership-admin/entretiens', icon: '📅' },
-    { label: 'Rencontres', path: '/admin/partnership-admin/rencontres', icon: '📞' },
+    { label: 'Partners', path: '/admin/partnership-admin/partenaires', icon: '👤' },
+    { label: 'Campgrounds', path: '/admin/partnership-admin/campings', icon: '🏕️' },
+    { label: 'Offers', path: '/admin/partnership-admin/offres', icon: '📄' },
+    { label: 'Contracts', path: '/admin/partnership-admin/contrats', icon: '📑' },
+    { label: 'Interviews', path: '/admin/partnership-admin/entretiens', icon: '📅' },
+    { label: 'Meetings', path: '/admin/partnership-admin/rencontres', icon: '📞' },
     { label: 'Quiz', path: '/admin/partnership-admin/quiz', icon: '🧠' },
-    { label: 'Statistiques', path: '/admin/partnership-admin/statistiques', icon: '📈' },
+    { label: 'Statistics', path: '/admin/partnership-admin/statistiques', icon: '📈' },
   ];
 
   constructor(

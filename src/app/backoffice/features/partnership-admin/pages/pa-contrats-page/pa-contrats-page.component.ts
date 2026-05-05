@@ -9,6 +9,7 @@ import { contratDateOrderValidator, showFieldError, validationMessage } from '..
 @Component({
   selector: 'app-pa-contrats-page',
   templateUrl: './pa-contrats-page.component.html',
+  styleUrl: './pa-contrats-page.component.css',
 })
 export class PaContratsPageComponent implements OnInit, OnDestroy {
 
@@ -17,13 +18,13 @@ export class PaContratsPageComponent implements OnInit, OnDestroy {
   rows: Record<string, unknown>[] = [];
   columns = [
     { key: 'id', label: 'ID' },
-    { key: 'partenaireLabel', label: 'Partenaire' },
-    { key: 'offreLabel', label: 'Offre' },
-    { key: 'montant', label: 'Montant' },
+    { key: 'partenaireLabel', label: 'Partner' },
+    { key: 'offreLabel', label: 'Offer' },
+    { key: 'montant', label: 'Amount' },
     { key: 'commission', label: 'Commission' },
-    { key: 'dateDebut', label: 'Début' },
-    { key: 'dateFin', label: 'Fin' },
-    { key: 'statut', label: 'Statut' },
+    { key: 'dateDebut', label: 'Start' },
+    { key: 'dateFin', label: 'End' },
+    { key: 'statut', label: 'Status' },
   ];
   searchKeys = ['partenaireLabel', 'offreLabel', 'statut'];
   users: { id: number; label: string }[] = [];
@@ -129,7 +130,7 @@ export class PaContratsPageComponent implements OnInit, OnDestroy {
   save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.toast.warning('Veuillez corriger les erreurs du formulaire.');
+      this.toast.warning('Please correct the form errors.');
       return;
     }
     const v = this.form.getRawValue();
@@ -144,18 +145,18 @@ export class PaContratsPageComponent implements OnInit, OnDestroy {
     };
     if (this.editingId != null) {
       this.store.updateContrat(this.editingId, payload);
-      this.toast.success('Contrat mis à jour');
+      this.toast.success('Contract updated');
     } else {
       this.store.addContrat(payload);
-      this.toast.success('Contrat créé');
+      this.toast.success('Contract created');
     }
     this.showModal = false;
   }
 
   remove(row: Record<string, unknown>): void {
-    if (confirm('Supprimer ce contrat ?')) {
+    if (confirm('Delete this contract?')) {
       this.store.deleteContrat(row['id'] as number);
-      this.toast.success('Contrat supprimé');
+      this.toast.success('Contract deleted');
     }
   }
 }

@@ -1,106 +1,131 @@
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h4 class="mb-0">Partenaires</h4>
-  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Ajouter</button>
-</div>
-<app-paginated-data-table
-  [columns]="columns"
-  [rows]="rows"
-  [searchKeys]="searchKeys"
-  searchPlaceholder="Rechercher par nom ou email..."
-  (editRow)="openEdit($event)"
-  (deleteRow)="remove($event)"
-></app-paginated-data-table>
-<div class="mt-2">
-  <span class="text-muted small">Détail :</span>
-  <button
-    *ngFor="let row of rows"
-    type="button"
-    class="btn btn-sm btn-outline-secondary rounded-pill ms-1 mb-1"
-    (click)="goDetail(row)"
-  >
-    #{{ row['id'] }} {{ row['firstName'] }} {{ row['lastName'] }}
-  </button>
-</div>
+<div class="partners-page">
 
-<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Ajouter' }} un partenaire</h5>
-        <button type="button" class="btn-close" (click)="showModal = false"></button>
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Partner Management</h1>
+      <p class="page-subtitle">Manage your partner network and track their performance</p>
+    </div>
+    <button type="button" class="btn-create" (click)="openCreate()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      New Partner
+    </button>
+  </div>
+
+  <!-- ── Stats Row ──────────────────────────────────────── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #eff6ff; color: #3b82f6">👥</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ totalPartners }}</span>
+        <span class="stat-lbl">Total Partners</span>
       </div>
-      <div class="modal-body" [formGroup]="form">
-        <div class="row g-2">
-          <div class="col-md-6">
-            <label class="form-label">Prénom</label>
-            <input
-              class="form-control rounded-pill mb-1"
-              [class.is-invalid]="invalidField('firstName')"
-              formControlName="firstName"
-            />
-            <div class="invalid-feedback d-block" *ngIf="invalidField('firstName')">{{ msgField('firstName') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Nom</label>
-            <input
-              class="form-control rounded-pill mb-1"
-              [class.is-invalid]="invalidField('lastName')"
-              formControlName="lastName"
-            />
-            <div class="invalid-feedback d-block" *ngIf="invalidField('lastName')">{{ msgField('lastName') }}</div>
-          </div>
-          <div class="col-12">
-            <label class="form-label">Email</label>
-            <input
-              type="email"
-              class="form-control rounded-pill mb-1"
-              [class.is-invalid]="invalidField('email')"
-              formControlName="email"
-            />
-            <div class="invalid-feedback d-block" *ngIf="invalidField('email')">{{ msgField('email') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Téléphone</label>
-            <input
-              class="form-control rounded-pill mb-1"
-              [class.is-invalid]="invalidField('phone')"
-              formControlName="phone"
-              placeholder="Ex. +33 6 12 34 56 78"
-            />
-            <div class="invalid-feedback d-block" *ngIf="invalidField('phone')">{{ msgField('phone') }}</div>
-          </div>
-          <div class="col-12">
-            <label class="form-label">Mot de passe (connexion)</label>
-            <input
-              type="password"
-              class="form-control rounded-pill mb-1"
-              formControlName="password"
-              autocomplete="new-password"
-              placeholder="{{ editingId ? 'Laisser vide pour ne pas changer' : 'Vide = mot de passe par défaut serveur' }}"
-            />
-            <div class="form-text">Minimum 6 caractères si renseigné.</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Score</label>
-            <input
-              type="number"
-              class="form-control rounded-pill mb-1"
-              [class.is-invalid]="invalidField('score')"
-              formControlName="score"
-            />
-            <div class="invalid-feedback d-block" *ngIf="invalidField('score')">{{ msgField('score') }}</div>
-          </div>
-          <div class="col-12 form-check ms-2">
-            <input class="form-check-input" type="checkbox" formControlName="actif" id="actif" />
-            <label class="form-check-label" for="actif">Actif</label>
-          </div>
-        </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #f0fdf4; color: #10b981">✅</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ activePartners }}</span>
+        <span class="stat-lbl">Active Partners</span>
       </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
-        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #fefce8; color: #ca8a04">⭐</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ avgScore }}/100</span>
+        <span class="stat-lbl">Average Score</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #faf5ff; color: #a855f7">🏆</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ topPerformers }}</span>
+        <span class="stat-lbl">Top performers (80+)</span>
       </div>
     </div>
   </div>
+
+  <!-- ── Table Card ─────────────────────────────────────── -->
+  <div class="table-card">
+    <app-paginated-data-table
+      [columns]="columns"
+      [rows]="rows"
+      [searchKeys]="searchKeys"
+      (editRow)="openEdit($event)"
+      (deleteRow)="remove($event)"
+      (clickRow)="goDetail($event)">
+    </app-paginated-data-table>
+  </div>
+
 </div>
-<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  MODAL — Création / Édition                                -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ editingId ? 'Edit' : 'New' }} Partner</h3>
+      <button type="button" class="modal-close" (click)="showModal = false">✕</button>
+    </div>
+
+    <div class="modal-body" [formGroup]="form">
+      <div class="row g-3">
+        <!-- Identity -->
+        <div class="col-md-6">
+          <label class="form-lbl">First Name</label>
+          <input type="text" class="form-ctrl" formControlName="firstName" [class.is-err]="invalidField('firstName')">
+          <span class="err-msg" *ngIf="invalidField('firstName')">{{ msgField('firstName') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Last Name</label>
+          <input type="text" class="form-ctrl" formControlName="lastName" [class.is-err]="invalidField('lastName')">
+          <span class="err-msg" *ngIf="invalidField('lastName')">{{ msgField('lastName') }}</span>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-12">
+          <label class="form-lbl">Professional Email</label>
+          <input type="email" class="form-ctrl" formControlName="email" [class.is-err]="invalidField('email')">
+          <span class="err-msg" *ngIf="invalidField('email')">{{ msgField('email') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Phone</label>
+          <input type="text" class="form-ctrl" formControlName="phone" [class.is-err]="invalidField('phone')" placeholder="0X XX XX XX XX">
+          <span class="err-msg" *ngIf="invalidField('phone')">{{ msgField('phone') }}</span>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Password {{ editingId ? '(optional)' : '' }}</label>
+          <input type="password" class="form-ctrl" formControlName="password">
+        </div>
+
+        <!-- Profile & Status -->
+        <div class="col-md-6">
+          <label class="form-lbl">Global Score (0-100)</label>
+          <div class="score-input-wrap">
+            <input type="range" class="form-range" formControlName="score" min="0" max="100">
+            <span class="score-badge" [style.background]="form.get('score')?.value >= 70 ? '#10b981' : (form.get('score')?.value >= 40 ? '#f59e0b' : '#ef4444')">
+              {{ form.get('score')?.value }}
+            </span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-lbl">Account Status</label>
+          <div class="toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" formControlName="actif">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-lbl">{{ form.get('actif')?.value ? 'Active Account' : 'Inactive Account' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-cancel" (click)="showModal = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="save()">
+        {{ editingId ? 'Update' : 'Create Partner' }}
+      </button>
+    </div>
+  </div>
+</div>

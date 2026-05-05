@@ -17,8 +17,7 @@ const routes: Routes = [
     path: '',
     component: PartnershipAdminLayoutComponent,
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: PaDashboardPageComponent },
+      { path: '', redirectTo: 'statistiques', pathMatch: 'full' },
       { path: 'partenaires', component: PaPartnersPageComponent },
       { path: 'partenaires/:id', component: PaPartnerDetailPageComponent },
       { path: 'campings', component: PaCampingsPageComponent },

@@ -1,87 +1,116 @@
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h4 class="mb-0">Rencontres</h4>
-  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Ajouter</button>
-</div>
-<div class="mb-3">
-  <label class="form-label small text-muted">Filtrer par entretien</label>
-  <select class="form-select rounded-pill" [(ngModel)]="filterEntretienId" (ngModelChange)="applyFilter()">
-    <option [ngValue]="null">Tous les entretiens</option>
-    <option *ngFor="let e of entretiens" [ngValue]="e.id">{{ e.label }}</option>
-  </select>
-</div>
-<div class="mb-2">
-  <span class="text-muted small">Vue rapide par entretien :</span>
-  <button
-    *ngFor="let e of entretiens"
-    type="button"
-    class="btn btn-sm btn-outline-primary rounded-pill ms-1 mb-1"
-    (click)="rencontresForEntretien(e.id)"
-  >
-    #{{ e.id }}
-  </button>
-</div>
-<app-paginated-data-table
-  [columns]="columns"
-  [rows]="rows"
-  [searchKeys]="searchKeys"
-  (editRow)="openEdit($event)"
-  (deleteRow)="remove($event)"
-></app-paginated-data-table>
+<div class="rencontres-page">
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Meeting Management</h1>
+      <p class="page-subtitle">Schedule and track meetings with partners</p>
+    </div>
+    <button class="btn-create" (click)="openCreate()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      New Meeting
+    </button>
+  </div>
 
-<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content rounded-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Ajouter' }} rencontre</h5>
-        <button type="button" class="btn-close" (click)="showModal = false"></button>
-      </div>
-      <div class="modal-body" [formGroup]="form">
-        <div class="row g-2">
-          <div class="col-12">
-            <label class="form-label">Entretien</label>
-            <select
-              class="form-select rounded-pill"
-              [class.is-invalid]="invalidField('entretienId')"
-              formControlName="entretienId"
-            >
-              <option [ngValue]="null">—</option>
-              <option *ngFor="let e of entretiens" [ngValue]="e.id">{{ e.label }}</option>
-            </select>
-            <div class="invalid-feedback" *ngIf="invalidField('entretienId')">{{ messageField('entretienId') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Date</label>
-            <input
-              type="date"
-              class="form-control rounded-pill"
-              [class.is-invalid]="invalidField('date')"
-              formControlName="date"
-            />
-            <div class="invalid-feedback" *ngIf="invalidField('date')">{{ messageField('date') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Mode</label>
-            <select class="form-select rounded-pill" formControlName="mode">
-              <option *ngFor="let m of modes" [ngValue]="m">{{ m }}</option>
-            </select>
-          </div>
-          <div class="col-12">
-            <label class="form-label">Compte rendu (5–5000 caractères)</label>
-            <textarea
-              class="form-control rounded-4"
-              rows="4"
-              [class.is-invalid]="invalidField('compteRendu')"
-              formControlName="compteRendu"
-            ></textarea>
-            <div class="invalid-feedback" *ngIf="invalidField('compteRendu')">{{ messageField('compteRendu') }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
-        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+  <!-- ── Filters ────────────────────────────────────────── -->
+  <div class="filter-card">
+    <div class="filter-group">
+      <label class="form-lbl">Interview</label>
+      <select class="form-ctrl mini" [(ngModel)]="filterEntretienId" (ngModelChange)="applyFilter()">
+        <option [ngValue]="null">All interviews</option>
+        <option *ngFor="let e of entretiens" [ngValue]="e.id">{{ e.label }}</option>
+      </select>
+    </div>
+    
+    <div class="quick-filter">
+      <span class="quick-lbl">Quick view :</span>
+      <div class="tag-row">
+        <button
+          *ngFor="let e of entretiens"
+          type="button"
+          class="tag-btn"
+          (click)="rencontresForEntretien(e.id)"
+        >
+          #{{ e.id }}
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- ── Table Card ─────────────────────────────────────── -->
+  <div class="table-card">
+    <app-paginated-data-table
+      [columns]="columns"
+      [rows]="rows"
+      [searchKeys]="searchKeys"
+      (editRow)="openEdit($event)"
+      (deleteRow)="remove($event)"
+    ></app-paginated-data-table>
+  </div>
+  
+  <!-- ── AI Recruiter Card ─────────────────────────────────────── -->
+  <div class="ai-recruiter-section" style="margin-top: 2rem;">
+    <app-predict-form></app-predict-form>
+  </div>
+
+
 </div>
-<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>
+
+<!-- ── Modal ───────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ editingId ? 'Modifier' : 'Ajouter' }} une rencontre</h3>
+      <button class="modal-close" (click)="showModal = false">✕</button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="row g-4">
+        <div class="col-12">
+          <label class="form-lbl">Select Interview</label>
+          <select
+            class="form-ctrl"
+            [class.is-err]="invalidField('entretienId')"
+            formControlName="entretienId"
+          >
+            <option [ngValue]="null">— Choose an interview —</option>
+            <option *ngFor="let e of entretiens" [ngValue]="e.id">{{ e.label }}</option>
+          </select>
+          <span class="err-msg" *ngIf="invalidField('entretienId')">{{ messageField('entretienId') }}</span>
+        </div>
+        
+        <div class="col-md-6">
+          <label class="form-lbl">Meeting Date</label>
+          <input
+            type="date"
+            class="form-ctrl"
+            [class.is-err]="invalidField('date')"
+            formControlName="date"
+          />
+          <span class="err-msg" *ngIf="invalidField('date')">{{ messageField('date') }}</span>
+        </div>
+        
+        <div class="col-md-6">
+          <label class="form-lbl">Meeting Mode</label>
+          <select class="form-ctrl" formControlName="mode">
+            <option *ngFor="let m of modes" [ngValue]="m">{{ m }}</option>
+          </select>
+        </div>
+        
+        <div class="col-12">
+          <label class="form-lbl">Detailed Report</label>
+          <textarea
+            class="form-ctrl"
+            rows="5"
+            placeholder="Enter the report here..."
+            [class.is-err]="invalidField('compteRendu')"
+            formControlName="compteRendu"
+          ></textarea>
+          <span class="err-msg" *ngIf="invalidField('compteRendu')">{{ messageField('compteRendu') }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn-cancel" (click)="showModal = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="save()">Save Meeting</button>
+    </div>
+  </div>
+</div>

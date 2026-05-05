@@ -1,55 +1,43 @@
-<div class="pa-shell">
-  <aside class="pa-sidebar">
-    <div class="pa-brand">
-      <span class="pa-brand-title">Partnerships</span>
-      <span class="pa-brand-sub">CampConnect</span>
+<div class="pa-shell-top">
+  <!-- ── Top Navigation ── -->
+  <header class="pa-header-top">
+    <div class="pa-topbar-brand">
+      <div class="pa-brand-logo">CC</div>
+      <div class="pa-brand-text">
+        <span class="pa-brand-title">CampConnect</span>
+        <span class="pa-brand-sub">Partnership Admin</span>
+      </div>
     </div>
-    <nav class="pa-nav">
-      <a
-        *ngFor="let item of menu"
-        [routerLink]="item.path"
-        routerLinkActive="active"
-        class="pa-nav-link"
-      >
+
+    <nav class="pa-top-nav">
+      <a *ngFor="let item of menu" 
+         [routerLink]="item.path" 
+         routerLinkActive="active" 
+         class="pa-top-link">
         <span class="pa-nav-ico">{{ item.icon }}</span>
-        {{ item.label }}
+        <span>{{ item.label }}</span>
       </a>
     </nav>
-    <div class="pa-sidebar-foot">
-      <a routerLink="/admin/dashboard" class="pa-link-muted">← Retour admin</a>
-    </div>
-  </aside>
-  <div class="pa-main">
-    <header class="pa-topbar">
-      <div class="pa-topbar-title">Partnerships</div>
-      <div class="pa-topbar-actions">
-        <button
-          *ngIf="useBackendPartnership"
-          type="button"
-          class="btn btn-sm btn-outline-secondary rounded-pill me-2"
-          (click)="resyncFromServer()"
-          title="Vider le cache local et recharger toutes les données depuis MySQL"
-        >
-          Recharger données
-        </button>
-        <button type="button" class="pa-notif-btn" title="Notifications">
-          🔔
-          <span class="pa-badge">3</span>
-        </button>
-        <div class="pa-profile">
-          <div class="pa-avatar">{{ userEmail.charAt(0).toUpperCase() }}</div>
-          <div>
-            <div class="pa-profile-name">{{ userEmail }}</div>
-            <div class="pa-profile-role">{{ userRole }}</div>
-          </div>
-          <button type="button" class="btn btn-sm btn-outline-primary rounded-pill ms-2" (click)="logout()">
-            Déconnexion
-          </button>
+
+    <div class="pa-topbar-actions">
+      <button type="button" class="btn-sync" (click)="resyncFromServer()" *ngIf="useBackendPartnership" title="Sync API">
+        🔄
+      </button>
+      
+      <div class="pa-profile-compact">
+        <div class="pa-avatar-sm">{{ userEmail[0].toUpperCase() }}</div>
+        <div class="pa-profile-info">
+          <span class="pa-user-email">{{ userEmail }}</span>
+          <a href="javascript:void(0)" (click)="logout()" class="pa-logout-link">Logout</a>
         </div>
       </div>
-    </header>
-    <main class="pa-content">
+    </div>
+  </header>
+
+  <!-- ── Main Content ── -->
+  <main class="pa-main-full">
+    <div class="pa-content-container">
       <router-outlet></router-outlet>
-    </main>
-  </div>
+    </div>
+  </main>
 </div>

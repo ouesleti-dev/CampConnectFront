@@ -1,0 +1,66 @@
+.pa-table-shell {
+  background: #ffffff;
+  border: 1px solid #dbe7ff;
+  border-radius: 1rem;
+  box-shadow: 0 10px 28px rgba(32, 76, 143, 0.08);
+  padding: 1rem 1rem 0.85rem;
+}
+
+.pa-search-box {
+  margin-bottom: 0.8rem !important;
+}
+
+.pa-search-input {
+  border: 1px solid #d2e2ff;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 8px rgba(13, 110, 253, 0.08);
+}
+
+.pa-search-input:focus {
+  border-color: #7fb0ff;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.pa-table-wrap {
+  border-radius: 0.85rem;
+  overflow: hidden;
+  border: 1px solid #e6efff;
+}
+
+.pa-data-table {
+  margin-bottom: 0;
+}
+
+.pa-data-head th {
+  background: linear-gradient(180deg, #f0f6ff 0%, #e7f0ff 100%);
+  color: #2f4e76;
+  font-weight: 600;
+  border-bottom: 1px solid #d9e8ff;
+  white-space: nowrap;
+}
+
+.pa-data-table tbody td {
+  vertical-align: middle;
+  border-color: #edf3ff;
+}
+
+.pa-data-table tbody tr:hover td {
+  background: #f8fbff;
+}
+
+.pa-empty {
+  background: #fbfdff;
+  font-weight: 500;
+}
+
+.pa-action-btn {
+  border-width: 1px;
+}
+
+.pa-pagination {
+  margin-top: 0.85rem;
+}
+
+.pa-page-btn {
+  border-color: #cadcff;
+}

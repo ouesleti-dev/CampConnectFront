@@ -14,10 +14,10 @@ export class PaCampingsPageComponent implements OnInit, OnDestroy {
   rows: Record<string, unknown>[] = [];
   columns = [
     { key: 'id', label: 'ID' },
-    { key: 'nom', label: 'Nom' },
-    { key: 'localisation', label: 'Localisation' },
-    { key: 'capacite', label: 'Capacité' },
-    { key: 'partnersLabel', label: 'Partenaires' },
+    { key: 'nom', label: 'Name' },
+    { key: 'localisation', label: 'Location' },
+    { key: 'capacite', label: 'Capacity' },
+    { key: 'partnersLabel', label: 'Partners' },
   ];
   searchKeys = ['nom', 'localisation', 'partnersLabel'];
   users: { id: number; label: string }[] = [];
@@ -115,30 +115,30 @@ export class PaCampingsPageComponent implements OnInit, OnDestroy {
   save(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.toast.warning('Veuillez corriger les erreurs du formulaire.');
+      this.toast.warning('Please correct the form errors.');
       return;
     }
     if (this.selectedPartnerIds.length === 0) {
       this.partnersBlockError = true;
-      this.toast.warning('Sélectionnez au moins un partenaire.');
+      this.toast.warning('Select at least one partner.');
       return;
     }
     const v = this.form.getRawValue();
     const base = { nom: v.nom!, localisation: v.localisation!, capacite: Number(v.capacite), partnerIds: [...this.selectedPartnerIds] };
     if (this.editingId != null) {
       this.store.updateCamping(this.editingId, base);
-      this.toast.success('Camping mis à jour');
+      this.toast.success('Campground updated');
     } else {
       this.store.addCamping(base);
-      this.toast.success('Camping créé');
+      this.toast.success('Campground created');
     }
     this.showModal = false;
   }
 
   remove(row: Record<string, unknown>): void {
-    if (confirm('Supprimer ce camping ?')) {
+    if (confirm('Delete this campground?')) {
       this.store.deleteCamping(row['id'] as number);
-      this.toast.success('Camping supprimé');
+      this.toast.success('Campground deleted');
     }
   }
 

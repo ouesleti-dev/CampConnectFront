@@ -1,24 +1,30 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="search-container">
-      <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search..." class="search-input">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" placeholder="Search in here..." class="search-input">
     </div>
   </div>
 
   <div class="topbar-right">
-    <div class="notification">
-      <span class="notification-icon">🔔</span>
-      <span class="notification-badge">3</span>
+    <div class="action-icons">
+      <app-notification-bell></app-notification-bell>
     </div>
 
-    <div class="user-profile">
-      <span class="user-name">{{ currentUser }}</span>
-  <span class="user-role">{{ userRole }}</span>
-  <button class="logout-btn" (click)="logout()"> Logout</button>
-  <button class="frontoffice-btn" routerLink="/home">
-   Home
-</button>
+    <div class="user-profile" (click)="toggleProfile()">
+      <div class="user-avatar">
+        <img src="https://ui-avatars.com/api/?name=Admin&background=1A5D3A&color=fff" alt="User">
       </div>
+      <div class="user-info">
+        <span class="user-name">{{ currentUser || 'Admin User' }}</span>
+        <span class="user-role">{{ userRole || 'Administrator' }}</span>
+      </div>
+      <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </div>
+    
+    <div class="topbar-actions">
+      <button class="btn-outline" routerLink="/home">Home</button>
+      <button class="btn-primary" (click)="logout()">Logout</button>
     </div>
   </div>
+</div>

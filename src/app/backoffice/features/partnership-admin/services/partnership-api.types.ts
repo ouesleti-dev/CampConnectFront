@@ -36,6 +36,7 @@ export interface OfferApi {
   endDate: string;
   price: number;
   status: string;
+  campingId: number;
 }
 
 export interface ContratApi {

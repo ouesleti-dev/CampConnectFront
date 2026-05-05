@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   selector: 'app-paginated-data-table',
   templateUrl: './paginated-data-table.component.html',
+  styleUrl: './paginated-data-table.component.css',
 })
 export class PaginatedDataTableComponent {
   @Input() columns: { key: string; label: string }[] = [];
@@ -14,6 +15,7 @@ export class PaginatedDataTableComponent {
   @Input() showEdit = true;
   @Output() editRow = new EventEmitter<Record<string, unknown>>();
   @Output() deleteRow = new EventEmitter<Record<string, unknown>>();
+  @Output() clickRow = new EventEmitter<Record<string, unknown>>();
 
   search = '';
   page = 1;

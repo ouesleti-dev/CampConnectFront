@@ -16,13 +16,19 @@ export class PaPartnersPageComponent implements OnInit, OnDestroy {
   rows: Record<string, unknown>[] = [];
   columns = [
     { key: 'id', label: 'ID' },
-    { key: 'firstName', label: 'Prénom' },
-    { key: 'lastName', label: 'Nom' },
+    { key: 'firstName', label: 'First Name' },
+    { key: 'lastName', label: 'Last Name' },
     { key: 'email', label: 'Email' },
     { key: 'score', label: 'Score' },
-    { key: 'actif', label: 'Actif' },
+    { key: 'actif', label: 'Status' },
   ];
   searchKeys = ['firstName', 'lastName', 'email'];
+
+  // ── Stats ─────────────────────────────────────────────────
+  totalPartners = 0;
+  activePartners = 0;
+  avgScore = 0;
+  topPerformers = 0;
 
   showModal = false;
   editingId: number | null = null;
@@ -49,8 +55,23 @@ export class PaPartnersPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.sub = this.store.observe().subscribe((s) => {
-      this.rows = s.users.map((u) => ({ ...u, actif: u.actif ? 'Oui' : 'Non' }));
+      this.rebuild(s.users);
     });
+  }
+
+  private rebuild(users: PartnerUser[]): void {
+    this.rows = users.map((u) => ({ 
+      ...u, 
+      actif: u.actif ? 'Active' : 'Inactive' 
+    }));
+
+    // Stats
+    this.totalPartners = users.length;
+    this.activePartners = users.filter(u => u.actif).length;
+    this.avgScore = users.length 
+      ? Math.round(users.reduce((acc, u) => acc + u.score, 0) / users.length) 
+      : 0;
+    this.topPerformers = users.filter(u => u.score >= 80).length;
   }
 
   ngOnDestroy(): void { this.sub?.unsubscribe(); }
@@ -78,24 +99,47 @@ export class PaPartnersPageComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); this.toast.warning('Veuillez corriger les erreurs du formulaire.'); return; }
+    if (this.form.invalid) { 
+      this.form.markAllAsTouched(); 
+      this.toast.warning('Please correct the form errors.'); 
+      return; 
+    }
     const v = this.form.getRawValue();
     const pwd = (v.password || '').trim();
     const payload: Omit<PartnerUser, 'id'> & { password?: string } = {
-      firstName: v.firstName!, lastName: v.lastName!, email: v.email!, phone: v.phone!, score: Number(v.score), actif: !!v.actif,
+      firstName: v.firstName!, 
+      lastName: v.lastName!, 
+      email: v.email!, 
+      phone: v.phone!, 
+      score: Number(v.score), 
+      actif: !!v.actif,
     };
-    if (pwd.length > 0 && pwd.length < 6) { this.toast.warning('Le mot de passe doit faire au moins 6 caractères (ou laisser vide).'); return; }
+    
+    if (pwd.length > 0 && pwd.length < 6) { 
+      this.toast.warning('Password must be at least 6 characters.'); 
+      return; 
+    }
     if (pwd.length > 0) payload.password = pwd;
-    if (this.editingId != null) { this.store.updateUser(this.editingId, payload); this.toast.success('Partenaire mis à jour'); }
-    else { this.store.addUser(payload); this.toast.success('Partenaire créé'); }
+
+    if (this.editingId != null) { 
+      this.store.updateUser(this.editingId, payload); 
+      this.toast.success('Partner updated'); 
+    } else { 
+      this.store.addUser(payload); 
+      this.toast.success('Partner created'); 
+    }
     this.showModal = false;
   }
 
   remove(row: Record<string, unknown>): void {
-    if (confirm('Supprimer ce partenaire ?')) { this.store.deleteUser(row['id'] as number); this.toast.success('Partenaire supprimé'); }
+    if (confirm('Delete this partner?')) { 
+      this.store.deleteUser(row['id'] as number); 
+      this.toast.success('Partner deleted'); 
+    }
   }
 
   goDetail(row: Record<string, unknown>): void {
     this.router.navigate(['/admin/partnership-admin/partenaires', row['id']]);
   }
+
 }

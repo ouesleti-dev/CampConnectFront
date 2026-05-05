@@ -171,7 +171,34 @@ export class PartnershipStoreService {
         const users = mapUsersFromApi(data.partnerUsers);
         const offres = mapOffersFromApi(data.offers);
         let contrats = patchContratMontants(mapContratsFromApi(data.contrats), offres);
-        const entretiens = mapEntretiensFromApi(data.interviews);
+        const entretiensApi = mapEntretiensFromApi(data.interviews);
+        const entretiens = entretiensApi.map(apiEnt => {
+          // Preserve local UI fields that backend doesn't store
+          const existing = prev.entretiens?.find(pe => pe.id === apiEnt.id);
+          if (existing) {
+            return {
+              ...apiEnt,
+              mode: existing.mode ?? apiEnt.mode,
+              workflowStep: existing.workflowStep,
+              intervenantId: existing.intervenantId,
+              duree: existing.duree,
+              notes: existing.notes,
+            };
+          }
+          // Also try to match by date and partenaireId for newly added ones
+          const newlyAdded = prev.entretiens?.find(pe => pe.id < 0 && pe.partenaireId === apiEnt.partenaireId && pe.date.startsWith(apiEnt.date.slice(0, 10)));
+          if (newlyAdded) {
+            return {
+              ...apiEnt,
+              mode: newlyAdded.mode,
+              workflowStep: newlyAdded.workflowStep,
+              intervenantId: newlyAdded.intervenantId,
+              duree: newlyAdded.duree,
+              notes: newlyAdded.notes,
+            };
+          }
+          return apiEnt;
+        });
         const rencontres = mapRencontresFromApi(data.meetings);
         const quizzes = mapQuizzesFromApi(data.quizzes);
         const questions = mapQuestionsFromApi(data.questions);
@@ -282,14 +309,22 @@ export class PartnershipStoreService {
 
   // --- Offres
   addOffre(o: Omit<Offre, 'id'>): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, offres: [...s.offres, { ...o, id: this.nextId(s.offres) }] });
+      return;
+    }
     this.api.createOffer(buildCreateOfferBody(o)).subscribe({
       next: () => this.refreshFromBackend(),
       error: () => this.toast.error('Création offre échouée'),
     });
   }
   updateOffre(id: number, patch: Partial<Offre>): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, offres: s.offres.map((x) => (x.id === id ? { ...x, ...patch } : x)) });
+      return;
+    }
     const cur = this.snapshot().offres.find((x) => x.id === id);
     if (!cur) return;
     const merged: Offre = { ...cur, ...patch };
@@ -299,7 +334,11 @@ export class PartnershipStoreService {
     });
   }
   deleteOffre(id: number): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, offres: s.offres.filter((x) => x.id !== id) });
+      return;
+    }
     this.api.deleteOffer(id).subscribe({
       next: () => this.refreshFromBackend(),
       error: () => this.toast.error('Suppression offre échouée'),
@@ -308,14 +347,22 @@ export class PartnershipStoreService {
 
   // --- Contrats
   addContrat(c: Omit<Contrat, 'id'>): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, contrats: [...s.contrats, { ...c, id: this.nextId(s.contrats) }] });
+      return;
+    }
     this.api.createContrat(buildContratBody(c)).subscribe({
       next: () => this.refreshFromBackend(),
       error: () => this.toast.error('Création contrat échouée'),
     });
   }
   updateContrat(id: number, patch: Partial<Contrat>): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, contrats: s.contrats.map((x) => (x.id === id ? { ...x, ...patch } : x)) });
+      return;
+    }
     const cur = this.snapshot().contrats.find((x) => x.id === id);
     if (!cur) return;
     const merged: Contrat = { ...cur, ...patch };
@@ -325,7 +372,11 @@ export class PartnershipStoreService {
     });
   }
   deleteContrat(id: number): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, contrats: s.contrats.filter((x) => x.id !== id) });
+      return;
+    }
     this.api.deleteContrat(id).subscribe({
       next: () => this.refreshFromBackend(),
       error: () => this.toast.error('Suppression contrat échouée'),
@@ -338,14 +389,34 @@ export class PartnershipStoreService {
 
   // --- Entretiens
   addEntretien(e: Omit<Entretien, 'id'>): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, entretiens: [...s.entretiens, { ...e, id: this.nextId(s.entretiens) }] as Entretien[] });
+      return;
+    }
+    // Optimistically save locally with a negative ID to preserve fields during refresh
+    const s = this.snapshot();
+    const tempId = -Math.round(Math.random() * 1000000);
+    this.persist({ ...s, entretiens: [...s.entretiens, { ...e, id: tempId } as Entretien] });
+
     this.api.createInterview(buildInterviewBody(e)).subscribe({
       next: () => this.refreshFromBackend(),
-      error: () => this.toast.error('Création entretien échouée'),
+      error: () => {
+        this.toast.error('Création entretien échouée');
+        this.refreshFromBackend();
+      }
     });
   }
   updateEntretien(id: number, patch: Partial<Entretien>): void {
-    if (!environment.useBackendPartnership) return;
+    if (!environment.useBackendPartnership) {
+      const s = this.snapshot();
+      this.persist({ ...s, entretiens: s.entretiens.map((x) => (x.id === id ? { ...x, ...patch } : x)) as Entretien[] });
+      return;
+    }
+    // Update local state first to preserve fields
+    const s = this.snapshot();
+    this.persist({ ...s, entretiens: s.entretiens.map((x) => (x.id === id ? { ...x, ...patch } : x)) as Entretien[] });
+
     const cur = this.snapshot().entretiens.find((x) => x.id === id);
     if (!cur) return;
     const merged: Entretien = { ...cur, ...patch };

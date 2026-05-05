@@ -183,7 +183,7 @@ export function mapOffersFromApi(rows: OfferApi[]): Offre[] {
     id: o.offerId,
     titre: o.title ?? '',
     description: o.description ?? '',
-    campingId: 0,
+    campingId: o.campingId ?? 0,
     datePublication: sliceDate(o.startDate),
     statut: mapOffreStatutFromApi(o.status),
     price: o.price ?? 0,
@@ -214,7 +214,7 @@ export function mapEntretiensFromApi(rows: PartnerInterviewApi[]): Entretien[] {
   return rows.map((e) => ({
     id: e.interviewId,
     partenaireId: e.userId ?? 0,
-    date: sliceDate(e.interviewDate),
+    date: e.interviewDate,
     mode: 'VISIO' as EntretienMode,
     decision: mapDecisionFromApi(e.decision ?? ''),
     scoreGlobal: e.globalScore ?? 0,
@@ -278,6 +278,7 @@ export function buildCreateOfferBody(o: Omit<Offre, 'id'>): Record<string, unkno
     endDate: o.datePublication,
     price: 0,
     status: mapOffreStatutToApi(o.statut),
+    campingId: o.campingId,
   };
 }
 
@@ -290,6 +291,7 @@ export function buildUpdateOfferBody(o: Offre): Record<string, unknown> {
     endDate: o.datePublication,
     price: o.price ?? 0,
     status: mapOffreStatutToApi(o.statut),
+    campingId: o.campingId,
   };
 }
 

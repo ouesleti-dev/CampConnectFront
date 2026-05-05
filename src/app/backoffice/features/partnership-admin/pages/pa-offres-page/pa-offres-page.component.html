@@ -1,102 +1,168 @@
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h4 class="mb-0">Offres</h4>
-  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Ajouter</button>
-</div>
-<div class="row g-2 mb-3">
-  <div class="col-md-4">
-    <select class="form-select rounded-pill" [(ngModel)]="filterStatut" (ngModelChange)="applyFilters()">
-      <option [ngValue]="null">Tous les statuts</option>
-      <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
-    </select>
+<div class="offres-page">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Offer Management</h1>
+      <p class="page-subtitle">Manage recruitment campaigns and track conversion</p>
+    </div>
+    <button type="button" class="btn-create" (click)="openCreate()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      New Offer
+    </button>
   </div>
-  <div class="col-md-4">
-    <select class="form-select rounded-pill" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilters()">
-      <option [ngValue]="null">Tous les partenaires</option>
-      <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
-    </select>
-  </div>
-</div>
-<div class="row g-3 mb-3">
-  <div class="col-lg-5">
-    <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
-      <h6 class="mb-2">Offres par statut</h6>
-      <app-chart-widget *ngIf="chartConfig" [config]="chartConfig"></app-chart-widget>
+
+  <!-- ── Stats Grid ──────────────────────────────────────── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #eff6ff; color: #3b82f6">💼</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ totalOffres }}</span>
+        <span class="stat-lbl">Total Offers</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #f0fdf4; color: #10b981">🎯</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ conversionRate }}%</span>
+        <span class="stat-lbl">Conversion Rate</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #faf5ff; color: #a855f7">📅</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ pendingInterviews }}</span>
+        <span class="stat-lbl">Planned Interviews</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: #fdf2f8; color: #db2777">📜</div>
+      <div class="stat-info">
+        <span class="stat-val">{{ activeContracts }}</span>
+        <span class="stat-lbl">Signed Contracts</span>
+      </div>
     </div>
   </div>
-  <div class="col-lg-7">
-    <app-paginated-data-table
-      [columns]="columns"
-      [rows]="rows"
-      [searchKeys]="searchKeys"
-      (editRow)="openEdit($event)"
-      (deleteRow)="remove($event)"
-    ></app-paginated-data-table>
-  </div>
-</div>
 
-<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content rounded-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Ajouter' }} offre</h5>
-        <button type="button" class="btn-close" (click)="showModal = false"></button>
+  <!-- ── Main Content ────────────────────────────────────── -->
+  <div class="dashboard-grid">
+    
+    <!-- Table & Filters -->
+    <div class="main-column">
+      <div class="filter-card">
+        <div class="filter-group">
+          <label>Status</label>
+          <select class="form-ctrl mini" [(ngModel)]="filterStatut" (change)="applyFilters()">
+            <option [ngValue]="null">All statuses</option>
+            <option *ngFor="let s of statuts" [ngValue]="s">{{ s }}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Partner</label>
+          <select class="form-ctrl mini" [(ngModel)]="filterPartnerId" (change)="applyFilters()">
+            <option [ngValue]="null">All partners</option>
+            <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+          </select>
+        </div>
       </div>
-      <div class="modal-body" [formGroup]="form">
-        <div class="row g-2">
-          <div class="col-12">
-            <label class="form-label">Titre</label>
-            <input
-              class="form-control rounded-pill"
-              [class.is-invalid]="invalidField('titre')"
-              formControlName="titre"
-            />
-            <div class="invalid-feedback" *ngIf="invalidField('titre')">{{ messageField('titre') }}</div>
+
+      <div class="table-card">
+        <app-paginated-data-table
+          [columns]="columns"
+          [rows]="rows"
+          [searchKeys]="searchKeys"
+          (editRow)="openEdit($event)"
+          (deleteRow)="remove($event)">
+        </app-paginated-data-table>
+      </div>
+    </div>
+
+    <!-- Analytics Sidebar -->
+    <div class="side-column">
+      <div class="chart-card">
+        <h3 class="card-title">Status Distribution</h3>
+        <div class="chart-container">
+          <app-chart-widget [config]="chartConfig!"></app-chart-widget>
+        </div>
+      </div>
+
+      <div class="pipeline-card">
+        <h3 class="card-title">Recruitment Pipeline</h3>
+        <div class="pipeline-steps">
+          <div class="step-item active">
+            <span class="step-num">1</span>
+            <div class="step-body">
+              <strong>Publication</strong>
+              <p>Offers online</p>
+            </div>
           </div>
-          <div class="col-12">
-            <label class="form-label">Description</label>
-            <textarea
-              class="form-control rounded-4"
-              rows="2"
-              [class.is-invalid]="invalidField('description')"
-              formControlName="description"
-            ></textarea>
-            <div class="invalid-feedback" *ngIf="invalidField('description')">{{ messageField('description') }}</div>
+          <div class="step-arrow"></div>
+          <div class="step-item">
+            <span class="step-num">2</span>
+            <div class="step-body">
+              <strong>Interviews</strong>
+              <p>Active evaluation</p>
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Camping</label>
-            <select
-              class="form-select rounded-pill"
-              [class.is-invalid]="invalidField('campingId')"
-              formControlName="campingId"
-            >
-              <option [ngValue]="null">—</option>
-              <option *ngFor="let c of campings" [ngValue]="c.id">{{ c.label }}</option>
-            </select>
-            <div class="invalid-feedback" *ngIf="invalidField('campingId')">{{ messageField('campingId') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Date publication</label>
-            <input
-              type="date"
-              class="form-control rounded-pill"
-              [class.is-invalid]="invalidField('datePublication')"
-              formControlName="datePublication"
-            />
-            <div class="invalid-feedback" *ngIf="invalidField('datePublication')">{{ messageField('datePublication') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Statut</label>
-            <select class="form-select rounded-pill" formControlName="statut">
-              <option *ngFor="let st of statuts" [ngValue]="st">{{ st }}</option>
-            </select>
+          <div class="step-arrow"></div>
+          <div class="step-item">
+            <span class="step-num">3</span>
+            <div class="step-body">
+              <strong>Contracting</strong>
+              <p>Final validation</p>
+            </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
-        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ── Modal ───────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ editingId ? 'Edit' : 'New' }} Offer</h3>
+      <button type="button" class="modal-close" (click)="showModal = false">✕</button>
+    </div>
+    <div class="modal-body" [formGroup]="form">
+      <div class="mb-3">
+        <label class="form-lbl">Offer Title</label>
+        <input type="text" class="form-ctrl" formControlName="titre" [class.is-err]="invalidField('titre')">
+        <span class="err-msg" *ngIf="invalidField('titre')">{{ messageField('titre') }}</span>
       </div>
+      
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-lbl">Campground</label>
+          <select class="form-ctrl" formControlName="campingId" [class.is-err]="invalidField('campingId')">
+            <option [ngValue]="null">— Choose —</option>
+            <option *ngFor="let c of campings" [ngValue]="c.id">{{ c.label }}</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-lbl">Status</label>
+          <select class="form-ctrl" formControlName="statut">
+            <option *ngFor="let s of statuts" [ngValue]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-lbl">Description</label>
+        <textarea class="form-ctrl" formControlName="description" rows="4"></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-lbl">Publication Date</label>
+        <input type="date" class="form-ctrl" formControlName="datePublication">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" (click)="showModal = false">Cancel</button>
+      <button class="btn-save" (click)="save()">Save</button>
     </div>
   </div>
 </div>
-<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>

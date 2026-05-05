@@ -15,10 +15,10 @@ export class PaRencontresPageComponent implements OnInit, OnDestroy {
   rows: Record<string, unknown>[] = [];
   columns = [
     { key: 'id', label: 'ID' },
-    { key: 'entretienLabel', label: 'Entretien' },
+    { key: 'entretienLabel', label: 'Interview' },
     { key: 'date', label: 'Date' },
     { key: 'mode', label: 'Mode' },
-    { key: 'compteRenduShort', label: 'Compte rendu' },
+    { key: 'compteRenduShort', label: 'Report' },
   ];
   searchKeys = ['entretienLabel', 'compteRenduShort', 'mode'];
   entretiens: { id: number; label: string }[] = [];
@@ -86,15 +86,15 @@ export class PaRencontresPageComponent implements OnInit, OnDestroy {
   messageField(name: string): string { const c = this.form.get(name); return c?.errors ? validationMessage(c.errors) : ''; }
 
   save(): void {
-    if (this.form.invalid) { this.form.markAllAsTouched(); this.toast.warning('Veuillez corriger les erreurs du formulaire.'); return; }
+    if (this.form.invalid) { this.form.markAllAsTouched(); this.toast.warning('Please correct the form errors.'); return; }
     const v = this.form.getRawValue();
     const payload = { entretienId: Number(v.entretienId), date: v.date!, mode: v.mode as EntretienMode, compteRendu: v.compteRendu! };
-    if (this.editingId != null) { this.store.updateRencontre(this.editingId, payload); this.toast.success('Rencontre mise à jour'); }
-    else { this.store.addRencontre(payload); this.toast.success('Rencontre ajoutée'); }
+    if (this.editingId != null) { this.store.updateRencontre(this.editingId, payload); this.toast.success('Meeting updated'); }
+    else { this.store.addRencontre(payload); this.toast.success('Meeting added'); }
     this.showModal = false;
   }
 
   remove(row: Record<string, unknown>): void {
-    if (confirm('Supprimer cette rencontre ?')) { this.store.deleteRencontre(row['id'] as number); this.toast.success('Rencontre supprimée'); }
+    if (confirm('Delete this meeting?')) { this.store.deleteRencontre(row['id'] as number); this.toast.success('Meeting deleted'); }
   }
 }

@@ -1,138 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hero Section</title>
-
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-  }
-
-  .hero {
-    background-color: #f4f1ed;
-    padding: 80px 0;
-  }
-
-  .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: auto;
-  }
-
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: 60px;
-  }
-
-  .hero-text h1 {
-    font-size: 48px;
-    font-weight: 700;
-    color: #111;
-    line-height: 1.2;
-    margin-bottom: 20px;
-  }
-
-  .hero-text p {
-    font-size: 18px;
-    color: #555;
-    margin-bottom: 30px;
-  }
-
-  .hero-buttons {
-    display: flex;
-    gap: 20px;
-  }
-
-  .btn-primary {
-    background-color: #557a46;
-    color: white;
-    padding: 14px 28px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-
-  .btn-primary:hover {
-    background-color: #466737;
-  }
-
-  .btn-outline {
-    border: 2px solid #557a46;
-    color: #557a46;
-    padding: 14px 28px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-
-  .btn-outline:hover {
-    background-color: rgba(85, 122, 70, 0.1);
-  }
-
- .hero-image {
-  display: flex;
-  justify-content: center;
-}
-
-.hero-image img {
-  width: 100%;        /* plus large */
-  max-width: 600px;   /* largeur maximale */
-  height: 300px;      /* 👈 hauteur réduite */
-  object-fit: cover;  /* évite la déformation */
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-
-
-  /* Responsive */
-  @media (max-width: 992px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-      text-align: center;
-    }
-
-    .hero-buttons {
-      justify-content: center;
-      flex-direction: column;
-      align-items: center;
-    }
-  }
-</style>
-
-</head>
-<body>
-
-<section class="hero">
-  <div class="container">
-    <div class="hero-grid">
-
-      <div class="hero-text">
-        <h1>Connect Your Camping Experience</h1>
-        <p>All camping services in one smart platform</p>
-
-        <div class="hero-buttons">
-          <a href="#" class="btn-primary">Get Started</a>
-          <a href="#" class="btn-outline">Discover Services</a>
+<section class="hero-section">
+  <div class="hero-bg-overlay"></div>
+  <div class="container hero-container">
+    <div class="hero-content">
+      <div class="hero-badge animate-fade-in">
+        <span class="badge-dot"></span>
+        Explore the Great Outdoors
+      </div>
+      <h1 class="hero-title animate-slide-up">
+        Connect Your <br>
+        <span class="text-gradient">Camping Experience</span>
+      </h1>
+      <p class="hero-description animate-slide-up-delay-1">
+        Your all-in-one smart platform for discovering campgrounds, renting gear, 
+        and connecting with the camping community.
+      </p>
+      <div class="hero-actions animate-slide-up-delay-2">
+        <button class="btn-premium-primary" routerLink="/marketplace">
+          Explore Now
+          <span class="btn-icon">→</span>
+        </button>
+        <button class="btn-premium-outline" routerLink="/campgrounds-forum">
+          Discover Forum
+        </button>
+      </div>
+    </div>
+    
+    <div class="hero-visual animate-fade-in-delay-1">
+      <div class="glass-card">
+        <div class="card-image-wrapper">
+          <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?auto=format&fit=crop&w=1000&q=80" alt="Beautiful Camping">
+          <div class="card-overlay">
+            <div class="stat-badge">
+              <span class="stat-num">500+</span>
+              <span class="stat-label">Destinations</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="hero-image">
-        <img src="https://images.unsplash.com/photo-1657038455340-d95a1cc49db8?auto=format&fit=crop&w=1080&q=80"
-             alt="Camping tents">
+      <div class="floating-badge badge-1">
+        <div class="badge-icon">🏕️</div>
+        <div class="badge-text">
+          <strong>Top Rated</strong>
+          <span>Best in Class</span>
+        </div>
       </div>
-
+      <div class="floating-badge badge-2">
+        <div class="badge-icon">⭐</div>
+        <div class="badge-text">
+          <strong>4.9/5</strong>
+          <span>User Rating</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
-
-</body>
-</html>
 

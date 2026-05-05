@@ -1,97 +1,381 @@
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h4 class="mb-0">Entretiens partenaires</h4>
-  <button type="button" class="btn btn-primary rounded-pill px-4" (click)="openCreate()">Planifier</button>
-</div>
-<div class="row g-2 mb-3 align-items-end">
-  <div class="col-md-4">
-    <label class="form-label small text-muted mb-1">Historique par partenaire</label>
-    <select class="form-select rounded-pill" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilter()">
-      <option [ngValue]="null">Tous</option>
-      <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
-    </select>
-  </div>
-  <div class="col-md-8">
-    <span class="text-muted small">Raccourcis :</span>
-    <button
-      *ngFor="let u of users"
-      type="button"
-      class="btn btn-sm btn-outline-secondary rounded-pill ms-1"
-      (click)="historiqueForPartner(u.id)"
-    >
-      {{ u.label }}
-    </button>
-    <button type="button" class="btn btn-sm btn-link" (click)="historiqueForPartner(null)">Réinitialiser</button>
-  </div>
-</div>
-<app-paginated-data-table
-  [columns]="columns"
-  [rows]="rows"
-  [searchKeys]="searchKeys"
-  (editRow)="openEdit($event)"
-  (deleteRow)="remove($event)"
-></app-paginated-data-table>
+<!-- ╔══════════════════════════════════════════════════════════╗ -->
+<!-- ║  INTERVIEW SCHEDULING SYSTEM — Interviews Page           ║ -->
+<!-- ╚══════════════════════════════════════════════════════════╝ -->
 
-<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title">{{ editingId ? 'Modifier' : 'Planifier' }} entretien</h5>
-        <button type="button" class="btn-close" (click)="showModal = false"></button>
+<div class="scheduler-page">
+
+  <!-- ── Header ──────────────────────────────────────────────── -->
+  <div class="sched-header">
+    <div class="sched-header-left">
+      <h1 class="sched-title">Interview Scheduling</h1>
+      <p class="sched-subtitle">Intelligent System • {{ currentTimezone }}</p>
+    </div>
+    <div class="sched-header-actions">
+      <button class="btn-sync" [class.connected]="externalSyncConnected" (click)="toggleSync()">
+        <svg *ngIf="!externalSyncConnected" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+        <svg *ngIf="externalSyncConnected" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        {{ externalSyncConnected ? 'Synchronized' : 'Synchronize' }}
+      </button>
+      <button class="btn-schedule" (click)="openCreate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Schedule
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Navigation Tabs ────────────────────────────────────── -->
+  <div class="sched-tabs">
+    <button class="sched-tab-btn" [class.active]="activeTab === 'calendar'" (click)="activeTab = 'calendar'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      Agenda
+    </button>
+    <button class="sched-tab-btn" [class.active]="activeTab === 'availability'" (click)="activeTab = 'availability'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      My Availability
+    </button>
+    <button class="sched-tab-btn" [class.active]="activeTab === 'settings'" (click)="activeTab = 'settings'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9"></path></svg>
+      Settings
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  TAB: AGENDA                                               -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'calendar'">
+    <!-- KPI Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #f0fdf4; color: #10b981">📅</div>
+        <div class="kpi-info">
+          <span class="kpi-val">{{ totalEntretiens }}</span>
+          <span class="kpi-lbl">Interviews</span>
+        </div>
       </div>
-      <div class="modal-body" [formGroup]="form">
-        <div class="row g-2">
-          <div class="col-12">
-            <label class="form-label">Partenaire</label>
-            <select
-              class="form-select rounded-pill"
-              [class.is-invalid]="invalidField('partenaireId')"
-              formControlName="partenaireId"
-            >
-              <option [ngValue]="null">—</option>
-              <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
-            </select>
-            <div class="invalid-feedback" *ngIf="invalidField('partenaireId')">{{ messageField('partenaireId') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Date</label>
-            <input
-              type="date"
-              class="form-control rounded-pill"
-              [class.is-invalid]="invalidField('date')"
-              formControlName="date"
-            />
-            <div class="invalid-feedback" *ngIf="invalidField('date')">{{ messageField('date') }}</div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Mode</label>
-            <select class="form-select rounded-pill" formControlName="mode">
-              <option *ngFor="let m of modes" [ngValue]="m">{{ m }}</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Décision</label>
-            <select class="form-select rounded-pill" formControlName="decision">
-              <option *ngFor="let d of decisions" [ngValue]="d">{{ d }}</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Score global (0–100)</label>
-            <input
-              type="number"
-              step="0.01"
-              class="form-control rounded-pill"
-              [class.is-invalid]="invalidField('scoreGlobal')"
-              formControlName="scoreGlobal"
-            />
-            <div class="invalid-feedback" *ngIf="invalidField('scoreGlobal')">{{ messageField('scoreGlobal') }}</div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #eff6ff; color: #3b82f6">📊</div>
+        <div class="kpi-info">
+          <span class="kpi-val">{{ occupancyRate }}%</span>
+          <span class="kpi-lbl">Occupancy</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #fef2f2; color: #ef4444">🚫</div>
+        <div class="kpi-info">
+          <span class="kpi-val">{{ noShowRate }}%</span>
+          <span class="kpi-lbl">No-Show rate</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background: #faf5ff; color: #a855f7">⏱️</div>
+        <div class="kpi-info">
+          <span class="kpi-val">{{ avgDuration }}m</span>
+          <span class="kpi-lbl">Avg Duration</span>
+        </div>
+      </div>
+      <div class="kpi-card conflict-kpi" *ngIf="conflicts.length > 0">
+        <div class="kpi-icon" style="background: #fff7ed; color: #f97316">⚠️</div>
+        <div class="kpi-info">
+          <span class="kpi-val">{{ conflicts.length }}</span>
+          <span class="kpi-lbl">Conflicts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conflict Alerts -->
+    <div class="conflict-alerts" *ngIf="conflicts.length > 0">
+      <div class="conflict-banner" *ngFor="let c of conflicts">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        {{ c.message }}
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="sched-toolbar">
+      <div class="cal-nav">
+        <button class="nav-btn" (click)="prev()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+        <button class="today-btn" (click)="today()">Today</button>
+        <button class="nav-btn" (click)="next()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+        <span class="cal-label">{{ currentMonthLabel | titlecase }}</span>
+      </div>
+
+      <div class="view-switch">
+        <button [class.active]="activeView === 'month'" (click)="activeView = 'month'">Month</button>
+        <button [class.active]="activeView === 'week'" (click)="activeView = 'week'">Week</button>
+        <button [class.active]="activeView === 'list'" (click)="activeView = 'list'">List</button>
+      </div>
+
+      <select class="filter-select" [(ngModel)]="filterPartnerId" (ngModelChange)="applyFilter()">
+        <option [ngValue]="null">All partners</option>
+        <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+      </select>
+    </div>
+
+    <!-- Month View -->
+    <div class="calendar-wrap" *ngIf="activeView === 'month'">
+      <div class="cal-grid">
+        <div class="cal-day-header" *ngFor="let d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']">{{ d }}</div>
+        <div class="cal-cell" *ngFor="let day of calendarDays" [class.other-month]="!day.isCurrentMonth" [class.today]="day.isToday" [class.weekend]="day.isWeekend" (click)="openCreate(day.date)">
+          <span class="cell-num">{{ day.date.getDate() }}</span>
+          <div class="cell-events">
+            <div class="cell-event" *ngFor="let ev of day.events.slice(0, 3)" [style.background]="ev.color" [class.conflict-event]="ev.conflictDetected" (click)="$event.stopPropagation(); openEdit({id: ev.id})">
+              {{ ev.title }}
+            </div>
+            <div class="more-events" *ngIf="day.events.length > 3">+{{ day.events.length - 3 }}</div>
           </div>
         </div>
       </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="showModal = false">Annuler</button>
-        <button type="button" class="btn btn-primary rounded-pill" (click)="save()">Enregistrer</button>
+    </div>
+
+    <!-- Week View -->
+    <div class="week-wrap" *ngIf="activeView === 'week'">
+      <div class="week-grid">
+        <div class="time-corner"></div>
+        <div class="week-day-header" *ngFor="let day of weekDays" [class.today]="day.isToday" [class.weekend]="day.isWeekend">
+          <span class="week-day-name">{{ day.date.toLocaleDateString('en-US', { weekday: 'short' }) }}</span>
+          <span class="week-day-num" [class.today-circle]="day.isToday">{{ day.date.getDate() }}</span>
+        </div>
+        <ng-container *ngFor="let h of [8,9,10,11,12,13,14,15,16,17,18]">
+          <div class="time-label">{{ h }}:00</div>
+          <div class="week-cell" *ngFor="let day of weekDays" [class.weekend-cell]="day.isWeekend" (click)="openCreate(day.date)">
+            <div class="week-event" *ngFor="let ev of getWeekEventsForHour(day, h)" [style.background]="ev.color" [class.conflict-event]="ev.conflictDetected" (click)="$event.stopPropagation(); openEdit({id: ev.id})">
+              <span class="week-event-title">{{ ev.title }}</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="list-wrap" *ngIf="activeView === 'list'">
+      <div class="list-filter-row">
+        <span class="text-muted">Shortcuts :</span>
+        <button *ngFor="let u of users" class="filter-chip" (click)="historiqueForPartner(u.id)">{{ u.label }}</button>
+        <button class="filter-chip reset" (click)="historiqueForPartner(null)">Reset</button>
+      </div>
+      <app-paginated-data-table
+        [columns]="columns"
+        [rows]="rows"
+        [searchKeys]="searchKeys"
+        (editRow)="openEdit($event)"
+        (deleteRow)="remove($event)">
+      </app-paginated-data-table>
+    </div>
+
+    <!-- Workflow Pipeline -->
+    <div class="workflow-section mt-4">
+      <h3 class="workflow-title">Recruitment Workflow</h3>
+      <div class="workflow-pipeline">
+        <div class="workflow-step" *ngFor="let step of workflowSteps; let i = index; let last = last">
+          <div class="step-bubble" [style.background]="i === 0 ? '#10b981' : '#e2e8f0'" [style.color]="i === 0 ? 'white' : '#64748b'">
+            {{ i + 1 }}
+          </div>
+          <div class="step-label">{{ WORKFLOW_LABELS[step] }}</div>
+          <div class="step-arrow" *ngIf="!last">→</div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  TAB: DISPONIBILITÉS                                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'availability'" class="availability-tab">
+    <div class="config-card">
+      <h3 class="card-title">Working Hours</h3>
+      <p class="card-desc">Define your opening hours for automatic slot suggestion.</p>
+      
+      <div class="hours-config">
+        <div class="hour-row">
+          <label>Start of day</label>
+          <select #hStart [value]="workingHours.start" (change)="updateWorkingHours(+hStart.value, +hEnd.value)">
+            <option *ngFor="let h of [7,8,9,10,11]" [value]="h">{{ h }}:00</option>
+          </select>
+        </div>
+        <div class="hour-row">
+          <label>End of day</label>
+          <select #hEnd [value]="workingHours.end" (change)="updateWorkingHours(+hStart.value, +hEnd.value)">
+            <option *ngFor="let h of [16,17,18,19,20,21]" [value]="h">{{ h }}:00</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="days-active">
+        <label>Active days :</label>
+        <div class="day-chips">
+          <span class="day-chip active" *ngFor="let d of ['Monday','Tuesday','Wednesday','Thursday','Friday']">{{ d }}</span>
+          <span class="day-chip">Saturday</span>
+          <span class="day-chip">Sunday</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!--  TAB: CONFIGURATION                                        -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div *ngIf="activeTab === 'settings'" class="settings-tab">
+    <div class="config-card">
+      <h3 class="card-title">Public Booking Interface</h3>
+      <p class="card-desc">Generate a unique link to send to candidates so they can book themselves.</p>
+      
+      <div class="link-generator" *ngIf="!publicBookingUrl">
+        <button class="btn-generate" (click)="generatePublicLink()">Generate Booking Link</button>
+      </div>
+      
+      <div class="link-display" *ngIf="publicBookingUrl">
+        <input type="text" readonly [value]="publicBookingUrl" class="link-input">
+        <button class="btn-copy" (click)="copyLink()">Copy</button>
+      </div>
+    </div>
+
+    <div class="config-card mt-3">
+      <h3 class="card-title">Notification Settings</h3>
+      <div class="setting-row">
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span>Send automatic confirmation email</span>
+      </div>
+      <div class="setting-row">
+        <label class="toggle-switch">
+          <input type="checkbox" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span>SMS reminder 2 hours before the interview</span>
+      </div>
+    </div>
+  </div>
+
 </div>
-<div class="modal-backdrop fade" *ngIf="showModal" [class.show]="showModal"></div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  MODAL — Planifier / Modifier                                 -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showModal" (click)="showModal = false">
+  <div class="modal-panel" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>{{ editingId ? 'Modifier' : 'Planifier' }} un entretien</h3>
+      <button class="modal-close" (click)="showModal = false">✕</button>
+    </div>
+
+    <div class="modal-body" [formGroup]="form">
+
+      <!-- Candidate & Recruiter -->
+      <div class="form-row-2col">
+        <div class="form-row">
+          <label class="form-lbl">Candidate / Partner <span class="required">*</span></label>
+          <select class="form-ctrl" [class.is-err]="invalidField('partenaireId')" formControlName="partenaireId">
+            <option [ngValue]="null">— Select —</option>
+            <option *ngFor="let u of users" [ngValue]="u.id">{{ u.label }}</option>
+          </select>
+          <span class="err-msg" *ngIf="invalidField('partenaireId')">{{ messageField('partenaireId') }}</span>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">HR Recruiter <span class="required">*</span></label>
+          <select class="form-ctrl" [class.is-err]="invalidField('intervenantId')" formControlName="intervenantId">
+            <option [ngValue]="null">— Select —</option>
+            <option *ngFor="let r of recruiters" [ngValue]="r.id">{{ r.label }} ({{ r.role }})</option>
+          </select>
+          <span class="err-msg" *ngIf="invalidField('intervenantId')">{{ messageField('intervenantId') }}</span>
+        </div>
+      </div>
+
+      <!-- Workflow step -->
+      <div class="form-row">
+        <label class="form-lbl">Workflow Step</label>
+        <div class="workflow-chips">
+          <button type="button" class="workflow-chip"
+            *ngFor="let step of workflowSteps"
+            [class.active]="form.get('workflowStep')?.value === step"
+            (click)="form.patchValue({ workflowStep: step })">
+            {{ WORKFLOW_LABELS[step] }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Date & Heure -->
+      <div class="form-row-2col">
+        <div class="form-row">
+          <label class="form-lbl">Date <span class="required">*</span></label>
+          <input type="date" class="form-ctrl" formControlName="date"
+            [class.is-err]="invalidField('date')"
+            (change)="suggestSlots(form.get('date')?.value)">
+          <span class="err-msg" *ngIf="invalidField('date')">{{ messageField('date') }}</span>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Time</label>
+          <div class="heure-row">
+            <input type="time" class="form-ctrl" formControlName="heure">
+            <button type="button" class="btn-suggest" (click)="showSlotPicker = !showSlotPicker" title="Available slots">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </button>
+          </div>
+          <!-- Slot picker -->
+          <div class="slot-picker" *ngIf="showSlotPicker">
+            <p class="slot-title">Suggested free slots :</p>
+            <button type="button" class="slot-btn" *ngFor="let s of suggestedSlots" (click)="applySlot(s)">{{ s }}</button>
+            <p class="slot-empty" *ngIf="!suggestedSlots.length">No slots available</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Duration & Mode -->
+      <div class="form-row-2col">
+        <div class="form-row">
+          <label class="form-lbl">Duration (min)</label>
+          <input type="number" class="form-ctrl" formControlName="duree" min="15" step="15">
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Mode</label>
+          <div class="mode-chips">
+            <button type="button" class="mode-chip"
+              *ngFor="let m of modes"
+              [class.active]="form.get('mode')?.value === m"
+              [style.borderColor]="form.get('mode')?.value === m ? MODE_COLORS[m] : 'transparent'"
+              [style.color]="form.get('mode')?.value === m ? MODE_COLORS[m] : ''"
+              (click)="form.patchValue({ mode: m })">
+              <span *ngIf="m === 'PRESENTIEL'">🏢</span>
+              <span *ngIf="m === 'VISIO'">💻</span>
+              <span *ngIf="m === 'TELEPHONE'">📞</span>
+              {{ m === 'PRESENTIEL' ? 'IN-PERSON' : (m === 'VISIO' ? 'VIDEO-CALL' : 'PHONE') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decision & Score -->
+      <div class="form-row-2col">
+        <div class="form-row">
+          <label class="form-lbl">Decision</label>
+          <select class="form-ctrl" formControlName="decision">
+            <option *ngFor="let d of decisions" [ngValue]="d">{{ d }}</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-lbl">Global Score (0–100)</label>
+          <div class="score-input-row">
+            <input type="range" min="0" max="100" step="1" class="score-range" formControlName="scoreGlobal">
+            <span class="score-display">{{ form.get('scoreGlobal')?.value }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-row">
+        <label class="form-lbl">Notes</label>
+        <textarea class="form-ctrl" formControlName="notes" rows="2" placeholder="Observations, compte-rendu..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+      <button type="button" class="btn-cancel" (click)="showModal = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="save()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
